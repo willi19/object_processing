@@ -19,7 +19,9 @@ object_processing/
 │   ├── js/viewer.js       # Source viewer logic
 │   ├── convert_objects.py
 │   ├── generate_thumbnails.py
-│   ├── upload_to_hf.py
+│   ├── upload_to_hf.py       # Upload GLBs to HuggingFace
+│   ├── upload_obj_to_hf.py   # Upload OBJ+MTL+textures to HuggingFace
+│   ├── download_meshes.py    # Download meshes from HuggingFace (OBJ or GLB)
 │   └── output/            # (gitignored) GLB + thumbnail build output
 ├── visualization/         # MuJoCo table-top scene scripts
 └── MeshProcess/           # (gitignored) local mesh processing
@@ -29,7 +31,8 @@ object_processing/
 
 | Asset | Stored in | Why |
 |---|---|---|
-| **GLB meshes** | HuggingFace (`willi19/object_processing`) | Large files (~100s of MB total), not suitable for git |
+| **GLB meshes** | HuggingFace (`willi19/object_processing`) `objects/{name}/mesh.glb` | For 3D viewer |
+| **OBJ meshes** | HuggingFace (`willi19/object_processing`) `objects/{name}/raw/` | OBJ+MTL+textures, for distribution/download |
 | **Thumbnails** | GitHub repo (`docs/objects/{name}/thumb.png`) | Small PNGs (~6KB each, ~600KB total), fast to serve from GitHub Pages |
 | **HTML/JS/JSON** | GitHub repo (`docs/`) | Static site files served by GitHub Pages |
 | **Python scripts** | GitHub repo (`wiki/`) | Source code for the processing pipeline |
@@ -39,7 +42,7 @@ object_processing/
 
 1. Raw OBJ meshes (local) → `convert_objects.py` → GLB files + catalog.json (`wiki/output/`)
 2. Raw OBJ meshes (local) → `generate_thumbnails.py` → thumb.png (`wiki/output/`)
-3. GLB files (`wiki/output/`) → `upload_to_hf.py` → HuggingFace dataset repo
+3. GLB files (`wiki/output/`) → `upload_to_hf.py` → HuggingFace `objects/{name}/mesh.glb`
 4. Thumbnails (`wiki/output/`) → copied to `docs/objects/{name}/thumb.png` → committed to git
 5. Source HTML/JS (`wiki/`) → copied to `docs/` → GitHub Pages serves the site
 
@@ -61,10 +64,10 @@ python generate_thumbnails.py <input_dir> output
 # Output: output/objects/{name}/thumb.png (256x256)
 ```
 
-### 3. Upload GLBs to HuggingFace
+### 3. Upload to HuggingFace
 ```bash
-python upload_to_hf.py output
-# Uploads output/objects/ to willi19/object_processing dataset repo
+python upload_to_hf.py output                # GLBs (for 3D viewer)
+python upload_obj_to_hf.py <input_dir>       # OBJs (for distribution)
 ```
 
 ### 4. Deploy Website
@@ -93,6 +96,10 @@ git add docs/ && git commit && git push
 - **GLBs in viewer**: Loaded from HuggingFace at `https://huggingface.co/datasets/willi19/object_processing/resolve/main/objects/{name}/mesh.glb`
 - **Thumbnail rendering**: pyrender with EGL backend (headless), camera at distance 2.0, meshes centered and normalized to unit scale
 - **Mesh source path**: `/home/mingi/shared_data/RSS2026_Mingi/object/paradex/{name}/raw_mesh/{name}.obj`
+
+## Commit Rules
+- NEVER add `Co-Authored-By` or any Claude/AI attribution to commit messages
+- NEVER add Claude as a contributor anywhere (GitHub, HuggingFace, readme, etc.)
 
 ## Gitignored
 - `wiki/output/` — GLB + thumbnail build output (GLBs go to HuggingFace, thumbnails copied to docs/)

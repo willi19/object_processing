@@ -22,9 +22,21 @@ This directory contains the Python processing pipeline and the source HTML/JS fo
 - Lighting: one directional light from camera position + one from above
 
 ### upload_to_hf.py
-- Uploads the `output/objects/` folder to HuggingFace dataset repo `willi19/object_processing`
+- Uploads GLB files (`output/objects/`) to HuggingFace dataset repo `willi19/object_processing`
 - Uses `HfApi().upload_folder()` for single-commit bulk upload
 - Repo type is "dataset" (not "model")
+
+### upload_obj_to_hf.py
+- Uploads original OBJ meshes (with MTL + textures) from `<input_dir>/{name}/raw_mesh/` to HuggingFace
+- Uploads to `objects/{name}/raw/` on HuggingFace
+- Skips remeshed variants and Synology metadata (@eaDir)
+- Use `--dry-run` to preview without uploading
+
+### download_meshes.py
+- Downloads meshes from HuggingFace — no dependencies, uses only Python standard library
+- Default format: OBJ (downloads OBJ+MTL+textures), use `--format glb` for GLB
+- Can download `--all` or specific objects by name
+- `--list` shows all available objects
 
 ### index.html (source)
 - Main gallery page with search bar, category dropdown filter, thumbnail grid
