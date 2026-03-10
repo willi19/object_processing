@@ -62,11 +62,17 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/autodex-objects/resolve
   const dir = new BABYLON.DirectionalLight('dir', new BABYLON.Vector3(-1, -2, 1), scene);
   dir.intensity = 0.6;
 
-  // Load GLB
+  // Load GLB — fetch as blob to avoid redirect issues with HuggingFace
   try {
+    const response = await fetch(glbUrl);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
     const container = await BABYLON.SceneLoader.LoadAssetContainerAsync(
-      '', glbUrl, scene, null, '.glb'
+      '', blobUrl, scene, null, '.glb'
     );
+    URL.revokeObjectURL(blobUrl);
     container.addAllToScene();
 
     // Fit camera to loaded meshes
