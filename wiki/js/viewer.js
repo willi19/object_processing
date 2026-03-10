@@ -1,4 +1,4 @@
-const HF_BASE = 'https://huggingface.co/datasets/willi19/autodex-objects/resolve/main/';
+const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resolve/main/';
 
 (async function () {
   const params = new URLSearchParams(window.location.search);
@@ -27,7 +27,7 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/autodex-objects/resolve
 
   // Update UI
   document.getElementById('obj-label').textContent = obj.label;
-  document.title = `${obj.label} - AutoDex Viewer`;
+  document.title = `${obj.label} - Object Viewer`;
 
   if (obj.category) {
     const catEl = document.getElementById('obj-category');

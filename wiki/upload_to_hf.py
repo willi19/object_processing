@@ -9,7 +9,7 @@ Example:
     python upload_to_hf.py output
 
 This uploads output/objects/*/mesh.glb to:
-    willi19/autodex-objects  (dataset repo)
+    willi19/object_processing  (dataset repo)
     → objects/{name}/mesh.glb
 """
 
@@ -19,7 +19,7 @@ import sys
 
 from huggingface_hub import HfApi
 
-REPO_ID = "willi19/autodex-objects"
+REPO_ID = "willi19/object_processing"
 REPO_TYPE = "dataset"
 
 

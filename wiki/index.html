@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AutoDex Object Wiki</title>
+  <title>Object Wiki</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -141,7 +141,7 @@
 </head>
 <body>
   <header>
-    <h1>AutoDex Object Wiki</h1>
+    <h1>Object Wiki</h1>
     <div class="controls">
       <input type="text" id="search" placeholder="Search objects...">
       <select id="category-filter">
@@ -154,7 +154,7 @@
   <div class="empty" id="empty" style="display:none;">No objects found.</div>
 
   <script>
-    const HF_BASE = 'https://huggingface.co/datasets/willi19/autodex-objects/resolve/main/';
+    const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resolve/main/';
     let catalog = { objects: [] };
 
     async function loadCatalog() {

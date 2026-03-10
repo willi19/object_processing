@@ -1,81 +1,68 @@
-# AutoDex Object Wiki - Project Spec
+# Object Processing - Project Guide
 
-## 목표
-100~1000개 research object들을 브라우징할 수 있는 웹 기반 object wiki.
-검색, 카테고리 필터, 3D 뷰어 지원.
-
-## 아키텍처
+## Repository Structure
 
 ```
-GitHub Pages (willi19.github.io/autodex-wiki)
-├── index.html         # 메인 갤러리 페이지 (검색, 필터, 썸네일 그리드)
-├── viewer.html        # 3D 뷰어 페이지
-├── catalog.json       # object 메타데이터 + HuggingFace URL 매핑
-└── js/viewer.js       # Babylon.js 기반 3D 뷰어 로직
-
-HuggingFace Dataset (willi19/autodex-objects)
-└── objects/
-    └── {object_name}/
-        ├── mesh.glb   # OBJ → GLB 변환 (texture 내장)
-        └── thumb.png  # 썸네일 (선택)
+object_processing/
+├── CLAUDE.md
+├── docs/                  # GitHub Pages (served from /docs)
+│   ├── index.html         # Gallery page (search, filter, thumbnail grid)
+│   ├── viewer.html        # 3D viewer page (Babylon.js)
+│   ├── catalog.json       # Object metadata
+│   └── js/viewer.js       # Viewer logic
+├── wiki/                  # Source + scripts (docs/ is a deploy copy)
+│   ├── index.html
+│   ├── viewer.html
+│   ├── catalog.json
+│   ├── js/viewer.js
+│   ├── convert_objects.py
+│   ├── generate_thumbnails.py
+│   ├── upload_to_hf.py
+│   └── output/            # (gitignored) GLB + thumbnail output
+├── visualization/         # MuJoCo table-top scene scripts
+└── MeshProcess/           # (gitignored) local mesh processing
 ```
 
-## 파일 포맷
-- **소스**: OBJ + MTL + texture PNG 세트
-- **배포**: GLB (texture 내장, trimesh로 변환)
-- **변환**: `trimesh.load('mesh.obj').export('mesh.glb')`
-- OBJ 평균 ~2MB → GLB ~440KB (4배 압축)
-- Draco compression 추가 적용 시 더 줄일 수 있음
+## Pipeline: Adding New Objects
 
-## 3D 뷰어
-- **라이브러리**: Babylon.js (GraspQP 참고)
-- **CDN**: `https://cdn.babylonjs.com/babylon.js`
-- GLB 로드: `BABYLON.SceneLoader.LoadAssetContainerAsync()`
-- Draco decoder: `https://www.gstatic.com/draco/versioned/decoders/1.5.6/`
-- mesh는 HuggingFace raw URL로 fetch
-
-## HuggingFace raw URL 형식
-```
-https://huggingface.co/datasets/willi19/autodex-objects/resolve/main/objects/{name}/mesh.glb
-```
-
-## catalog.json 구조 (미정 - 추후 확정)
-```json
-{
-  "objects": [
-    {
-      "id": "watering_can",
-      "label": "Watering Can",
-      "category": "container",
-      "url": "objects/watering_can/mesh.glb",
-      "thumb": "objects/watering_can/thumb.png"
-    }
-  ]
-}
-```
-
-## 지원 기능 (예정)
-- 이름 검색
-- 카테고리 필터
-- 3D 인터랙티브 뷰어 (OrbitControl)
-- 일괄 다운로드 안내 (`huggingface-cli download`)
-
-## HuggingFace 업로드
+### 1. Convert OBJ to GLB
 ```bash
-pip install huggingface_hub
-huggingface-cli login
-huggingface-cli repo create autodex-objects --type dataset
-git clone https://huggingface.co/datasets/willi19/autodex-objects
-cd autodex-objects
-# GLB 파일 복사 후
-git add . && git commit -m "add objects" && git push
+cd wiki/
+python convert_objects.py <input_dir> output
+# Input: {name}/raw_mesh/{name}.obj (+.mtl +texture)
+# Output: output/objects/{name}/mesh.glb + catalog.json
 ```
 
-## OBJ → GLB 변환 스크립트 (예정)
-- 입력: `objects/{name}/{name}.obj` + `.mtl` + texture
-- 출력: `objects/{name}/mesh.glb`
-- 자동으로 catalog.json 업데이트
+### 2. Generate Thumbnails
+```bash
+python generate_thumbnails.py <input_dir> output
+# Requires: trimesh, pyrender, PyOpenGL>=3.1.10, Pillow
+# Uses EGL for headless rendering (no display needed)
+# Output: output/objects/{name}/thumb.png (256x256)
+```
 
-## 참고
-- GraspQP 구조 참고: https://graspqp.github.io/static/examples.html
-- HuggingFace username: willi19
+### 3. Upload to HuggingFace
+```bash
+python upload_to_hf.py output
+# Uploads output/objects/ to willi19/object_processing dataset repo
+```
+
+### 4. Deploy Website
+```bash
+# Copy updated wiki files to docs/
+cp wiki/index.html wiki/viewer.html wiki/catalog.json docs/
+cp wiki/js/viewer.js docs/js/
+git add docs/ && git commit && git push
+# GitHub Pages serves from docs/ on main branch
+```
+
+## Key Technical Details
+
+- **GLB loading**: Viewer fetches GLB as blob first, then passes blob URL to Babylon.js (workaround for HuggingFace redirect issues)
+- **Thumbnails**: Rendered via pyrender with EGL backend (headless). Camera at distance 2.0, slightly above center
+- **HuggingFace URL pattern**: `https://huggingface.co/datasets/willi19/object_processing/resolve/main/objects/{name}/mesh.glb`
+- **Mesh source path**: `/home/mingi/shared_data/RSS2026_Mingi/object/paradex/{name}/raw_mesh/{name}.obj`
+
+## Gitignored
+- `wiki/output/` — GLB + thumbnail build output (hosted on HuggingFace)
+- `MeshProcess/` — local mesh data
