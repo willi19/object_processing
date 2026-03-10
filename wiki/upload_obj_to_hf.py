@@ -91,12 +91,10 @@ def main():
     api = HfApi()
     print(f"Uploading to {REPO_ID}...")
 
-    api.upload_folder(
-        folder_path=os.path.join(staging, "objects"),
-        path_in_repo="objects",
+    api.upload_large_folder(
+        folder_path=staging,
         repo_id=REPO_ID,
         repo_type=REPO_TYPE,
-        commit_message=f"Add original OBJ meshes for {total} objects",
     )
 
     print(f"\nDone! {total} objects uploaded to:")

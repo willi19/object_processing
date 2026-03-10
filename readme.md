@@ -27,6 +27,22 @@ python download_meshes.py --output ./my_meshes --all
 
 No dependencies required — uses only Python standard library.
 
+Downloads OBJ meshes with material (MTL) and texture files:
+```
+downloaded_meshes/
+├── apple/
+│   └── apple.obj
+├── baseball/
+│   ├── baseball.obj
+│   ├── material.mtl
+│   └── material_0.png
+├── attached_container/
+│   ├── attached_container.obj
+│   ├── attached_container.mtl
+│   └── attached_container_0.png
+...
+```
+
 ## How to Add New Objects
 
 Anyone joining the project can follow the 4-step pipeline to add new objects:
