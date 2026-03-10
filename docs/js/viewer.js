@@ -64,8 +64,8 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resol
 
   // Load GLB — fetch as blob to avoid redirect issues with HuggingFace
   try {
-    const response = await fetch(glbUrl);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const response = await fetch(glbUrl, { mode: 'cors', credentials: 'omit' });
+    if (!response.ok) throw new Error(`HTTP ${response.status} from ${glbUrl}`);
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
 
@@ -99,7 +99,7 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resol
     document.getElementById('loading').style.display = 'none';
   } catch (e) {
     console.error('Failed to load GLB:', e);
-    showError('Failed to load 3D model. The file may not exist yet on HuggingFace.');
+    showError(`Failed to load 3D model: ${e.message}`);
   }
 
   // Render loop
