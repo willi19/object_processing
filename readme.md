@@ -27,7 +27,7 @@ python download_meshes.py --output ./my_meshes --all
 
 No dependencies required — uses only Python standard library.
 
-Downloads OBJ meshes with material (MTL) and texture files:
+Files are saved to `downloaded_meshes/` by default (use `--output` to change):
 ```
 downloaded_meshes/
 ├── apple/
@@ -95,5 +95,3 @@ done
 
 git add docs/ && git commit -m "Update wiki" && git push
 ```
-
-GitHub Pages serves the site from the `docs/` folder.
