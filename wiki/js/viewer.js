@@ -54,8 +54,11 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resol
   camera.minZ = 0.01;
   camera.lowerRadiusLimit = 0.1;
   camera.upperRadiusLimit = 50;
-  camera.lowerBetaLimit = 0;        // allow looking from directly above
-  camera.upperBetaLimit = Math.PI;   // allow looking from directly below
+  camera.angularSensibilityX = 3000;  // slower rotation (default 1000)
+  camera.angularSensibilityY = 3000;
+  camera.panningSensibility = 3000;   // slower panning/movement (default 1000)
+  camera.lowerBetaLimit = null;       // no limit — full 360° vertical rotation
+  camera.upperBetaLimit = null;
 
   // Lights
   const hemi = new BABYLON.HemisphericLight('hemi', new BABYLON.Vector3(0, 1, 0), scene);

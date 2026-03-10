@@ -211,7 +211,7 @@
           window.location.href = `viewer.html?id=${encodeURIComponent(obj.id)}`;
         };
 
-        const thumbUrl = obj.thumb ? HF_BASE + obj.thumb : '';
+        const thumbUrl = obj.thumb ? `objects/${obj.id}/thumb.png` : '';
         card.innerHTML = `
           <div class="thumb">
             ${thumbUrl

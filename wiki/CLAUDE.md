@@ -1,7 +1,7 @@
 # wiki/ — Processing Scripts & Source Files
 
 ## Overview
-This directory contains the Python processing pipeline and the source HTML/JS for the object wiki website. The `docs/` folder is a deploy copy of the static files here.
+This directory contains the Python processing pipeline and the source HTML/JS for the object wiki website. The `docs/` folder is a deploy copy of the static files here — always edit source here first, then copy to `docs/`.
 
 ## Files
 
@@ -29,18 +29,19 @@ This directory contains the Python processing pipeline and the source HTML/JS fo
 ### index.html (source)
 - Main gallery page with search bar, category dropdown filter, thumbnail grid
 - Fetches `catalog.json` at load, renders cards dynamically
-- Thumbnails and GLBs loaded from HuggingFace: `https://huggingface.co/datasets/willi19/object_processing/resolve/main/`
+- **Thumbnails loaded locally** from `objects/{id}/thumb.png` (NOT from HuggingFace)
 - Cards link to `viewer.html?id={object_id}`
 - Thumbnail `onerror` shows a placeholder glyph
 
 ### viewer.html (source)
-- 3D viewer page using Babylon.js (loaded from CDN)
+- 3D viewer page using Babylon.js 7.34.3 (pinned UMD builds from jsdelivr CDN)
 - Reads `?id=` query param to identify which object to show
 
 ### js/viewer.js
-- Loads catalog.json, finds the object by ID, fetches GLB from HuggingFace
-- **Important**: Fetches GLB as blob first, then passes blob URL to Babylon.js. Direct URL loading fails because Babylon.js doesn't handle HuggingFace's 302 redirects properly
+- Loads catalog.json, finds the object by ID
+- **GLB loaded from HuggingFace**: URL split into rootUrl + `'mesh.glb'` so Babylon.js detects `.glb` extension
 - ArcRotateCamera with auto-fit to mesh bounding box (computes min/max across all mesh vertices)
+- Camera settings: angularSensibility 3000 (3x slower rotation), panningSensibility 3000 (3x slower movement), no beta limits (full 360 vertical rotation)
 - Lighting: HemisphericLight (intensity 0.8) + DirectionalLight (intensity 0.6)
 - Dark background matching site theme (#0d1117)
 
@@ -52,4 +53,5 @@ This directory contains the Python processing pipeline and the source HTML/JS fo
 
 ### output/ (gitignored)
 - Build output directory containing `objects/{name}/mesh.glb` and `objects/{name}/thumb.png`
-- These are uploaded to HuggingFace and not committed to git
+- GLBs are uploaded to HuggingFace via `upload_to_hf.py`
+- Thumbnails are copied to `docs/objects/{name}/thumb.png` and committed to git
