@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Object Viewer</title>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -67,11 +66,10 @@
       position: relative;
     }
 
-    model-viewer {
+    #renderCanvas {
       width: 100%;
       height: 100%;
-      background-color: #0d1117;
-      --poster-color: #0d1117;
+      outline: none;
     }
 
     #loading {
@@ -116,7 +114,7 @@
     </div>
   </header>
   <div id="viewer-container">
-    <model-viewer id="model" camera-controls auto-rotate touch-action="pan-y" style="display:none;"></model-viewer>
+    <canvas id="renderCanvas"></canvas>
     <div id="loading">
       <div class="spinner"></div>
       <div>Loading 3D model...</div>
@@ -127,68 +125,9 @@
     </div>
   </div>
 
-  <script type="module">
-    const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resolve/main/';
-
-    const params = new URLSearchParams(window.location.search);
-    const objectId = params.get('id');
-
-    if (!objectId) {
-      showError('No object ID specified.');
-    } else {
-      init();
-    }
-
-    async function init() {
-      let catalog;
-      try {
-        const res = await fetch('catalog.json');
-        catalog = await res.json();
-      } catch (e) {
-        showError('Failed to load catalog.');
-        return;
-      }
-
-      const obj = catalog.objects.find(o => o.id === objectId);
-      if (!obj) {
-        showError(`Object "${objectId}" not found in catalog.`);
-        return;
-      }
-
-      document.getElementById('obj-label').textContent = obj.label;
-      document.title = `${obj.label} - Object Viewer`;
-
-      if (obj.category) {
-        const catEl = document.getElementById('obj-category');
-        catEl.textContent = obj.category;
-        catEl.style.display = '';
-      }
-
-      const glbUrl = HF_BASE + obj.url;
-      const dlLink = document.getElementById('download-link');
-      dlLink.href = glbUrl;
-      dlLink.style.display = '';
-
-      const viewer = document.getElementById('model');
-      viewer.src = glbUrl;
-      viewer.style.display = 'block';
-
-      viewer.addEventListener('load', () => {
-        document.getElementById('loading').style.display = 'none';
-      });
-
-      viewer.addEventListener('error', (e) => {
-        console.error('model-viewer error:', e);
-        showError(`Failed to load 3D model.`);
-      });
-    }
-
-    function showError(msg) {
-      const loading = document.getElementById('loading');
-      if (loading) loading.style.display = 'none';
-      document.getElementById('error-msg').textContent = msg;
-      document.getElementById('error').style.display = 'block';
-    }
-  </script>
+  <!-- Pinned Babylon.js UMD builds — same version for core + loaders -->
+  <script src="https://cdn.jsdelivr.net/npm/babylonjs@7.34.3/babylon.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/babylonjs-loaders@7.34.3/babylonjs.loaders.min.js"></script>
+  <script src="js/viewer.js"></script>
 </body>
 </html>

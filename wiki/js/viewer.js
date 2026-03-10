@@ -53,7 +53,9 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resol
   camera.wheelPrecision = 50;
   camera.minZ = 0.01;
   camera.lowerRadiusLimit = 0.1;
-  camera.upperRadiusLimit = 20;
+  camera.upperRadiusLimit = 50;
+  camera.lowerBetaLimit = 0;        // allow looking from directly above
+  camera.upperBetaLimit = Math.PI;   // allow looking from directly below
 
   // Lights
   const hemi = new BABYLON.HemisphericLight('hemi', new BABYLON.Vector3(0, 1, 0), scene);
@@ -62,18 +64,12 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resol
   const dir = new BABYLON.DirectionalLight('dir', new BABYLON.Vector3(-1, -2, 1), scene);
   dir.intensity = 0.6;
 
-  // Load GLB — fetch as blob to avoid redirect issues with HuggingFace
+  // Load GLB — split into rootUrl + filename so Babylon.js detects .glb extension
   try {
-    const response = await fetch(glbUrl, { mode: 'cors', credentials: 'omit' });
-    if (!response.ok) throw new Error(`HTTP ${response.status} from ${glbUrl}`);
-    const blob = await response.blob();
-    const glbFile = new File([blob], 'mesh.glb', { type: 'model/gltf-binary' });
-    const blobUrl = URL.createObjectURL(glbFile);
-
+    const rootUrl = HF_BASE + obj.url.replace('mesh.glb', '');
     const container = await BABYLON.SceneLoader.LoadAssetContainerAsync(
-      '', blobUrl, scene, null, '.glb'
+      rootUrl, 'mesh.glb', scene
     );
-    URL.revokeObjectURL(blobUrl);
     container.addAllToScene();
 
     // Fit camera to loaded meshes
@@ -100,7 +96,7 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resol
     document.getElementById('loading').style.display = 'none';
   } catch (e) {
     console.error('Failed to load GLB:', e);
-    showError(`Failed to load 3D model: ${e.message}`);
+    showError(`Failed to load 3D model: ${e.message || e}`);
   }
 
   // Render loop
