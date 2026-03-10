@@ -67,7 +67,8 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resol
     const response = await fetch(glbUrl, { mode: 'cors', credentials: 'omit' });
     if (!response.ok) throw new Error(`HTTP ${response.status} from ${glbUrl}`);
     const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
+    const glbFile = new File([blob], 'mesh.glb', { type: 'model/gltf-binary' });
+    const blobUrl = URL.createObjectURL(glbFile);
 
     const container = await BABYLON.SceneLoader.LoadAssetContainerAsync(
       '', blobUrl, scene, null, '.glb'
