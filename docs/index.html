@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoDex Object Wiki</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"] {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #e6edf3;
+      padding: 8px 12px;
+      font-size: 14px;
+      width: 260px;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #58a6ff;
+    }
+
+    select {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #e6edf3;
+      padding: 8px 12px;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .stats {
+      font-size: 13px;
+      color: #8b949e;
+      padding: 8px 32px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      padding: 24px 32px;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+
+    .card:hover {
+      border-color: #58a6ff;
+      transform: translateY(-2px);
+    }
+
+    .card .thumb {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #0d1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .card .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card .thumb .placeholder {
+      font-size: 48px;
+      color: #30363d;
+    }
+
+    .card .info {
+      padding: 12px;
+    }
+
+    .card .info .label {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    .card .info .category {
+      font-size: 12px;
+      color: #8b949e;
+      background: #21262d;
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 64px 32px;
+      color: #8b949e;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AutoDex Object Wiki</h1>
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search objects...">
+      <select id="category-filter">
+        <option value="">All Categories</option>
+      </select>
+    </div>
+  </header>
+  <div class="stats" id="stats"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none;">No objects found.</div>
+
+  <script>
+    const HF_BASE = 'https://huggingface.co/datasets/willi19/autodex-objects/resolve/main/';
+    let catalog = { objects: [] };
+
+    async function loadCatalog() {
+      try {
+        const res = await fetch('catalog.json');
+        catalog = await res.json();
+      } catch (e) {
+        console.error('Failed to load catalog.json:', e);
+      }
+      populateCategories();
+      render();
+    }
+
+    function populateCategories() {
+      const cats = [...new Set(catalog.objects.map(o => o.category).filter(Boolean))].sort();
+      const sel = document.getElementById('category-filter');
+      cats.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c.charAt(0).toUpperCase() + c.slice(1);
+        sel.appendChild(opt);
+      });
+    }
+
+    function getFiltered() {
+      const q = document.getElementById('search').value.toLowerCase().trim();
+      const cat = document.getElementById('category-filter').value;
+      return catalog.objects.filter(obj => {
+        const matchSearch = !q || obj.label.toLowerCase().includes(q) || obj.id.toLowerCase().includes(q);
+        const matchCat = !cat || obj.category === cat;
+        return matchSearch && matchCat;
+      });
+    }
+
+    function render() {
+      const filtered = getFiltered();
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+      const stats = document.getElementById('stats');
+
+      stats.textContent = `Showing ${filtered.length} of ${catalog.objects.length} objects`;
+      grid.innerHTML = '';
+
+      if (filtered.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      filtered.forEach(obj => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => {
+          window.location.href = `viewer.html?id=${encodeURIComponent(obj.id)}`;
+        };
+
+        const thumbUrl = obj.thumb ? HF_BASE + obj.thumb : '';
+        card.innerHTML = `
+          <div class="thumb">
+            ${thumbUrl
+              ? `<img src="${thumbUrl}" alt="${obj.label}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>&#9645;</div>'">`
+              : '<div class="placeholder">&#9645;</div>'}
+          </div>
+          <div class="info">
+            <div class="label">${obj.label}</div>
+            ${obj.category ? `<span class="category">${obj.category}</span>` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    document.getElementById('search').addEventListener('input', render);
+    document.getElementById('category-filter').addEventListener('change', render);
+
+    loadCatalog();
+  </script>
+</body>
+</html>

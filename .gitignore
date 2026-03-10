@@ -1,0 +1,23 @@
+# GLB output files (large, hosted on HuggingFace)
+wiki/output/
+
+# Local mesh data
+MeshProcess/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+MUJOCO_LOG.TXT

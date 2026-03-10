@@ -1,0 +1,718 @@
+{
+  "objects": [
+    {
+      "id": "apple",
+      "label": "Apple",
+      "category": "",
+      "url": "objects/apple/mesh.glb",
+      "thumb": "objects/apple/thumb.png"
+    },
+    {
+      "id": "attached_container",
+      "label": "Attached Container",
+      "category": "",
+      "url": "objects/attached_container/mesh.glb",
+      "thumb": "objects/attached_container/thumb.png"
+    },
+    {
+      "id": "baby_beaker",
+      "label": "Baby Beaker",
+      "category": "",
+      "url": "objects/baby_beaker/mesh.glb",
+      "thumb": "objects/baby_beaker/thumb.png"
+    },
+    {
+      "id": "balloon_whisk",
+      "label": "Balloon Whisk",
+      "category": "",
+      "url": "objects/balloon_whisk/mesh.glb",
+      "thumb": "objects/balloon_whisk/thumb.png"
+    },
+    {
+      "id": "bamboo_box",
+      "label": "Bamboo Box",
+      "category": "",
+      "url": "objects/bamboo_box/mesh.glb",
+      "thumb": "objects/bamboo_box/thumb.png"
+    },
+    {
+      "id": "banana",
+      "label": "Banana",
+      "category": "",
+      "url": "objects/banana/mesh.glb",
+      "thumb": "objects/banana/thumb.png"
+    },
+    {
+      "id": "baseball",
+      "label": "Baseball",
+      "category": "",
+      "url": "objects/baseball/mesh.glb",
+      "thumb": "objects/baseball/thumb.png"
+    },
+    {
+      "id": "beige_brush",
+      "label": "Beige Brush",
+      "category": "",
+      "url": "objects/beige_brush/mesh.glb",
+      "thumb": "objects/beige_brush/thumb.png"
+    },
+    {
+      "id": "black_holder_with_handle",
+      "label": "Black Holder With Handle",
+      "category": "",
+      "url": "objects/black_holder_with_handle/mesh.glb",
+      "thumb": "objects/black_holder_with_handle/thumb.png"
+    },
+    {
+      "id": "black_kitchen_roll_holder",
+      "label": "Black Kitchen Roll Holder",
+      "category": "",
+      "url": "objects/black_kitchen_roll_holder/mesh.glb",
+      "thumb": "objects/black_kitchen_roll_holder/thumb.png"
+    },
+    {
+      "id": "blue_alarm",
+      "label": "Blue Alarm",
+      "category": "",
+      "url": "objects/blue_alarm/mesh.glb",
+      "thumb": "objects/blue_alarm/thumb.png"
+    },
+    {
+      "id": "blue_vase",
+      "label": "Blue Vase",
+      "category": "",
+      "url": "objects/blue_vase/mesh.glb",
+      "thumb": "objects/blue_vase/thumb.png"
+    },
+    {
+      "id": "book",
+      "label": "Book",
+      "category": "",
+      "url": "objects/book/mesh.glb",
+      "thumb": "objects/book/thumb.png"
+    },
+    {
+      "id": "box_pink",
+      "label": "Box Pink",
+      "category": "",
+      "url": "objects/box_pink/mesh.glb",
+      "thumb": "objects/box_pink/thumb.png"
+    },
+    {
+      "id": "brass_pot",
+      "label": "Brass Pot",
+      "category": "",
+      "url": "objects/brass_pot/mesh.glb",
+      "thumb": "objects/brass_pot/thumb.png"
+    },
+    {
+      "id": "brown_ramen",
+      "label": "Brown Ramen",
+      "category": "",
+      "url": "objects/brown_ramen/mesh.glb",
+      "thumb": "objects/brown_ramen/thumb.png"
+    },
+    {
+      "id": "clock",
+      "label": "Clock",
+      "category": "",
+      "url": "objects/clock/mesh.glb",
+      "thumb": "objects/clock/thumb.png"
+    },
+    {
+      "id": "coffee_tin",
+      "label": "Coffee Tin",
+      "category": "",
+      "url": "objects/coffee_tin/mesh.glb",
+      "thumb": "objects/coffee_tin/thumb.png"
+    },
+    {
+      "id": "colander_green",
+      "label": "Colander Green",
+      "category": "",
+      "url": "objects/colander_green/mesh.glb",
+      "thumb": "objects/colander_green/thumb.png"
+    },
+    {
+      "id": "container_pink",
+      "label": "Container Pink",
+      "category": "",
+      "url": "objects/container_pink/mesh.glb",
+      "thumb": "objects/container_pink/thumb.png"
+    },
+    {
+      "id": "corkscrew",
+      "label": "Corkscrew",
+      "category": "",
+      "url": "objects/corkscrew/mesh.glb",
+      "thumb": "objects/corkscrew/thumb.png"
+    },
+    {
+      "id": "donut",
+      "label": "Donut",
+      "category": "",
+      "url": "objects/donut/mesh.glb",
+      "thumb": "objects/donut/thumb.png"
+    },
+    {
+      "id": "donut_light",
+      "label": "Donut Light",
+      "category": "",
+      "url": "objects/donut_light/mesh.glb",
+      "thumb": "objects/donut_light/thumb.png"
+    },
+    {
+      "id": "frame_oak",
+      "label": "Frame Oak",
+      "category": "",
+      "url": "objects/frame_oak/mesh.glb",
+      "thumb": "objects/frame_oak/thumb.png"
+    },
+    {
+      "id": "frame_red",
+      "label": "Frame Red",
+      "category": "",
+      "url": "objects/frame_red/mesh.glb",
+      "thumb": "objects/frame_red/thumb.png"
+    },
+    {
+      "id": "french_mustard",
+      "label": "French Mustard",
+      "category": "",
+      "url": "objects/french_mustard/mesh.glb",
+      "thumb": "objects/french_mustard/thumb.png"
+    },
+    {
+      "id": "frog_bowl",
+      "label": "Frog Bowl",
+      "category": "",
+      "url": "objects/frog_bowl/mesh.glb",
+      "thumb": "objects/frog_bowl/thumb.png"
+    },
+    {
+      "id": "frog_cup",
+      "label": "Frog Cup",
+      "category": "",
+      "url": "objects/frog_cup/mesh.glb",
+      "thumb": "objects/frog_cup/thumb.png"
+    },
+    {
+      "id": "fruit_cutter_base",
+      "label": "Fruit Cutter Base",
+      "category": "",
+      "url": "objects/fruit_cutter_base/mesh.glb",
+      "thumb": "objects/fruit_cutter_base/thumb.png"
+    },
+    {
+      "id": "fruit_cutter_green",
+      "label": "Fruit Cutter Green",
+      "category": "",
+      "url": "objects/fruit_cutter_green/mesh.glb",
+      "thumb": "objects/fruit_cutter_green/thumb.png"
+    },
+    {
+      "id": "fruit_cutter_light_green",
+      "label": "Fruit Cutter Light Green",
+      "category": "",
+      "url": "objects/fruit_cutter_light_green/mesh.glb",
+      "thumb": "objects/fruit_cutter_light_green/thumb.png"
+    },
+    {
+      "id": "green_attached_container",
+      "label": "Green Attached Container",
+      "category": "",
+      "url": "objects/green_attached_container/mesh.glb",
+      "thumb": "objects/green_attached_container/thumb.png"
+    },
+    {
+      "id": "green_cactus_vase",
+      "label": "Green Cactus Vase",
+      "category": "",
+      "url": "objects/green_cactus_vase/mesh.glb",
+      "thumb": "objects/green_cactus_vase/thumb.png"
+    },
+    {
+      "id": "green_lamp",
+      "label": "Green Lamp",
+      "category": "",
+      "url": "objects/green_lamp/mesh.glb",
+      "thumb": "objects/green_lamp/thumb.png"
+    },
+    {
+      "id": "green_soap_dispenser",
+      "label": "Green Soap Dispenser",
+      "category": "",
+      "url": "objects/green_soap_dispenser/mesh.glb",
+      "thumb": "objects/green_soap_dispenser/thumb.png"
+    },
+    {
+      "id": "icecream_scoop",
+      "label": "Icecream Scoop",
+      "category": "",
+      "url": "objects/icecream_scoop/mesh.glb",
+      "thumb": "objects/icecream_scoop/thumb.png"
+    },
+    {
+      "id": "jja_ramen",
+      "label": "Jja Ramen",
+      "category": "",
+      "url": "objects/jja_ramen/mesh.glb",
+      "thumb": "objects/jja_ramen/thumb.png"
+    },
+    {
+      "id": "knife_sharpner",
+      "label": "Knife Sharpner",
+      "category": "",
+      "url": "objects/knife_sharpner/mesh.glb",
+      "thumb": "objects/knife_sharpner/thumb.png"
+    },
+    {
+      "id": "large_peg",
+      "label": "Large Peg",
+      "category": "",
+      "url": "objects/large_peg/mesh.glb",
+      "thumb": "objects/large_peg/thumb.png"
+    },
+    {
+      "id": "lemon",
+      "label": "Lemon",
+      "category": "",
+      "url": "objects/lemon/mesh.glb",
+      "thumb": "objects/lemon/thumb.png"
+    },
+    {
+      "id": "lemon_squeezer",
+      "label": "Lemon Squeezer",
+      "category": "",
+      "url": "objects/lemon_squeezer/mesh.glb",
+      "thumb": "objects/lemon_squeezer/thumb.png"
+    },
+    {
+      "id": "light_green_basket",
+      "label": "Light Green Basket",
+      "category": "",
+      "url": "objects/light_green_basket/mesh.glb",
+      "thumb": "objects/light_green_basket/thumb.png"
+    },
+    {
+      "id": "lilac_food_container",
+      "label": "Lilac Food Container",
+      "category": "",
+      "url": "objects/lilac_food_container/mesh.glb",
+      "thumb": "objects/lilac_food_container/thumb.png"
+    },
+    {
+      "id": "magazine_file",
+      "label": "Magazine File",
+      "category": "",
+      "url": "objects/magazine_file/mesh.glb",
+      "thumb": "objects/magazine_file/thumb.png"
+    },
+    {
+      "id": "meat_thermometer",
+      "label": "Meat Thermometer",
+      "category": "",
+      "url": "objects/meat_thermometer/mesh.glb",
+      "thumb": "objects/meat_thermometer/thumb.png"
+    },
+    {
+      "id": "metal_scoop_big",
+      "label": "Metal Scoop Big",
+      "category": "",
+      "url": "objects/metal_scoop_big/mesh.glb",
+      "thumb": "objects/metal_scoop_big/thumb.png"
+    },
+    {
+      "id": "metal_scoop_small",
+      "label": "Metal Scoop Small",
+      "category": "",
+      "url": "objects/metal_scoop_small/mesh.glb",
+      "thumb": "objects/metal_scoop_small/thumb.png"
+    },
+    {
+      "id": "mug_holder",
+      "label": "Mug Holder",
+      "category": "",
+      "url": "objects/mug_holder/mesh.glb",
+      "thumb": "objects/mug_holder/thumb.png"
+    },
+    {
+      "id": "open_box",
+      "label": "Open Box",
+      "category": "",
+      "url": "objects/open_box/mesh.glb",
+      "thumb": "objects/open_box/thumb.png"
+    },
+    {
+      "id": "open_short_pringles",
+      "label": "Open Short Pringles",
+      "category": "",
+      "url": "objects/open_short_pringles/mesh.glb",
+      "thumb": "objects/open_short_pringles/thumb.png"
+    },
+    {
+      "id": "orange",
+      "label": "Orange",
+      "category": "",
+      "url": "objects/orange/mesh.glb",
+      "thumb": "objects/orange/thumb.png"
+    },
+    {
+      "id": "organizer_beige",
+      "label": "Organizer Beige",
+      "category": "",
+      "url": "objects/organizer_beige/mesh.glb",
+      "thumb": "objects/organizer_beige/thumb.png"
+    },
+    {
+      "id": "paper_bowl",
+      "label": "Paper Bowl",
+      "category": "",
+      "url": "objects/paper_bowl/mesh.glb",
+      "thumb": "objects/paper_bowl/thumb.png"
+    },
+    {
+      "id": "paper_box",
+      "label": "Paper Box",
+      "category": "",
+      "url": "objects/paper_box/mesh.glb",
+      "thumb": "objects/paper_box/thumb.png"
+    },
+    {
+      "id": "paper_cup",
+      "label": "Paper Cup",
+      "category": "",
+      "url": "objects/paper_cup/mesh.glb",
+      "thumb": "objects/paper_cup/thumb.png"
+    },
+    {
+      "id": "pastel_blue_cup",
+      "label": "Pastel Blue Cup",
+      "category": "",
+      "url": "objects/pastel_blue_cup/mesh.glb",
+      "thumb": "objects/pastel_blue_cup/thumb.png"
+    },
+    {
+      "id": "pepper_tuna",
+      "label": "Pepper Tuna",
+      "category": "",
+      "url": "objects/pepper_tuna/mesh.glb",
+      "thumb": "objects/pepper_tuna/thumb.png"
+    },
+    {
+      "id": "pepsi",
+      "label": "Pepsi",
+      "category": "",
+      "url": "objects/pepsi/mesh.glb",
+      "thumb": "objects/pepsi/thumb.png"
+    },
+    {
+      "id": "pingpong",
+      "label": "Pingpong",
+      "category": "",
+      "url": "objects/pingpong/mesh.glb",
+      "thumb": "objects/pingpong/thumb.png"
+    },
+    {
+      "id": "pink_clock",
+      "label": "Pink Clock",
+      "category": "",
+      "url": "objects/pink_clock/mesh.glb",
+      "thumb": "objects/pink_clock/thumb.png"
+    },
+    {
+      "id": "plant_mister",
+      "label": "Plant Mister",
+      "category": "",
+      "url": "objects/plant_mister/mesh.glb",
+      "thumb": "objects/plant_mister/thumb.png"
+    },
+    {
+      "id": "plant_pot",
+      "label": "Plant Pot",
+      "category": "",
+      "url": "objects/plant_pot/mesh.glb",
+      "thumb": "objects/plant_pot/thumb.png"
+    },
+    {
+      "id": "potato_mesher",
+      "label": "Potato Mesher",
+      "category": "",
+      "url": "objects/potato_mesher/mesh.glb",
+      "thumb": "objects/potato_mesher/thumb.png"
+    },
+    {
+      "id": "pringles",
+      "label": "Pringles",
+      "category": "",
+      "url": "objects/pringles/mesh.glb",
+      "thumb": "objects/pringles/thumb.png"
+    },
+    {
+      "id": "redcar",
+      "label": "Redcar",
+      "category": "",
+      "url": "objects/redcar/mesh.glb",
+      "thumb": "objects/redcar/thumb.png"
+    },
+    {
+      "id": "rolling_pin",
+      "label": "Rolling Pin",
+      "category": "",
+      "url": "objects/rolling_pin/mesh.glb",
+      "thumb": "objects/rolling_pin/thumb.png"
+    },
+    {
+      "id": "screwdriver",
+      "label": "Screwdriver",
+      "category": "",
+      "url": "objects/screwdriver/mesh.glb",
+      "thumb": "objects/screwdriver/thumb.png"
+    },
+    {
+      "id": "servingbowl_small",
+      "label": "Servingbowl Small",
+      "category": "",
+      "url": "objects/servingbowl_small/mesh.glb",
+      "thumb": "objects/servingbowl_small/thumb.png"
+    },
+    {
+      "id": "shoe_organizer",
+      "label": "Shoe Organizer",
+      "category": "",
+      "url": "objects/shoe_organizer/mesh.glb",
+      "thumb": "objects/shoe_organizer/thumb.png"
+    },
+    {
+      "id": "smallbowl",
+      "label": "Smallbowl",
+      "category": "",
+      "url": "objects/smallbowl/mesh.glb",
+      "thumb": "objects/smallbowl/thumb.png"
+    },
+    {
+      "id": "soap_dispenser",
+      "label": "Soap Dispenser",
+      "category": "",
+      "url": "objects/soap_dispenser/mesh.glb",
+      "thumb": "objects/soap_dispenser/thumb.png"
+    },
+    {
+      "id": "soaptray",
+      "label": "Soaptray",
+      "category": "",
+      "url": "objects/soaptray/mesh.glb",
+      "thumb": "objects/soaptray/thumb.png"
+    },
+    {
+      "id": "spam_can",
+      "label": "Spam Can",
+      "category": "",
+      "url": "objects/spam_can/mesh.glb",
+      "thumb": "objects/spam_can/thumb.png"
+    },
+    {
+      "id": "spicemill",
+      "label": "Spicemill",
+      "category": "",
+      "url": "objects/spicemill/mesh.glb",
+      "thumb": "objects/spicemill/thumb.png"
+    },
+    {
+      "id": "spray_bottle",
+      "label": "Spray Bottle",
+      "category": "",
+      "url": "objects/spray_bottle/mesh.glb",
+      "thumb": "objects/spray_bottle/thumb.png"
+    },
+    {
+      "id": "standing_frame",
+      "label": "Standing Frame",
+      "category": "",
+      "url": "objects/standing_frame/mesh.glb",
+      "thumb": "objects/standing_frame/thumb.png"
+    },
+    {
+      "id": "tea_case",
+      "label": "Tea Case",
+      "category": "",
+      "url": "objects/tea_case/mesh.glb",
+      "thumb": "objects/tea_case/thumb.png"
+    },
+    {
+      "id": "tennis_ball",
+      "label": "Tennis Ball",
+      "category": "",
+      "url": "objects/tennis_ball/mesh.glb",
+      "thumb": "objects/tennis_ball/thumb.png"
+    },
+    {
+      "id": "thermo_clock",
+      "label": "Thermo Clock",
+      "category": "",
+      "url": "objects/thermo_clock/mesh.glb",
+      "thumb": "objects/thermo_clock/thumb.png"
+    },
+    {
+      "id": "tissue_box",
+      "label": "Tissue Box",
+      "category": "",
+      "url": "objects/tissue_box/mesh.glb",
+      "thumb": "objects/tissue_box/thumb.png"
+    },
+    {
+      "id": "toilet_roll_holder_steel",
+      "label": "Toilet Roll Holder Steel",
+      "category": "",
+      "url": "objects/toilet_roll_holder_steel/mesh.glb",
+      "thumb": "objects/toilet_roll_holder_steel/thumb.png"
+    },
+    {
+      "id": "toothbrush_holder",
+      "label": "Toothbrush Holder",
+      "category": "",
+      "url": "objects/toothbrush_holder/mesh.glb",
+      "thumb": "objects/toothbrush_holder/thumb.png"
+    },
+    {
+      "id": "washing_brush",
+      "label": "Washing Brush",
+      "category": "",
+      "url": "objects/washing_brush/mesh.glb",
+      "thumb": "objects/washing_brush/thumb.png"
+    },
+    {
+      "id": "washing_brush2",
+      "label": "Washing Brush2",
+      "category": "",
+      "url": "objects/washing_brush2/mesh.glb",
+      "thumb": "objects/washing_brush2/thumb.png"
+    },
+    {
+      "id": "wateringcan",
+      "label": "Wateringcan",
+      "category": "",
+      "url": "objects/wateringcan/mesh.glb",
+      "thumb": "objects/wateringcan/thumb.png"
+    },
+    {
+      "id": "white_candle_holder",
+      "label": "White Candle Holder",
+      "category": "",
+      "url": "objects/white_candle_holder/mesh.glb",
+      "thumb": "objects/white_candle_holder/thumb.png"
+    },
+    {
+      "id": "white_clock",
+      "label": "White Clock",
+      "category": "",
+      "url": "objects/white_clock/mesh.glb",
+      "thumb": "objects/white_clock/thumb.png"
+    },
+    {
+      "id": "white_hand_shower",
+      "label": "White Hand Shower",
+      "category": "",
+      "url": "objects/white_hand_shower/mesh.glb",
+      "thumb": "objects/white_hand_shower/thumb.png"
+    },
+    {
+      "id": "white_pen_cup",
+      "label": "White Pen Cup",
+      "category": "",
+      "url": "objects/white_pen_cup/mesh.glb",
+      "thumb": "objects/white_pen_cup/thumb.png"
+    },
+    {
+      "id": "white_plastic_box",
+      "label": "White Plastic Box",
+      "category": "",
+      "url": "objects/white_plastic_box/mesh.glb",
+      "thumb": "objects/white_plastic_box/thumb.png"
+    },
+    {
+      "id": "white_soap_dish",
+      "label": "White Soap Dish",
+      "category": "",
+      "url": "objects/white_soap_dish/mesh.glb",
+      "thumb": "objects/white_soap_dish/thumb.png"
+    },
+    {
+      "id": "white_table_lamp",
+      "label": "White Table Lamp",
+      "category": "",
+      "url": "objects/white_table_lamp/mesh.glb",
+      "thumb": "objects/white_table_lamp/thumb.png"
+    },
+    {
+      "id": "white_watering_can",
+      "label": "White Watering Can",
+      "category": "",
+      "url": "objects/white_watering_can/mesh.glb",
+      "thumb": "objects/white_watering_can/thumb.png"
+    },
+    {
+      "id": "white_wood_handle_watering_can",
+      "label": "White Wood Handle Watering Can",
+      "category": "",
+      "url": "objects/white_wood_handle_watering_can/mesh.glb",
+      "thumb": "objects/white_wood_handle_watering_can/thumb.png"
+    },
+    {
+      "id": "wood_organizer",
+      "label": "Wood Organizer",
+      "category": "",
+      "url": "objects/wood_organizer/mesh.glb",
+      "thumb": "objects/wood_organizer/thumb.png"
+    },
+    {
+      "id": "wood_tray_big",
+      "label": "Wood Tray Big",
+      "category": "",
+      "url": "objects/wood_tray_big/mesh.glb",
+      "thumb": "objects/wood_tray_big/thumb.png"
+    },
+    {
+      "id": "wood_tray_small",
+      "label": "Wood Tray Small",
+      "category": "",
+      "url": "objects/wood_tray_small/mesh.glb",
+      "thumb": "objects/wood_tray_small/thumb.png"
+    },
+    {
+      "id": "work_lamp",
+      "label": "Work Lamp",
+      "category": "",
+      "url": "objects/work_lamp/mesh.glb",
+      "thumb": "objects/work_lamp/thumb.png"
+    },
+    {
+      "id": "yellow_funnel",
+      "label": "Yellow Funnel",
+      "category": "",
+      "url": "objects/yellow_funnel/mesh.glb",
+      "thumb": "objects/yellow_funnel/thumb.png"
+    },
+    {
+      "id": "yellow_plastic_cup",
+      "label": "Yellow Plastic Cup",
+      "category": "",
+      "url": "objects/yellow_plastic_cup/mesh.glb",
+      "thumb": "objects/yellow_plastic_cup/thumb.png"
+    },
+    {
+      "id": "yellow_plastic_glass",
+      "label": "Yellow Plastic Glass",
+      "category": "",
+      "url": "objects/yellow_plastic_glass/mesh.glb",
+      "thumb": "objects/yellow_plastic_glass/thumb.png"
+    },
+    {
+      "id": "yellow_wash_tub",
+      "label": "Yellow Wash Tub",
+      "category": "",
+      "url": "objects/yellow_wash_tub/mesh.glb",
+      "thumb": "objects/yellow_wash_tub/thumb.png"
+    }
+  ]
+}
