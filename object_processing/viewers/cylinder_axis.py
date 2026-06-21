@@ -22,7 +22,7 @@ import trimesh
 from scipy.spatial import cKDTree
 
 from paradex.visualization.visualizer.viser import ViserViewer
-from object_processing.config import object_root
+from object_processing.utils.config import object_root
 
 
 COLOR_AXIS = (1.0, 0.85, 0.10)

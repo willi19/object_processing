@@ -16,9 +16,8 @@ import sys
 import traceback
 from multiprocessing import Pool
 
-from object_processing.config import object_root, obj_dir
+from object_processing.utils.config import object_root, obj_dir
 from object_processing import pipeline
-from object_processing.decimate import decimate
 
 # Objects that are bodies of revolution: de-duplicate stable poses by up-axis
 # tilt only (rotation about the symmetry axis is irrelevant).
@@ -138,6 +137,8 @@ def cmd_process(args):
 
 
 def cmd_decimate(args):
+    from object_processing.pipeline.decimate import decimate  # needs pymeshlab
+
     objs = _resolve_obj_list(args)
     root = object_root()
     print(f"Decimating {len(objs)} object(s) to {args.target_faces} faces")

@@ -13,7 +13,7 @@ import trimesh
 import viser
 from scipy.spatial.transform import Rotation as R
 
-from object_processing.config import object_root
+from object_processing.utils.config import object_root
 
 
 def best_yaw_align(R_i: np.ndarray, R_j: np.ndarray):

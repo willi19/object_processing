@@ -19,7 +19,7 @@ import transforms3d as t3d
 import trimesh
 from scipy.spatial.transform import Rotation as Rot
 
-from object_processing._rotation import batched_quat_delta
+from object_processing.utils.rotation import batched_quat_delta
 
 
 def _is_duplicated_cylindrical_pose(qpos, accepted, z_tol=0.01):
@@ -55,7 +55,12 @@ def _build_settling_model(obj_spec):
     spec = mujoco.MjSpec()
     spec.option.timestep = 0.005
     spec.option.integrator = mujoco.mjtIntegrator.mjINT_IMPLICITFAST
-    spec.option.enableflags = mujoco.mjtEnableBit.mjENBL_NATIVECCD
+    # Native CCD (faster, more robust convex collision) was added in newer
+    # MuJoCo; fall back gracefully on older builds rather than crashing.
+    if hasattr(mujoco.mjtEnableBit, "mjENBL_NATIVECCD"):
+        spec.option.enableflags = mujoco.mjtEnableBit.mjENBL_NATIVECCD
+    else:
+        print("warning: MuJoCo build lacks NATIVECCD; using default collision")
     spec.option.cone = mujoco.mjtCone.mjCONE_ELLIPTIC
     spec.option.noslip_iterations = 2
     spec.option.impratio = 10

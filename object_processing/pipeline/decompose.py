@@ -2,7 +2,7 @@
 
 import os
 
-from object_processing.tools import coacd_bin, run, require_output
+from object_processing.utils.tools import coacd_bin, run, require_output
 
 # Default CoACD args for decomposition: small minimum-volume threshold and
 # decimation of the resulting hulls (legacy default).

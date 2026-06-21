@@ -4,7 +4,7 @@ import numpy as np
 import trimesh
 
 from paradex.visualization.visualizer.viser import ViserViewer
-from object_processing.config import object_root
+from object_processing.utils.config import object_root
 
 obj_path = object_root()
 

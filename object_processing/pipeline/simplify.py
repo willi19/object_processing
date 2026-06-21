@@ -2,7 +2,7 @@
 
 import os
 
-from object_processing.tools import acvd_bin, run, require_output
+from object_processing.utils.tools import acvd_bin, run, require_output
 
 
 def simplify(input_path, output_path, vert_num=2000, gradation=1.5, quiet=False):

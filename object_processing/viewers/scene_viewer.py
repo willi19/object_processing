@@ -7,12 +7,12 @@ import trimesh
 from scipy.spatial.transform import Rotation as Rot
 
 from paradex.visualization.visualizer.viser import ViserViewer
-from object_processing.config import object_root
+from object_processing.utils.config import object_root
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--obj_path", default=object_root(),
-    help="Root dir of object subdirs (default: object_processing.config.object_root()).",
+    help="Root dir of object subdirs (default: object_processing.utils.config.object_root()).",
 )
 cli_args = parser.parse_args()
 obj_path = cli_args.obj_path

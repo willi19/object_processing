@@ -12,16 +12,18 @@ Open3D is an optional, heavy dependency and is imported lazily inside the
 functions, so importing this module (or the rest of ``object_processing``) never
 requires it. Run standalone::
 
-    python -m object_processing.render pipeline pringles --out /tmp/pringles.png
-    python -m object_processing.render turntable book --out /tmp/book.gif
+    python -m object_processing.visualization.render pipeline pringles --out /tmp/pringles.png
+    python -m object_processing.visualization.render turntable book --out /tmp/book.gif
 """
 
 import argparse
+import glob
+import json
 import os
 
 import numpy as np
 
-from object_processing.config import obj_dir
+from object_processing.utils.config import obj_dir
 
 # A consistent 3/4 view direction (object frame, +z up) used for every render so
 # pipeline stages line up.
@@ -64,19 +66,33 @@ def _bounds(mesh):
     return center, max(radius, 1e-6)
 
 
+def _coacd_colored(o3d, pieces_dir):
+    """Build the convex decomposition colored per piece, from the individual
+    ``convex_piece_*.obj`` files (the ground-truth pieces). Returns ``None`` if
+    the pieces directory is missing so the caller can fall back."""
+    import glob
+    files = sorted(glob.glob(os.path.join(pieces_dir, "*.obj")))
+    if not files:
+        return None
+    combined = o3d.geometry.TriangleMesh()
+    for i, f in enumerate(files):
+        piece = _load(o3d, f)
+        piece.paint_uniform_color(list(_PALETTE[i % len(_PALETTE)]))
+        combined += piece
+    combined.compute_vertex_normals()
+    return combined
+
+
 def _paint_components(o3d, mesh):
-    """Color each connected component a distinct palette color (for coacd)."""
-    labels = np.asarray(
-        mesh.cluster_connected_triangles()[0]
-    )
+    """Fallback: color each connected component of a merged mesh."""
+    labels = np.asarray(mesh.cluster_connected_triangles()[0])
     if labels.size == 0:
         return mesh
     tri = np.asarray(mesh.triangles)
     vcol = np.ones((len(mesh.vertices), 3))
     for lbl in np.unique(labels):
-        color = _PALETTE[int(lbl) % len(_PALETTE)]
         verts = np.unique(tri[labels == lbl])
-        vcol[verts] = color
+        vcol[verts] = _PALETTE[int(lbl) % len(_PALETTE)]
     mesh.vertex_colors = o3d.utility.Vector3dVector(vcol)
     return mesh
 
@@ -188,7 +204,9 @@ def render_pipeline_figure(obj_name, out_path, root=None, tile=560, pad=18):
             center, radius = _bounds(mesh)
         kw = dict(base_color=(0.78, 0.80, 0.83))
         if style == "components":
-            mesh = _paint_components(o3d, mesh)
+            pieces = os.path.join(base, "processed_data", "urdf", "meshes")
+            colored = _coacd_colored(o3d, pieces)
+            mesh = colored if colored is not None else _paint_components(o3d, mesh)
             kw = dict(base_color=(1.0, 1.0, 1.0))
         elif style == "wire":
             kw["wireframe"] = True
@@ -225,6 +243,140 @@ def render_pipeline_figure(obj_name, out_path, root=None, tile=560, pad=18):
     return labels
 
 
+# ── Tabletop poses ───────────────────────────────────────────────────────────
+
+def _lit(o3d, color):
+    m = o3d.visualization.rendering.MaterialRecord()
+    m.shader = "defaultLit"
+    m.base_color = [*color, 1.0]
+    return m
+
+
+def _line_material(o3d, width=3.0):
+    m = o3d.visualization.rendering.MaterialRecord()
+    m.shader = "unlitLine"
+    m.line_width = width
+    return m
+
+
+def _obb_lineset(o3d, extents, transform, color):
+    """LineSet of the 12 oriented-bounding-box edges."""
+    hx, hy, hz = np.asarray(extents) / 2
+    corners = np.array([
+        [-hx, -hy, -hz], [hx, -hy, -hz], [hx, hy, -hz], [-hx, hy, -hz],
+        [-hx, -hy, hz], [hx, -hy, hz], [hx, hy, hz], [-hx, hy, hz],
+    ])
+    T = np.asarray(transform)
+    corners = corners @ T[:3, :3].T + T[:3, 3]
+    edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]]
+    ls = o3d.geometry.LineSet()
+    ls.points = o3d.utility.Vector3dVector(corners)
+    ls.lines = o3d.utility.Vector2iVector(np.array(edges))
+    ls.paint_uniform_color(list(color))
+    return ls
+
+
+def render_tabletop_figure(obj_name, out_path, root=None, width=1200, height=820):
+    """Render the simplified mesh placed in each of its stable tabletop poses,
+    laid out on a grid above a ground plane. Returns the number of poses drawn."""
+    o3d = _o3d()
+    base = obj_dir(obj_name) if root is None else os.path.join(root, obj_name)
+    mesh = _load(o3d, os.path.join(base, "processed_data", "mesh", "simplified.obj"))
+    pose_files = sorted(glob.glob(
+        os.path.join(base, "processed_data", "info", "tabletop", "*.npy")))
+    if not pose_files:
+        raise FileNotFoundError(f"render: no tabletop poses for {obj_name}")
+    poses = [np.load(p) for p in pose_files]
+
+    diag = float(np.linalg.norm(mesh.get_axis_aligned_bounding_box().get_extent()))
+    spacing = diag * 1.25
+    n = len(poses)
+    cols = int(np.ceil(np.sqrt(n)))
+    rows = int(np.ceil(n / cols))
+
+    rnd = o3d.visualization.rendering.OffscreenRenderer(width, height)
+    rnd.scene.set_background([1.0, 1.0, 1.0, 1.0])
+    rnd.scene.scene.set_sun_light([0.3, -0.5, -0.8], [1.0, 1.0, 1.0], 75000)
+    rnd.scene.scene.enable_sun_light(True)
+    obj_mat = _lit(o3d, (0.86, 0.74, 0.55))  # warm tan, stands out from the floor
+
+    for k, P in enumerate(poses):
+        dx = ((k % cols) - (cols - 1) / 2) * spacing
+        dy = (k // cols - (rows - 1) / 2) * spacing
+        T = np.eye(4)
+        T[:3, 3] = [dx, dy, 0]
+        m = o3d.geometry.TriangleMesh(mesh)
+        m.transform(T @ np.asarray(P))
+        m.compute_vertex_normals()
+        rnd.scene.add_geometry(f"pose_{k}", m, obj_mat)
+
+    # Ground plane spanning the grid.
+    gw, gd = cols * spacing + diag, rows * spacing + diag
+    ground = o3d.geometry.TriangleMesh.create_box(gw, gd, diag * 0.02)
+    ground.translate([-gw / 2, -gd / 2, -diag * 0.02])
+    ground.compute_vertex_normals()
+    rnd.scene.add_geometry("ground", ground, _lit(o3d, (0.92, 0.92, 0.94)))
+
+    center = [0.0, 0.0, diag * 0.25]
+    span = max(gw, gd)
+    eye = np.array(center) + np.array([0.35, -1.0, 0.6]) / np.linalg.norm(
+        [0.35, -1.0, 0.6]) * span * 0.85
+    rnd.setup_camera(50.0, center, eye.tolist(), [0.0, 0.0, 1.0])
+    img = np.asarray(rnd.render_to_image())
+    del rnd
+
+    from PIL import Image
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
+    Image.fromarray(img).save(out_path)
+    return n
+
+
+def render_overlays_figure(obj_name, out_path, root=None, width=820, height=820):
+    """Render the simplified mesh with its oriented bounding box (blue) and
+    rotational symmetry axes (yellow/green/blue) overlaid."""
+    o3d = _o3d()
+    base = obj_dir(obj_name) if root is None else os.path.join(root, obj_name)
+    info_dir = os.path.join(base, "processed_data", "info")
+    mesh = _load(o3d, os.path.join(base, "processed_data", "mesh", "simplified.obj"))
+    center, radius = _bounds(mesh)
+
+    rnd = o3d.visualization.rendering.OffscreenRenderer(width, height)
+    rnd.scene.set_background([1.0, 1.0, 1.0, 1.0])
+    rnd.scene.scene.set_sun_light([0.3, -0.5, -0.8], [1.0, 1.0, 1.0], 75000)
+    rnd.scene.scene.enable_sun_light(True)
+    rnd.scene.add_geometry("mesh", mesh, _lit(o3d, (0.80, 0.82, 0.85)))
+
+    simp = os.path.join(info_dir, "simplified.json")
+    if os.path.exists(simp):
+        s = json.load(open(simp))
+        obb = _obb_lineset(o3d, s["obb"], s["obb_transform"], (0.20, 0.45, 1.0))
+        rnd.scene.add_geometry("obb", obb, _line_material(o3d, 3.0))
+
+    sym_path = os.path.join(info_dir, "symmetry.json")
+    axis_colors = [(1.0, 0.82, 0.1), (0.2, 0.85, 0.4), (0.36, 0.62, 0.95)]
+    if os.path.exists(sym_path):
+        sym = json.load(open(sym_path))
+        ctr = np.asarray(sym["center"])
+        L = sym["scale"] * 0.6
+        for i, a in enumerate(sym.get("axes", [])):
+            d = np.asarray(a["axis"])
+            ls = o3d.geometry.LineSet()
+            ls.points = o3d.utility.Vector3dVector([ctr - d * L, ctr + d * L])
+            ls.lines = o3d.utility.Vector2iVector([[0, 1]])
+            ls.paint_uniform_color(list(axis_colors[i % len(axis_colors)]))
+            rnd.scene.add_geometry(f"axis_{i}", ls, _line_material(o3d, 5.0))
+
+    eye = np.asarray(center) + _VIEW_DIR / np.linalg.norm(_VIEW_DIR) * radius * 2.3
+    rnd.setup_camera(55.0, center, eye.tolist(), [0.0, 0.0, 1.0])
+    img = np.asarray(rnd.render_to_image())
+    del rnd
+
+    from PIL import Image
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
+    Image.fromarray(img).save(out_path)
+    return out_path
+
+
 # ── Turntable ────────────────────────────────────────────────────────────────
 
 def turntable_frames(mesh_or_path, n_frames=36, width=540, height=540,
@@ -259,13 +411,21 @@ def save_turntable_gif(mesh_or_path, out_path, n_frames=36, duration=60, **kw):
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(prog="object_processing.render")
+    p = argparse.ArgumentParser(prog="object_processing.visualization.render")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     pf = sub.add_parser("pipeline", help="render pipeline-stage strip for an object")
     pf.add_argument("object")
     pf.add_argument("--out", required=True)
     pf.add_argument("--tile", type=int, default=560)
+
+    tb = sub.add_parser("tabletop", help="render the mesh in each stable tabletop pose")
+    tb.add_argument("object")
+    tb.add_argument("--out", required=True)
+
+    ov = sub.add_parser("overlays", help="render mesh + OBB + symmetry axes")
+    ov.add_argument("object")
+    ov.add_argument("--out", required=True)
 
     tt = sub.add_parser("turntable", help="render a spinning GIF of a stage mesh")
     tt.add_argument("object")
@@ -278,6 +438,12 @@ def main(argv=None):
     if a.cmd == "pipeline":
         labels = render_pipeline_figure(a.object, a.out, tile=a.tile)
         print(f"wrote {a.out}  ({' -> '.join(labels)})")
+    elif a.cmd == "tabletop":
+        n = render_tabletop_figure(a.object, a.out)
+        print(f"wrote {a.out}  ({n} poses)")
+    elif a.cmd == "overlays":
+        render_overlays_figure(a.object, a.out)
+        print(f"wrote {a.out}")
     elif a.cmd == "turntable":
         rel = {
             "raw": "raw_mesh/{obj}.obj",

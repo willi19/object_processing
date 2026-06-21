@@ -5,7 +5,7 @@ import os
 import numpy as np
 import trimesh
 
-from object_processing.tools import require_output
+from object_processing.utils.tools import require_output
 
 
 def change_format(input_path, output_path, keep_material=True, delete_input=False):

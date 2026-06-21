@@ -33,7 +33,7 @@ import numpy as np
 import trimesh
 from scipy.spatial.transform import Rotation as Rot
 
-from object_processing.tools import require_output
+from object_processing.utils.tools import require_output
 
 # Discrete fold orders to probe, in addition to the continuous test.
 _FOLD_CANDIDATES = (2, 3, 4, 5, 6, 8, 10, 12)

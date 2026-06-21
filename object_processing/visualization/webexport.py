@@ -23,7 +23,7 @@ import os
 import numpy as np
 import trimesh
 
-from object_processing.config import obj_dir
+from object_processing.utils.config import obj_dir
 from object_processing.pipeline.symmetry import detect_symmetry
 
 # Per-piece colors for the convex decomposition (RGB 0-255), matching render.py.
@@ -131,9 +131,9 @@ def main(argv=None):
     import sys
     import traceback
 
-    from object_processing.config import object_root
+    from object_processing.utils.config import object_root
 
-    p = argparse.ArgumentParser(prog="object_processing.webexport")
+    p = argparse.ArgumentParser(prog="object_processing.visualization.webexport")
     p.add_argument("objects", nargs="*", help="object names (or use --all)")
     p.add_argument("--all", action="store_true")
     p.add_argument("--glb-out", default="wiki/output",

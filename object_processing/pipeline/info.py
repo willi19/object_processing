@@ -6,7 +6,7 @@ import os
 import numpy as np
 import trimesh
 
-from object_processing.tools import require_output
+from object_processing.utils.tools import require_output
 
 
 def basic_info(input_path, output_path):

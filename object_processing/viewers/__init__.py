@@ -6,7 +6,7 @@ a display/browser to be useful. They depend on the external ``paradex`` package
 for ``paradex.visualization.visualizer.viser.ViserViewer``; this is an accepted
 external dependency and is not vendored here.
 
-Object data roots are resolved via ``object_processing.config.object_root()``.
+Object data roots are resolved via ``object_processing.utils.config.object_root()``.
 
 Viewers
 -------

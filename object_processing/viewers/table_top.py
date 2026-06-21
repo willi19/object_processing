@@ -7,7 +7,7 @@ import trimesh
 
 from paradex.visualization.visualizer.viser import ViserViewer
 
-from object_processing.config import object_root
+from object_processing.utils.config import object_root
 
 parser = argparse.ArgumentParser()
 parser.add_argument(

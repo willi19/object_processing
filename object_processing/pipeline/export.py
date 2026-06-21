@@ -5,7 +5,7 @@ import os
 import lxml.etree as et
 import mujoco
 
-from object_processing.tools import require_output
+from object_processing.utils.tools import require_output
 
 
 def export_urdf(parts_dir, output_path):

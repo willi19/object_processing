@@ -17,8 +17,10 @@ external tool.
 import os
 import subprocess
 
-# Repo root = parent of this package directory.
-_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Repo root = two levels up from this file (object_processing/utils/tools.py).
+_REPO_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 
 
 def _resolve(env_var: str, *rel_parts: str) -> str:
