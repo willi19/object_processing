@@ -19,6 +19,11 @@ const AXIS_COLORS = [
   const objectId = params.get('id');
   if (!objectId) { showError('No object ID specified.'); return; }
 
+  // Stage GLBs normally load from HuggingFace. ?local=1 loads them from
+  // objects/{id}/stages/ under this site instead, for testing before upload.
+  const useLocal = params.get('local') === '1';
+  const assetBase = (useLocal ? '' : HF_BASE) + 'objects/' + objectId + '/';
+
   let catalog;
   try {
     catalog = await (await fetch('catalog.json')).json();
@@ -85,13 +90,13 @@ const AXIS_COLORS = [
     disposeOverlays();
     if (currentContainer) { currentContainer.dispose(); currentContainer = null; }
 
-    const url = HF_BASE + 'objects/' + objectId + '/';
     let file = stage.file;
     try {
-      currentContainer = await BABYLON.SceneLoader.LoadAssetContainerAsync(url, file, scene);
+      currentContainer = await BABYLON.SceneLoader.LoadAssetContainerAsync(assetBase, file, scene);
     } catch (e) {
       if (stage.fallback) {
-        currentContainer = await BABYLON.SceneLoader.LoadAssetContainerAsync(url, stage.fallback, scene);
+        file = stage.fallback;
+        currentContainer = await BABYLON.SceneLoader.LoadAssetContainerAsync(assetBase, file, scene);
       } else { throw e; }
     }
     currentContainer.addAllToScene();
@@ -101,7 +106,7 @@ const AXIS_COLORS = [
 
     fitCamera(currentContainer);
     rebuildOverlays();
-    document.getElementById('download-link').href = url + file;
+    document.getElementById('download-link').href = assetBase + file;
     document.getElementById('download-link').style.display = '';
     document.getElementById('loading').style.display = 'none';
   }
