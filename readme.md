@@ -36,6 +36,12 @@ raw_mesh/{obj}.obj
 10 generate_tabletop_poses (MuJoCo) ► info/tabletop/*.npy stable resting SE(3) poses
 ```
 
+The geometry stages, on a real object (`blue_alarm`):
+
+![pipeline stages](docs/img/pipeline_blue_alarm.png)
+
+Rendered with `python -m object_processing.render pipeline <obj> --out fig.png`.
+
 | Stage | Tool | Output |
 |---|---|---|
 | `change_format` | trimesh | re-exported mesh in the target format |
