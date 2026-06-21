@@ -1,8 +1,12 @@
 # GLB output files (large, hosted on HuggingFace)
 wiki/output/
 
-# Local mesh data
+# Local mesh data + legacy pipeline (being consolidated into object_processing/)
 MeshProcess/
+
+# Heavy third-party mesh tools (CoACD, ACVD, vtk) — provisioned via setup script
+third_party/
+build/
 
 # Python
 __pycache__/

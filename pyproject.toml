@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "object_processing"
+version = "0.1.0"
+description = "Mesh and object data-preparation pipeline for the AutoDex project"
+readme = "readme.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "trimesh",
+    "transforms3d",
+    "scipy",
+    "lxml",
+    "mujoco",
+    "imageio",
+    "tqdm",
+    "pymeshlab",
+]
+
+# Visualization viewers depend on the external `paradex` package
+# (paradex.visualization.visualizer.viser.ViserViewer). Installed separately
+# from the paradex repo rather than vendored here.
+[project.optional-dependencies]
+viewers = ["viser", "shapely"]
+
+[tool.setuptools]
+packages = ["object_processing"]
