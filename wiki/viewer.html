@@ -102,6 +102,47 @@
       text-align: center;
       color: #f85149;
     }
+
+    #controls {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(22, 27, 34, 0.88);
+      backdrop-filter: blur(8px);
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 160px;
+      user-select: none;
+    }
+
+    .ctl-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #8b949e;
+      margin-bottom: 6px;
+    }
+
+    .ctl-radio, .ctl-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      padding: 3px 0;
+      cursor: pointer;
+    }
+
+    .ctl-check.disabled {
+      color: #545d68;
+      cursor: default;
+    }
+
+    .ctl-radio input, .ctl-check input { cursor: pointer; accent-color: #58a6ff; }
+    .ctl-check.disabled input { cursor: default; }
   </style>
 </head>
 <body>
@@ -115,6 +156,7 @@
   </header>
   <div id="viewer-container">
     <canvas id="renderCanvas"></canvas>
+    <div id="controls"></div>
     <div id="loading">
       <div class="spinner"></div>
       <div>Loading 3D model...</div>
