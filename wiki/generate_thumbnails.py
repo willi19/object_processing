@@ -39,9 +39,19 @@ def find_obj_file(obj_dir):
     return None
 
 
-def render_thumbnail(obj_file, out_path, renderer, size=256):
-    """Render a mesh to a thumbnail PNG using a shared renderer."""
-    scene = pyrender.Scene(bg_color=[13, 17, 23, 255])  # #0d1117
+# Rec. 709 luma weights, used to decide whether an object is "light".
+_LUMA = np.array([0.2126, 0.7152, 0.0722])
+
+
+def render_thumbnail(obj_file, out_path, renderer, size=256, light_threshold=185):
+    """Render a mesh to a thumbnail PNG using a shared renderer.
+
+    Renders on a transparent background, measures the object's mean brightness,
+    then composites onto white — or black for objects that are themselves light
+    (so a white object doesn't vanish into a white page). Returns the background
+    name chosen ("white" / "black").
+    """
+    scene = pyrender.Scene(bg_color=[0, 0, 0, 0])  # transparent → real alpha mask
 
     mesh = trimesh.load(obj_file, force="mesh")
 
@@ -72,10 +82,18 @@ def render_thumbnail(obj_file, out_path, renderer, size=256):
     )[:3, :3]
     scene.add(ambient, pose=amb_pose)
 
-    color, _ = renderer.render(scene)
+    color, _ = renderer.render(scene, flags=pyrender.RenderFlags.RGBA)
+    rgba = np.asarray(color)
 
-    img = Image.fromarray(color)
-    img.save(out_path)
+    # Mean luminance over the object's (mostly-opaque) pixels.
+    mask = rgba[..., 3] > 8
+    obj_lum = float((rgba[mask][:, :3] @ _LUMA).mean()) if mask.any() else 0.0
+    bg = (0, 0, 0, 255) if obj_lum >= light_threshold else (255, 255, 255, 255)
+
+    obj_img = Image.fromarray(rgba, "RGBA")
+    bg_img = Image.new("RGBA", obj_img.size, bg)
+    Image.alpha_composite(bg_img, obj_img).convert("RGB").save(out_path)
+    return "black" if bg[0] == 0 else "white"
 
 
 def main():
@@ -83,6 +101,9 @@ def main():
     parser.add_argument("input_dir", help="Directory containing object folders")
     parser.add_argument("output_dir", help="Output directory (same as convert_objects output)")
     parser.add_argument("--size", type=int, default=256, help="Thumbnail size in pixels")
+    parser.add_argument("--light-threshold", type=int, default=185,
+                        help="Object mean-luminance (0-255) at/above which a black "
+                             "background is used instead of white")
     args = parser.parse_args()
 
     input_dir = args.input_dir
@@ -114,8 +135,9 @@ def main():
         thumb_path = os.path.join(out_dir, "thumb.png")
 
         try:
-            render_thumbnail(obj_file, thumb_path, renderer, size)
-            print(f"  OK   {name}")
+            bg = render_thumbnail(obj_file, thumb_path, renderer, size,
+                                  args.light_threshold)
+            print(f"  OK   {name}  (bg: {bg})")
             total += 1
         except Exception as e:
             print(f"  FAIL {name}: {e}")

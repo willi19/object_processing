@@ -1,0 +1,726 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Object Buy Candidates (118)</title>
+<style>
+ body{font-family:system-ui,Arial,sans-serif;margin:24px;background:#fafafa}
+ h1{font-size:20px} .meta{color:#666;margin-bottom:16px}
+ .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+ .card{display:block;background:#fff;border:1px solid #e3e3e3;border-radius:10px;
+        padding:10px;text-decoration:none;color:#222;transition:box-shadow .15s}
+ .card:hover{box-shadow:0 4px 14px rgba(0,0,0,.12)}
+ .card img{width:100%;height:150px;object-fit:contain;background:#fff}
+ .name{font-weight:600;font-size:13px;margin-top:8px}
+ .title{font-size:11px;color:#777;margin-top:3px;height:48px;overflow:hidden}
+ .price{font-size:14px;font-weight:700;color:#067d62;margin-top:4px}
+</style></head><body>
+<h1>Object Buy Candidates</h1>
+<div class="meta">118 products &middot; 80 with price &middot; click a card to open its Amazon page</div>
+<div class="grid">
+  <a class="card" href="https://www.amazon.com/Zulay-Kitchen-Wooden-Utensils-Cooking/dp/B085W92DL4" target="_blank">
+    <img loading="lazy" src="images/wooden_spoon.jpg" alt="wooden_spoon">
+    <div class="name">wooden_spoon</div>
+    <div class="title">Zulay Kitchen 6 Piece Wooden Spoons for Cooking – Natural Teak Wooden Utensil Set</div>
+    <div class="price">$22.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Silicone-Spatula-Beijiyi-Resistant-Spatulas/dp/B09WY2M47F" target="_blank">
+    <img loading="lazy" src="images/silicone_spatula.jpg" alt="silicone_spatula">
+    <div class="name">silicone_spatula</div>
+    <div class="title">Silicone Spatula Turner Set of 3, Beijiyi 600F Heat Resistant Cooking Spatulas for Nonstick Cookware</div>
+    <div class="price">$19.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Pyrex-Prepware-2-Cup-Glass-Measuring/dp/B0002ITQHS" target="_blank">
+    <img loading="lazy" src="images/glass_measuring_cup.jpg" alt="glass_measuring_cup">
+    <div class="name">glass_measuring_cup</div>
+    <div class="title">Pyrex 6001075 2 Cup Glass Measuring Cup - Made in USA</div>
+    <div class="price">$15.85</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/NOVA-CERAMICS-Microwavable-Microwave-Dishwasher/dp/B0BGLWCTLV" target="_blank">
+    <img loading="lazy" src="images/coffee_mug.jpg" alt="coffee_mug">
+    <div class="name">coffee_mug</div>
+    <div class="title">NOVA CERAMICS Travel Mug - Ceramic To Go Coffee Mug With Lid 12oz Sage Green</div>
+    <div class="price">$27.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Toptier-Ceramic-Stainless-Infuser-Blooming/dp/B09B9B9ZBK" target="_blank">
+    <img loading="lazy" src="images/ceramic_teapot.jpg" alt="ceramic_teapot">
+    <div class="name">ceramic_teapot</div>
+    <div class="title">Toptier Ceramic Teapot, Large Tea Pot with Stainless Steel Infuser (37 oz, Blue)</div>
+    <div class="price">$26.39</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-Good-Grips-Shaker-Spout/dp/B007ME4WJ2" target="_blank">
+    <img loading="lazy" src="images/salt_shaker.jpg" alt="salt_shaker">
+    <div class="name">salt_shaker</div>
+    <div class="title">OXO Good Grips Salt Shaker with Pour Spout</div>
+    <div class="price">$12.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Glasses-Lead-free-Clear-Durable-Glassware/dp/B086RFDQTJ" target="_blank">
+    <img loading="lazy" src="images/wine_glass.jpg" alt="wine_glass">
+    <div class="name">wine_glass</div>
+    <div class="title">C CREST Wine Glasses Set of 8, 12oz, Lead-free, Clear, Durable Glassware</div>
+    <div class="price">$25.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Stainless-Insulated-Beverage-Tumbler-Thermos/dp/B08LQM3FPC" target="_blank">
+    <img loading="lazy" src="images/travel_mug.jpg" alt="travel_mug">
+    <div class="name">travel_mug</div>
+    <div class="title">17oz Stainless Steel Vacuum Insulated Coffee Travel Mug, Double Wall Travel Tumbler with Spill Proof Lid</div>
+    <div class="price">$12.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Ball-Mason-Jar-Regular-Jars/dp/B014V7RSE8" target="_blank">
+    <img loading="lazy" src="images/mason_jar.jpg" alt="mason_jar">
+    <div class="name">mason_jar</div>
+    <div class="title">Ball Glass Mason Jar with Lid and Band, Regular Mouth, 12 Jars</div>
+    <div class="price">$14.97</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/DOWAN-Ounces-Porcelain-Bowls-Cereal/dp/B01CEBRM1W" target="_blank">
+    <img loading="lazy" src="images/cereal_bowl.jpg" alt="cereal_bowl">
+    <div class="name">cereal_bowl</div>
+    <div class="title">DOWAN 22 OZ White Ceramic Bowls Set of 4 - Soup Bowls, Cereal Bowl, Ramen Bowl</div>
+    <div class="price">$23.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Mora-Ceramic-Flat-Dinner-Plates/dp/B08ZHRFTMG" target="_blank">
+    <img loading="lazy" src="images/dinner_plate.jpg" alt="dinner_plate">
+    <div class="name">dinner_plate</div>
+    <div class="title">MORA Ceramic Flat Dinner Plates Set of 6, 10.5 in - Assorted Neutrals</div>
+    <div class="price">$56.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Newness-Rustproof-Resistance-Stainless-Steel/dp/B07Q5MSHNF" target="_blank">
+    <img loading="lazy" src="images/soup_ladle.jpg" alt="soup_ladle">
+    <div class="name">soup_ladle</div>
+    <div class="title">Newness Soup Ladle, 304 Stainless Steel Soup Spoon with Ergonomic Round Handle, 13.7 Inches</div>
+    <div class="price">$13.79</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Cheese-Grater-Professional-Stainless-Handheld/dp/B08JD28QL4" target="_blank">
+    <img loading="lazy" src="images/cheese_grater.jpg" alt="cheese_grater">
+    <div class="name">cheese_grater</div>
+    <div class="title">Cheese Grater, Professional Stainless Steel Grater with Handle, Flat Handheld Grater</div>
+    <div class="price">$12.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-Good-Grips-Smooth-Opener/dp/B000079XW2" target="_blank">
+    <img loading="lazy" src="images/can_opener.jpg" alt="can_opener">
+    <div class="name">can_opener</div>
+    <div class="title">OXO Good Grips Smooth Edge Can Opener</div>
+    <div class="price">$21.95</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/ORBLUE-Garlic-Stainless-Mincer-Crusher/dp/B00HHLNRVE" target="_blank">
+    <img loading="lazy" src="images/garlic_press.jpg" alt="garlic_press">
+    <div class="name">garlic_press</div>
+    <div class="title">ORBLUE Garlic Press Stainless Steel - Garlic Mincer, Crusher & Peeler Set</div>
+    <div class="price">$16.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-21081-Grips-Peeler-Black/dp/B00004OCIU" target="_blank">
+    <img loading="lazy" src="images/vegetable_peeler.jpg" alt="vegetable_peeler">
+    <div class="name">vegetable_peeler</div>
+    <div class="title">OXO Good Grips Y-Peeler (Potato Peeler)</div>
+    <div class="price">$11.84</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/SCHVUBENR-Premium-Pizza-Cutter-Dishwasher/dp/B089DHG71D" target="_blank">
+    <img loading="lazy" src="images/pizza_cutter.jpg" alt="pizza_cutter">
+    <div class="name">pizza_cutter</div>
+    <div class="title">SCHVUBENR Premium Pizza Cutter Wheel - Stainless Steel Pizza Slicer with Non-Slip Grip</div>
+    <div class="price">$8.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Hotec-Premium-Stainless-Locking-Kitchen/dp/B07MQ2CT98" target="_blank">
+    <img loading="lazy" src="images/kitchen_tongs.jpg" alt="kitchen_tongs">
+    <div class="name">kitchen_tongs</div>
+    <div class="title">HOTEC Premium Stainless Steel Locking Kitchen Tongs with Silicone Tips, Set of 2</div>
+    <div class="price">$9.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Mixing-Bowls-Stainless-Steel-Kitchen/dp/B01HTYH8YA" target="_blank">
+    <img loading="lazy" src="images/mixing_bowl.jpg" alt="mixing_bowl">
+    <div class="name">mixing_bowl</div>
+    <div class="title">FineDine Stainless Steel Mixing Bowls Set, Dishwasher Safe, 6 Piece</div>
+    <div class="price">$24.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-11122500-Grips-Butter-White/dp/B00L9X6M6I" target="_blank">
+    <img loading="lazy" src="images/butter_dish.jpg" alt="butter_dish">
+    <div class="name">butter_dish</div>
+    <div class="title">OXO Good Grips Butter Dish</div>
+    <div class="price">$13.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Nucookery-Ergonomic-Porcelain-Dripless-Dressings/dp/B09Y2Y3Y17" target="_blank">
+    <img loading="lazy" src="images/gravy_boat.jpg" alt="gravy_boat">
+    <div class="name">gravy_boat</div>
+    <div class="title">Nucookery Large 18 Oz Gravy Boat with Warmer, White Fine Porcelain Saucier</div>
+    <div class="price">$25.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Chef-Cookie-Jar-88976-ACK/dp/B000UH6S6S" target="_blank">
+    <img loading="lazy" src="images/cookie_jar.jpg" alt="cookie_jar">
+    <div class="name">cookie_jar</div>
+    <div class="title">ACK Chef Ceramic Cookie Jar with Lid and Rubber Seal</div>
+    <div class="price">$34.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Home-Stainless-kitchen-storage-16-5x10x8/dp/B00O5AHWDO" target="_blank">
+    <img loading="lazy" src="images/bread_bin.jpg" alt="bread_bin">
+    <div class="name">bread_bin</div>
+    <div class="title">HOME IT Stainless Steel Bread Box for Kitchen, Bread Bin, Bread Holder</div>
+    <div class="price">$36.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/simplehuman-Quick-Napkin-Holder-Stainless/dp/B000MUWMH2" target="_blank">
+    <img loading="lazy" src="images/napkin_holder.jpg" alt="napkin_holder">
+    <div class="name">napkin_holder</div>
+    <div class="title">simplehuman Quick Grip Napkin Holder, Stainless Steel, Brushed</div>
+    <div class="price">$24.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Folkulture-Farmhouse-Kitchen-Decorative-Pedestal/dp/B09TFG4R52" target="_blank">
+    <img loading="lazy" src="images/fruit_bowl.jpg" alt="fruit_bowl">
+    <div class="name">fruit_bowl</div>
+    <div class="title">Folkulture Wooden Fruit Bowl for Kitchen Counter 12" Large Acacia Wood</div>
+    <div class="price">$49.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Ceramic-Boiled-Holder-Breakfast-Brunch/dp/B08112N83Y" target="_blank">
+    <img loading="lazy" src="images/egg_cup.jpg" alt="egg_cup">
+    <div class="name">egg_cup</div>
+    <div class="title">Ceramic Soft Hard Boiled Egg Cups Holder Set of 6 for Breakfast Brunch</div>
+    <div class="price">$13.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Honey-Dipper-Spoon-Stirrers-Wooden/dp/B0GLM9GQ33" target="_blank">
+    <img loading="lazy" src="images/honey_dipper.jpg" alt="honey_dipper">
+    <div class="name">honey_dipper</div>
+    <div class="title">Honey Dipper Mini, 4.3 In Honey Spoon Stirrers Wooden, 1PCS</div>
+    <div class="price">$7.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/LIFVER-Coasters-Absorbent-Furniture-Scratched/dp/B07P8QJTQL" target="_blank">
+    <img loading="lazy" src="images/coaster.jpg" alt="coaster">
+    <div class="name">coaster</div>
+    <div class="title">LIFVER Coasters Set of 6, Absorbent Stone with Holder, Black Marble Style Ceramic</div>
+    <div class="price">$15.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Trivets-Kitchen-Holders-Resistant-Essentials/dp/B0CQ2MCJ6W" target="_blank">
+    <img loading="lazy" src="images/trivet.jpg" alt="trivet">
+    <div class="name">trivet</div>
+    <div class="title">Trivets for Hot Dishes, Hot Pads for Kitchen, 7'' Heat Resistant 4-Pcs</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Cisily-Organzier-Rustproof-Stainless-Organizer/dp/B0C3QZ7SNF" target="_blank">
+    <img loading="lazy" src="images/sponge_holder.jpg" alt="sponge_holder">
+    <div class="name">sponge_holder</div>
+    <div class="title">Cisily Sponge Holder for Kitchen Sink, Sink Caddy Organizer, Stainless Steel (Black)</div>
+    <div class="price">$24.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/NETANY-Pcs-Spice-Jars-Labels/dp/B09FXXDGRJ" target="_blank">
+    <img loading="lazy" src="images/spice_jar.jpg" alt="spice_jar">
+    <div class="name">spice_jar</div>
+    <div class="title">NETANY 24 Pcs Glass Spice Jars with Bamboo Lids, 4 oz with Labels, Funnel</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/AOZITA-Vinegar-Dispenser-Pourers-Decanter/dp/B0821Y5BS3" target="_blank">
+    <img loading="lazy" src="images/olive_oil_bottle.jpg" alt="olive_oil_bottle">
+    <div class="name">olive_oil_bottle</div>
+    <div class="title">AOZITA 17oz Glass Olive Oil Bottle Dispenser - 500ml Oil and Vinegar Cruet</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Heinz-Tomato-Ketchup-32-Bottle/dp/B000WHXN3C" target="_blank">
+    <img loading="lazy" src="images/ketchup_bottle.jpg" alt="ketchup_bottle">
+    <div class="name">ketchup_bottle</div>
+    <div class="title">Heinz Tomato Ketchup, 32 oz Bottle</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Cheerios-Breakfast-Cereal-Whole-Gluten/dp/B08X68PTVG" target="_blank">
+    <img loading="lazy" src="images/cereal_box.jpg" alt="cereal_box">
+    <div class="name">cereal_box</div>
+    <div class="title">Cheerios, Heart Healthy Gluten Free Breakfast Cereal, Family Size, 18 oz</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Campbells-Condensed-Tomato-Soup-10-75/dp/B000WLAVV0" target="_blank">
+    <img loading="lazy" src="images/soup_can.jpg" alt="soup_can">
+    <div class="name">soup_can</div>
+    <div class="title">Campbell's Condensed Tomato Soup, 10.75 oz Can</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Owala-FreeSip-SS-Very-Dark/dp/B085DVHQ57" target="_blank">
+    <img loading="lazy" src="images/water_bottle.jpg" alt="water_bottle">
+    <div class="name">water_bottle</div>
+    <div class="title">Owala FreeSip Insulated Stainless Steel Water Bottle with Straw, 32 Oz</div>
+    <div class="price">$27.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Thermos-Stainless-Ounce-Drink-Bottle/dp/B00EO0JZQC" target="_blank">
+    <img loading="lazy" src="images/thermos_flask.jpg" alt="thermos_flask">
+    <div class="name">thermos_flask</div>
+    <div class="title">THERMOS Stainless King Vacuum-Insulated Drink Bottle, 24 Ounce, Matte Black</div>
+    <div class="price">$32.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Kettle-Stovetop-Whistling-Teakettle-Stainless/dp/B07DFF5WPQ" target="_blank">
+    <img loading="lazy" src="images/tea_kettle.jpg" alt="tea_kettle">
+    <div class="name">tea_kettle</div>
+    <div class="title">Tea Kettle Stovetop Whistling Teakettle Classic Stainless Steel, 2 Liters</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/French-Press-Coffee-Maker-34oz/dp/B01J4O0T4E" target="_blank">
+    <img loading="lazy" src="images/french_press.jpg" alt="french_press">
+    <div class="name">french_press</div>
+    <div class="title">Cafe Du Chateau Stainless Steel French Press Coffee Maker 34 oz</div>
+    <div class="price">$29.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Original-Bialetti-Moka-Express-Stovetop/dp/B0000CF3Q6" target="_blank">
+    <img loading="lazy" src="images/moka_pot.jpg" alt="moka_pot">
+    <div class="name">moka_pot</div>
+    <div class="title">Bialetti Moka Express Iconic Stovetop Espresso Maker, Moka Pot 3 Cups</div>
+    <div class="price">$44.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Zulay-Original-Milk-Frother-Handheld/dp/B09D8T11YS" target="_blank">
+    <img loading="lazy" src="images/milk_frother.jpg" alt="milk_frother">
+    <div class="name">milk_frother</div>
+    <div class="title">Zulay Kitchen Powerful Milk Frother Wand, Handheld Electric Whisk Foam Maker</div>
+    <div class="price">$14.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Yogurt-Parfait-Reusable-Overnight-Oats/dp/B0863GSFSP" target="_blank">
+    <img loading="lazy" src="images/yogurt_cup.jpg" alt="yogurt_cup">
+    <div class="name">yogurt_cup</div>
+    <div class="title">Crystalia 4 Pack 20 oz On The Go Yogurt Parfait Cups with Lids & Spoons</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Stainless-Steel-Butter-Spreader-Knife/dp/B0721T9RDR" target="_blank">
+    <img loading="lazy" src="images/butter_knife.jpg" alt="butter_knife">
+    <div class="name">butter_knife</div>
+    <div class="title">Stainless Steel Butter Spreader, Butter Knife - 3 in 1 Kitchen Gadgets</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Wooden-Cutting-Boards-Kitchen-Serving/dp/B07WFF17BQ" target="_blank">
+    <img loading="lazy" src="images/cutting_board.jpg" alt="cutting_board">
+    <div class="name">cutting_board</div>
+    <div class="title">ROYAL CRAFT WOOD Wooden Cutting Boards for Kitchen Meal Prep & Serving, Bamboo</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Amazer-Bathroom-Comfortable-Odourless-Bristles/dp/B06Y5JW8NY" target="_blank">
+    <img loading="lazy" src="images/dish_brush.jpg" alt="dish_brush">
+    <div class="name">dish_brush</div>
+    <div class="title">Amazer Dish Brush with Handle, 2 Pack Kitchen Scrub Brushes with Stiff Bristles</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Spring-Chef-Stainless-Measuring-Spoons/dp/B013FW3AKG" target="_blank">
+    <img loading="lazy" src="images/measuring_spoons.jpg" alt="measuring_spoons">
+    <div class="name">measuring_spoons</div>
+    <div class="title">Spring Chef Stainless Steel Measuring Spoons Set of 7 with Leveler</div>
+    <div class="price">$11.97</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/HULISEN-Holder-Standing-Coffee-Counter/dp/B08S7D81ZC" target="_blank">
+    <img loading="lazy" src="images/mug_tree.jpg" alt="mug_tree">
+    <div class="name">mug_tree</div>
+    <div class="title">HULISEN Coffee Mug Holder for Countertop, Cup Tree with 6 Hooks, Silver</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/DOWAN-Rotating-Christmas-Decorations-Thanksgiving/dp/B0B4RNYMWZ" target="_blank">
+    <img loading="lazy" src="images/utensil_holder.jpg" alt="utensil_holder">
+    <div class="name">utensil_holder</div>
+    <div class="title">DOWAN 360 Rotating Extra Large Cooking Utensil Holder, Ceramic Utensil Crock, Blue</div>
+    <div class="price">$25.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-SimplyTear-Standing-Brushed-Stainless/dp/B000W8AF2S" target="_blank">
+    <img loading="lazy" src="images/paper_towel_holder.jpg" alt="paper_towel_holder">
+    <div class="name">paper_towel_holder</div>
+    <div class="title">OXO Good Grips SimplyTear Paper Towel Holder Countertop, Brushed Stainless Steel</div>
+    <div class="price">$24.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/KitchenTour-Ceramic-Sugar-Bowl-Spoon/dp/B089YQ7V2P" target="_blank">
+    <img loading="lazy" src="images/sugar_bowl.jpg" alt="sugar_bowl">
+    <div class="name">sugar_bowl</div>
+    <div class="title">K KitchenTour Ceramic Sugar Bowl with Lid and Spoon, 12 oz/350 ml</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Gurygo-Creamer-Pitcher-Porcelain-Microwave/dp/B09WCSLSXB" target="_blank">
+    <img loading="lazy" src="images/creamer_pitcher.jpg" alt="creamer_pitcher">
+    <div class="name">creamer_pitcher</div>
+    <div class="title">Gurygo 2 Pack 4 Oz Classic White Ceramic Small Creamer Pitcher with Handle</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Reinmoson-Strainers-Infuser-Stainless-Threaded/dp/B0B5ZTZL6G" target="_blank">
+    <img loading="lazy" src="images/tea_infuser.jpg" alt="tea_infuser">
+    <div class="name">tea_infuser</div>
+    <div class="title">Reinmoson Tea Strainers for Loose Tea, Extra Fine Mesh Tea Infuser, 304 Stainless Steel</div>
+    <div class="price">$9.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/BRIGHTFROM-Condiment-Squeeze-Bottles-Squirt/dp/B09FVCRK8V" target="_blank">
+    <img loading="lazy" src="images/condiment_squeeze_bottle.jpg" alt="condiment_squeeze_bottle">
+    <div class="name">condiment_squeeze_bottle</div>
+    <div class="title">BRIGHTFROM Condiment Squeeze Bottles, 16 OZ Empty Squirt Bottle, Leak Proof, 2 PACK</div>
+    <div class="price">$6.74</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/BlenderBottle-C03596-Classic-Bottle-28-Ounce/dp/B07TL6PNLD" target="_blank">
+    <img loading="lazy" src="images/shaker_bottle.jpg" alt="shaker_bottle">
+    <div class="name">shaker_bottle</div>
+    <div class="title">BlenderBottle Classic V2 Shaker Bottle, 28-Ounce, Black</div>
+    <div class="price">$10.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Alpha-Living-Home-12-Piece-Silver/dp/B07L8GX283" target="_blank">
+    <img loading="lazy" src="images/napkin_ring.jpg" alt="napkin_ring">
+    <div class="name">napkin_ring</div>
+    <div class="title">Napkin Rings 12-Piece Set, 100% Metal, Rust-Resistant Tabletop Decor, Silver</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/SYJAN-HOME-Ceramic-teacups-Japanese/dp/B0B5K9RK23" target="_blank">
+    <img loading="lazy" src="images/teacup.jpg" alt="teacup">
+    <div class="name">teacup</div>
+    <div class="title">SYJAN HOME Ceramic Teacups Set of 4, No Handle, 3 oz Japanese Teacup Set</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Ceramic-cutlery-Tableware-Saucer-Dinner/dp/B0CLY5XT2B" target="_blank">
+    <img loading="lazy" src="images/saucer.jpg" alt="saucer">
+    <div class="name">saucer</div>
+    <div class="title">Ceramic 2pcs 4 Inch Plain White Saucer / Small Plate</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Ceramic-Espresso-Cups-Set-Accessories/dp/B0BNVN8HLG" target="_blank">
+    <img loading="lazy" src="images/espresso_cup.jpg" alt="espresso_cup">
+    <div class="name">espresso_cup</div>
+    <div class="title">Ceramic Espresso Cups Set of 4, 4.5oz - Demitasse Cups</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/True-1-5-Shot-Glasses-Classic/dp/B08NTWZHKZ" target="_blank">
+    <img loading="lazy" src="images/shot_glass.jpg" alt="shot_glass">
+    <div class="name">shot_glass</div>
+    <div class="title">True Classic Shot Glass, Set of 6, 1.5 oz</div>
+    <div class="price">$9.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Libbey-Heidelberg-Glass-Beer-16-ounce/dp/B00005MG3O" target="_blank">
+    <img loading="lazy" src="images/beer_mug.jpg" alt="beer_mug">
+    <div class="name">beer_mug</div>
+    <div class="title">Libbey Heidelberg Glass Beer Mug Set, 16 oz with Handle</div>
+    <div class="price">$34.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Glass-Water-Pitcher-Spout-Crystal-Clear/dp/B09M17S5FB" target="_blank">
+    <img loading="lazy" src="images/pitcher.jpg" alt="pitcher">
+    <div class="name">pitcher</div>
+    <div class="title">Glaver's Glass Water Pitcher with Spout, 48 Ounces</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/NETANY-Carafe-Beverage-Pitcher-Lemonade/dp/B099RL5XXP" target="_blank">
+    <img loading="lazy" src="images/carafe.jpg" alt="carafe">
+    <div class="name">carafe</div>
+    <div class="title">NETANY Glass Carafe with Lid, 1 Liter, Set of 4</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Libbey-Heavy-Base-Tumbler-Glasses/dp/B00O8ZTWQQ" target="_blank">
+    <img loading="lazy" src="images/drinking_tumbler.jpg" alt="drinking_tumbler">
+    <div class="name">drinking_tumbler</div>
+    <div class="title">Libbey Heavy Base Drinking Glasses Set of 8, 15.5 Oz</div>
+    <div class="price">$34.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/JavaPresse-Grinder-Conical-Brushed-Stainless/dp/B013R3Q7B2" target="_blank">
+    <img loading="lazy" src="images/coffee_grinder.jpg" alt="coffee_grinder">
+    <div class="name">coffee_grinder</div>
+    <div class="title">JavaPresse Manual Stainless Steel Coffee Grinder, Conical Burr</div>
+    <div class="price">$39.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/AmazonBasics-Stainless-Digital-Batteries-Included/dp/B06X9NQ8GX" target="_blank">
+    <img loading="lazy" src="images/kitchen_scale.jpg" alt="kitchen_scale">
+    <div class="name">kitchen_scale</div>
+    <div class="title">Amazon Basics Digital Kitchen Scale with LCD, up to 11 lb</div>
+    <div class="price">$9.89</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/All-Clad-Stainless-Slotted-Kitchen-13-Inch/dp/B00005AL7I" target="_blank">
+    <img loading="lazy" src="images/slotted_spoon.jpg" alt="slotted_spoon">
+    <div class="name">slotted_spoon</div>
+    <div class="title">All-Clad Stainless Steel Slotted Spoon, 13-Inch</div>
+    <div class="price">$29.95</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Spaghetti-Newness-Stainless-Steel-Comfortable/dp/B074C5RCTG" target="_blank">
+    <img loading="lazy" src="images/spaghetti_server.jpg" alt="spaghetti_server">
+    <div class="name">spaghetti_server</div>
+    <div class="title">Newness 304 Stainless Steel Spaghetti Server / Pasta Fork</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/KITEXPERT-Tenderizer-Comfortable-Grip-Dual-side-Tenderizing/dp/B09QMFY1QC" target="_blank">
+    <img loading="lazy" src="images/meat_tenderizer.jpg" alt="meat_tenderizer">
+    <div class="name">meat_tenderizer</div>
+    <div class="title">KITEXPERT Meat Tenderizer Hammer, Dual-side Mallet</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Natural-Granite-Guacamole-Grinder-Crusher/dp/B09DD44BFD" target="_blank">
+    <img loading="lazy" src="images/mortar_and_pestle.jpg" alt="mortar_and_pestle">
+    <div class="name">mortar_and_pestle</div>
+    <div class="title">Priority Chef Heavy Duty 1.5 Cup Granite Mortar and Pestle Set</div>
+    <div class="price">$36.24</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Metal-Nutcracker-Seafood-Tool-Lobster/dp/B08ZMCPWDM" target="_blank">
+    <img loading="lazy" src="images/nutcracker.jpg" alt="nutcracker">
+    <div class="name">nutcracker</div>
+    <div class="title">Handy Housewares Metal Nutcracker / Seafood Tool</div>
+    <div class="price">$7.39</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-SteeL-Stainless-Bottle-Opener/dp/B0001YH1A2" target="_blank">
+    <img loading="lazy" src="images/bottle_opener.jpg" alt="bottle_opener">
+    <div class="name">bottle_opener</div>
+    <div class="title">OXO SteeL Stainless Steel Bottle and Can Opener</div>
+    <div class="price">$12.49</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Vacu-Vin-Stainless-Stopper-Stoppers/dp/B08B5JR118" target="_blank">
+    <img loading="lazy" src="NA" alt="wine_stopper">
+    <div class="name">wine_stopper</div>
+    <div class="title">Vacu Vin Stainless Steel Wine Saver with 6 Vacuum Stoppers</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/DOQAUS-Ice-Cube-Tray-Lids/dp/B088CR8NMD" target="_blank">
+    <img loading="lazy" src="images/ice_cube_tray.jpg" alt="ice_cube_tray">
+    <div class="name">ice_cube_tray</div>
+    <div class="title">DOQAUS Ice Cube Tray with Lids, 4 Pack Stackable Silicone</div>
+    <div class="price">$13.00</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Farberware-Nonstick-Bakeware-12-Cup-Muffin/dp/B00008W70J" target="_blank">
+    <img loading="lazy" src="images/muffin_tin.jpg" alt="muffin_tin">
+    <div class="name">muffin_tin</div>
+    <div class="title">Farberware Nonstick 12-Cup Muffin Pan, Gray</div>
+    <div class="price">$16.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/AmazonBasics-Nonstick-Carbon-Steel-Bread/dp/B073P52PPR" target="_blank">
+    <img loading="lazy" src="images/loaf_pan.jpg" alt="loaf_pan">
+    <div class="name">loaf_pan</div>
+    <div class="title">Amazon Basics Nonstick Bread Loaf Pan, 9.5x5 in, Set of 2</div>
+    <div class="price">$19.72</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Mora-Ceramic-Pie-Pan-Baking/dp/B094WYSWV5" target="_blank">
+    <img loading="lazy" src="images/pie_dish.jpg" alt="pie_dish">
+    <div class="name">pie_dish</div>
+    <div class="title">MORA Ceramic Pie Pan, 9 inch Deep Fluted, Vanilla White</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/TAUCI-Ramekins-Dipping-Sauces-Pudding/dp/B07Z4R7CJZ" target="_blank">
+    <img loading="lazy" src="images/ramekin.jpg" alt="ramekin">
+    <div class="name">ramekin</div>
+    <div class="title">LE TAUCI Ramekins 4 OZ Oven Safe, Set of 6, White</div>
+    <div class="price">$17.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Lareina-Ceramic-Casserole-Rectangular-Stoneware/dp/B097RBK95L" target="_blank">
+    <img loading="lazy" src="images/casserole_dish.jpg" alt="casserole_dish">
+    <div class="name">casserole_dish</div>
+    <div class="title">Lareina Large Ceramic Casserole Dish with Lid, 4.0 Quart, Red</div>
+    <div class="price">$39.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/AmazonBasics-Stainless-Steel-Sauce-3-Quart/dp/B07Y3L59BD" target="_blank">
+    <img loading="lazy" src="images/saucepan.jpg" alt="saucepan">
+    <div class="name">saucepan</div>
+    <div class="title">Amazon Basics Stainless Steel Sauce Pan with Lid, 3-Quart</div>
+    <div class="price">$24.30</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Tramontina-80114-535DS-Professional-Restaurant/dp/B009HBKQ16" target="_blank">
+    <img loading="lazy" src="images/frying_pan.jpg" alt="frying_pan">
+    <div class="name">frying_pan</div>
+    <div class="title">Tramontina Professional 10-Inch Nonstick Frying Pan</div>
+    <div class="price">$24.95</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Helen-Asian-Kitchen-Carbon-12-inch/dp/B00428M7K2" target="_blank">
+    <img loading="lazy" src="images/wok.jpg" alt="wok">
+    <div class="name">wok</div>
+    <div class="title">Helen's Asian Kitchen Carbon Steel Wok, 12-inch</div>
+    <div class="price">$31.95</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-Good-Grips-Salad-Spinner/dp/B00004OCKR" target="_blank">
+    <img loading="lazy" src="images/salad_spinner.jpg" alt="salad_spinner">
+    <div class="name">salad_spinner</div>
+    <div class="title">OXO Good Grips Salad Spinner, 6.22 Quart</div>
+    <div class="price">$34.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Acacia-Wooden-Salad-Bowl-Set/dp/B076HN9Z8Z" target="_blank">
+    <img loading="lazy" src="images/salad_bowl.jpg" alt="salad_bowl">
+    <div class="name">salad_bowl</div>
+    <div class="title">AIDEA Acacia Wood Salad Bowl Set, 12.5" with Utensils</div>
+    <div class="price">$45.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Anchor-Hocking-340Q-Glass-11-25/dp/B01IIGO6Q6" target="_blank">
+    <img loading="lazy" src="images/cake_stand.jpg" alt="cake_stand">
+    <div class="name">cake_stand</div>
+    <div class="title">Anchor Hocking Glass 11.25" Cake Dome / Stand</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Imitation-Baskets-Tabletop-Vegetables-Restaurant/dp/B0BGXDFC1L" target="_blank">
+    <img loading="lazy" src="images/bread_basket.jpg" alt="bread_basket">
+    <div class="name">bread_basket</div>
+    <div class="title">Eccliy 6 Pack Wicker Bread Baskets, 15.8 Inch Woven</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Veken-Canister-Stainless-Container-Accessories/dp/B0DZ2MMFMJ" target="_blank">
+    <img loading="lazy" src="images/coffee_canister.jpg" alt="coffee_canister">
+    <div class="name">coffee_canister</div>
+    <div class="title">Veken Coffee Canister, 39OZ Airtight Stainless Steel</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Containers-Vtopmart-Airtight-Supplies-Measuring/dp/B087G4T7VN" target="_blank">
+    <img loading="lazy" src="images/flour_canister.jpg" alt="flour_canister">
+    <div class="name">flour_canister</div>
+    <div class="title">Vtopmart 4 PCS Airtight Food Storage Canisters for Flour/Sugar</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Pieces-Biscuit-Graduated-Cutters-Stainless/dp/B08BWL2TR5" target="_blank">
+    <img loading="lazy" src="images/cookie_cutter.jpg" alt="cookie_cutter">
+    <div class="name">cookie_cutter</div>
+    <div class="title">12 Pieces Round Cookie Biscuit Cutter Set, Stainless Steel</div>
+    <div class="price">$35.07</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/CO-Z-Commercial-Citrus-Squeezer-Pomegranate/dp/B01MRNL7WI" target="_blank">
+    <img loading="lazy" src="images/manual_juicer.jpg" alt="manual_juicer">
+    <div class="name">manual_juicer</div>
+    <div class="title">CO-Z Manual Citrus Juicer, Commercial Grade Cast Iron</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Zulay-Stainless-Steel-Apple-Corer/dp/B07C6CP1XB" target="_blank">
+    <img loading="lazy" src="images/apple_corer.jpg" alt="apple_corer">
+    <div class="name">apple_corer</div>
+    <div class="title">Zulay Kitchen Apple Corer Tool, Stainless Steel</div>
+    <div class="price">$9.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Professional-Stainless-Steel-Handled-Baller/dp/B0001IWV4Y" target="_blank">
+    <img loading="lazy" src="images/melon_baller.jpg" alt="melon_baller">
+    <div class="name">melon_baller</div>
+    <div class="title">KitchenCraft Professional Melon Baller Scoop, Stainless Steel</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Priority-Chef-Potato-Perfection-Stainless/dp/B00MUEHPGQ" target="_blank">
+    <img loading="lazy" src="images/potato_ricer.jpg" alt="potato_ricer">
+    <div class="name">potato_ricer</div>
+    <div class="title">PriorityChef Large 15oz Potato Ricer, Stainless Steel</div>
+    <div class="price">$25.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-1271080-1271080V1-Slicer-White/dp/B00FYL4MY0" target="_blank">
+    <img loading="lazy" src="images/egg_slicer.jpg" alt="egg_slicer">
+    <div class="name">egg_slicer</div>
+    <div class="title">OXO Good Grips Egg Slicer</div>
+    <div class="price">$14.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-Good-Grips-Avocado-Slicer/dp/B0088LR592" target="_blank">
+    <img loading="lazy" src="images/avocado_slicer.jpg" alt="avocado_slicer">
+    <div class="name">avocado_slicer</div>
+    <div class="title">OXO Good Grips 3-in-1 Avocado Slicer, Green</div>
+    <div class="price">$11.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-Adjustable-Handheld-Mandoline-Slicer/dp/B000YDO2LG" target="_blank">
+    <img loading="lazy" src="images/mandoline_slicer.jpg" alt="mandoline_slicer">
+    <div class="name">mandoline_slicer</div>
+    <div class="title">OXO Good Grips Handheld Mandoline Slicer, Adjustable</div>
+    <div class="price">$21.95</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-Good-Grips-Box-Grater/dp/B0007VO0CQ" target="_blank">
+    <img loading="lazy" src="images/box_grater.jpg" alt="box_grater">
+    <div class="name">box_grater</div>
+    <div class="title">OXO Good Grips Box Grater</div>
+    <div class="price">$28.00</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Cuisinart-CTG-00-3MS-Stainless-Steel-Strainers/dp/B007TUQF9O" target="_blank">
+    <img loading="lazy" src="images/mesh_strainer.jpg" alt="mesh_strainer">
+    <div class="name">mesh_strainer</div>
+    <div class="title">Cuisinart Stainless Steel Fine Mesh Strainers, Set of 3</div>
+    <div class="price">$15.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/MIU-France-Stainless-Slotted-11-Inch/dp/B000GGTYC8" target="_blank">
+    <img loading="lazy" src="images/fish_spatula.jpg" alt="fish_spatula">
+    <div class="name">fish_spatula</div>
+    <div class="title">MIU Fish Spatula Stainless Steel, Flexible Slotted Turner</div>
+    <div class="price">$27.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-Grips-Silicone-Basting-Pastry/dp/B000HD7FJ4" target="_blank">
+    <img loading="lazy" src="images/basting_brush.jpg" alt="basting_brush">
+    <div class="name">basting_brush</div>
+    <div class="title">OXO Good Grips Silicone Basting & Pastry Brush</div>
+    <div class="price">$12.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Spring-Chef-Stainless-Scraper-Chopper/dp/B01FQACSLM" target="_blank">
+    <img loading="lazy" src="images/dough_scraper.jpg" alt="dough_scraper">
+    <div class="name">dough_scraper</div>
+    <div class="title">Spring Chef Dough Bench Scraper, Stainless Steel</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-Multi-purpose-Stainless-Scraper-Chopper/dp/B00004OCNJ" target="_blank">
+    <img loading="lazy" src="images/bench_scraper.jpg" alt="bench_scraper">
+    <div class="name">bench_scraper</div>
+    <div class="title">OXO Good Grips Stainless Steel Multi-Purpose Scraper & Chopper</div>
+    <div class="price">$14.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Nordic-Ware-Cake-Lifter-10-Inches/dp/B000237LPC" target="_blank">
+    <img loading="lazy" src="images/cake_server.jpg" alt="cake_server">
+    <div class="name">cake_server</div>
+    <div class="title">Nordic Ware Cake Lifter, 10-Inches</div>
+    <div class="price">$16.50</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/TeamFar-Stainless-Multifunction-Non-Toxic-Dishwasher/dp/B085PVZ37Q" target="_blank">
+    <img loading="lazy" src="images/ice_scoop.jpg" alt="ice_scoop">
+    <div class="name">ice_scoop</div>
+    <div class="title">TeamFar 12oz Ice Scoop, Stainless Steel</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Bellemain-Stainless-Steel-Flour-Sifter/dp/B00XIIHKFO" target="_blank">
+    <img loading="lazy" src="images/flour_sifter.jpg" alt="flour_sifter">
+    <div class="name">flour_sifter</div>
+    <div class="title">Bellemain 3 Cup Flour Sifter, Stainless Steel</div>
+    <div class="price">$10.49</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/far-Stainless-Spatula-Kitchen-Dishwasher/dp/B08BR7CKZT" target="_blank">
+    <img loading="lazy" src="images/spoon_rest.jpg" alt="spoon_rest">
+    <div class="name">spoon_rest</div>
+    <div class="title">E-far Stainless Steel Spoon Rest, Set of 2</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/COLLECTIVE-HOME-Decorative-Necklaces-Christmas/dp/B09RPKGVDW" target="_blank">
+    <img loading="lazy" src="images/trinket_dish.jpg" alt="trinket_dish">
+    <div class="name">trinket_dish</div>
+    <div class="title">COLLECTIVE HOME Ceramic Trinket Dish, 4.75", White</div>
+    <div class="price">$17.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Plastic-Refillable-Dispenser-Container-Bathroom/dp/B092YHX3YP" target="_blank">
+    <img loading="lazy" src="images/lotion_bottle.jpg" alt="lotion_bottle">
+    <div class="name">lotion_bottle</div>
+    <div class="title">Refillable Plastic Lotion / Soap Dispenser Pump Bottle, 32oz, 2 Pack</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/iHave-Toothbrush-Bathrooms-Toothpaste-Dispenser/dp/B099MS8VL2" target="_blank">
+    <img loading="lazy" src="images/toothbrush_cup.jpg" alt="toothbrush_cup">
+    <div class="name">toothbrush_cup</div>
+    <div class="title">iHave Toothbrush Holder, 2 Cups Wall Mounted</div>
+    <div class="price">$17.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/OXO-Grips-Gravy-Separator-4-Cup/dp/B071F2ZM15" target="_blank">
+    <img loading="lazy" src="images/gravy_separator.jpg" alt="gravy_separator">
+    <div class="name">gravy_separator</div>
+    <div class="title">OXO Good Grips Good Gravy 4-Cup Fat Separator</div>
+    <div class="price">$19.95</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Sweese-Porcelain-Butter-Keeper-Crock/dp/B076H4SDBT" target="_blank">
+    <img loading="lazy" src="images/butter_crock.jpg" alt="butter_crock">
+    <div class="name">butter_crock</div>
+    <div class="title">Sweese French Butter Dish / Crock with Water Line, White</div>
+    <div class="price">$24.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/ZOOFOX-Condiment-Tabletop-Organizer-Countertop/dp/B0BCKKJQK7" target="_blank">
+    <img loading="lazy" src="images/condiment_caddy.jpg" alt="condiment_caddy">
+    <div class="name">condiment_caddy</div>
+    <div class="title">ZOOFOX 2 Pack Metal Condiment Caddy, Tabletop Organizer</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/San-Jamar-H3001BKC-Countertop-Dispenser/dp/B0002L34HI" target="_blank">
+    <img loading="lazy" src="images/napkin_dispenser.jpg" alt="napkin_dispenser">
+    <div class="name">napkin_dispenser</div>
+    <div class="title">San Jamar Countertop Napkin Dispenser, 300 Napkins, Black</div>
+    <div class="price">$95.99</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/MyLifeUNIT-Counter-top-Dispenser-Stainless-Organizer/dp/B01J7Z2OC0" target="_blank">
+    <img loading="lazy" src="images/straw_holder.jpg" alt="straw_holder">
+    <div class="name">straw_holder</div>
+    <div class="title">MyLifeUNIT Stainless Steel Straw Holder for Counter</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Amazon-Basics-Organizers-Storage-Silver/dp/B07YX8NSTD" target="_blank">
+    <img loading="lazy" src="images/spice_rack.jpg" alt="spice_rack">
+    <div class="name">spice_rack</div>
+    <div class="title">Amazon Basics 20 Jars Spice Rack Organizer, Silver</div>
+    <div class="price">$37.43</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Chef-Craft-10130-6-Silver/dp/B00F1UX6MI" target="_blank">
+    <img loading="lazy" src="images/serving_spoon.jpg" alt="serving_spoon">
+    <div class="name">serving_spoon</div>
+    <div class="title">Chef Craft Select Serving Spoon, 9.5 inch, Stainless Steel</div>
+    <div class="price">$4.01</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Idomy-2-Piece-Stainless-Steel-Gravy/dp/B07QL6P4ZV" target="_blank">
+    <img loading="lazy" src="images/ladle_small.jpg" alt="ladle_small">
+    <div class="name">ladle_small</div>
+    <div class="title">Idomy 2-Piece Stainless Steel Small Ladle</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/YBM-Plastic-Strainer-Colander-Handle/dp/B07CX87JM3" target="_blank">
+    <img loading="lazy" src="images/colander_plastic.jpg" alt="colander_plastic">
+    <div class="name">colander_plastic</div>
+    <div class="title">YBM Home 9.75 Inch Plastic Strainer Colander with Handle, White</div>
+    <div class="price">—</div>
+  </a>
+  <a class="card" href="https://www.amazon.com/Hiware-Removable-Infuser-Stovetop-Blooming/dp/B01LZSA84J" target="_blank">
+    <img loading="lazy" src="images/teapot_glass.jpg" alt="teapot_glass">
+    <div class="name">teapot_glass</div>
+    <div class="title">HIWARE 1000ml Glass Teapot with Removable Infuser</div>
+    <div class="price">$20.90</div>
+  </a>
+</div></body></html>

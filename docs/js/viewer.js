@@ -84,13 +84,30 @@ const AXIS_COLORS = [
   const dir = new BABYLON.DirectionalLight('dir', new BABYLON.Vector3(-1, -2, 1), scene);
   dir.intensity = 0.55;
 
+  // Image-based lighting + ACES tone mapping: glTF materials are PBR, so without
+  // an environment to reflect they look flat and matte. Non-fatal if the env
+  // asset can't be fetched — the direct lights above still shade the mesh.
+  try {
+    scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
+      'https://assets.babylonjs.com/environments/environmentSpecular.env', scene);
+    scene.environmentIntensity = 0.85;
+    const ip = scene.imageProcessingConfiguration;
+    ip.toneMappingEnabled = true;
+    ip.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
+    ip.contrast = 1.1;
+  } catch (e) { /* direct lights only */ }
+
   // State shared across stage loads.
   let currentContainer = null;
   let currentRoot = null;          // glTF __root__ node; overlays parent here
   let standWrap = null;            // wraps currentRoot with the standing pose
   let floorMesh = null;            // ground plane under the standing object
-  let overlays = { obb: null, symmetry: null, tabletop: null };
-  const shown = { obb: false, symmetry: false, tabletop: false };
+  let overlays = { obb: null, symmetry: null, tabletop: null, axes: null };
+  const shown = { obb: false, symmetry: false, tabletop: false, axes: false };
+  // Compare (raw ↔ simplified wipe) state.
+  let cmp = { containers: [], minX: -1, maxX: 1 };
+  let cut = 0;
+  let compareOn = false;
 
   function disposeOverlays() {
     for (const k of Object.keys(overlays)) {
@@ -230,17 +247,65 @@ const AXIS_COLORS = [
     return m;
   }
 
+  // Shortest-arc quaternion rotating unit vector `from` onto unit vector `to`.
+  function quatFromTo(from, to) {
+    const f = from.normalizeToNew(), t = to.normalizeToNew();
+    const d = BABYLON.Vector3.Dot(f, t);
+    if (d > 0.999999) return BABYLON.Quaternion.Identity();
+    if (d < -0.999999) {
+      let axis = BABYLON.Vector3.Cross(BABYLON.Axis.X, f);
+      if (axis.lengthSquared() < 1e-6) axis = BABYLON.Vector3.Cross(BABYLON.Axis.Y, f);
+      return BABYLON.Quaternion.RotationAxis(axis.normalize(), Math.PI);
+    }
+    const c = BABYLON.Vector3.Cross(f, t);
+    return new BABYLON.Quaternion(c.x, c.y, c.z, 1 + d).normalize();
+  }
+
+  // A cone (Babylon cylinders point along +Y) placed at `pos`, aimed along `dir`.
+  function arrowhead(name, pos, dir, len, color) {
+    const cone = BABYLON.MeshBuilder.CreateCylinder(name,
+      { height: len, diameterTop: 0, diameterBottom: len * 0.5, tessellation: 14 }, scene);
+    const mat = new BABYLON.StandardMaterial(name + '_m', scene);
+    mat.emissiveColor = color; mat.disableLighting = true;
+    cone.material = mat;
+    cone.rotationQuaternion = quatFromTo(BABYLON.Axis.Y, dir);
+    cone.position = pos;
+    return cone;
+  }
+
   function buildSymmetry() {
     if (!info || !info.symmetry || !info.symmetry.axes.length) return null;
     const ctr = new BABYLON.Vector3(...info.symmetry.center);
     const L = info.symmetry.scale * 0.6;
     const group = new BABYLON.TransformNode('symmetry', scene);
     info.symmetry.axes.forEach((a, i) => {
-      const d = new BABYLON.Vector3(...a.axis);
+      const d = new BABYLON.Vector3(...a.axis).normalize();
+      const col = AXIS_COLORS[i % AXIS_COLORS.length];
       const p0 = ctr.subtract(d.scale(L)), p1 = ctr.add(d.scale(L));
       const ln = BABYLON.MeshBuilder.CreateLines('sym' + i, { points: [p0, p1] }, scene);
-      ln.color = AXIS_COLORS[i % AXIS_COLORS.length];
+      ln.color = col;
       ln.parent = group;
+      // Double-headed arrow so the axis direction reads at a glance.
+      arrowhead('symA' + i, p1, d, L * 0.16, col).parent = group;
+      arrowhead('symB' + i, p0, d.scale(-1), L * 0.16, col).parent = group;
+    });
+    return group;
+  }
+
+  // Small RGB world-axis gizmo (X red / Y green / Z blue) for orientation + scale
+  // reference. Sized to the object so it doubles as a rough ruler.
+  function buildAxes() {
+    const L = info && info.obb ? Math.max(...info.obb.extents) * 0.6 : 0.1;
+    const group = new BABYLON.TransformNode('axes', scene);
+    const defs = [
+      [new BABYLON.Vector3(L, 0, 0), new BABYLON.Color3(0.92, 0.34, 0.34)],
+      [new BABYLON.Vector3(0, L, 0), new BABYLON.Color3(0.30, 0.85, 0.42)],
+      [new BABYLON.Vector3(0, 0, L), new BABYLON.Color3(0.36, 0.62, 0.95)],
+    ];
+    defs.forEach(([v, col], i) => {
+      const ln = BABYLON.MeshBuilder.CreateLines('ax' + i, { points: [BABYLON.Vector3.Zero(), v] }, scene);
+      ln.color = col; ln.parent = group;
+      arrowhead('axh' + i, v, v.normalizeToNew(), L * 0.16, col).parent = group;
     });
     return group;
   }
@@ -278,9 +343,10 @@ const AXIS_COLORS = [
     if (shown.obb) overlays.obb = buildOBB();
     if (shown.symmetry) overlays.symmetry = buildSymmetry();
     if (shown.tabletop) overlays.tabletop = buildTabletop();
-    // OBB and symmetry live in object frame -> parent to glTF root so they align
-    // with the (standing) object. The pose grid is world-frame, left at scene root.
-    for (const k of ['obb', 'symmetry']) {
+    if (shown.axes) overlays.axes = buildAxes();
+    // OBB / symmetry / axes live in object frame -> parent to glTF root so they
+    // align with the (standing) object. The pose grid is world-frame, at scene root.
+    for (const k of ['obb', 'symmetry', 'axes']) {
       if (overlays[k] && currentRoot) overlays[k].parent = currentRoot;
     }
     // While showing all poses, hide the single standing object + its floor.
@@ -295,41 +361,189 @@ const AXIS_COLORS = [
     rebuildOverlays();
   }
 
+  // ── Real-world dimensions (header) ─────────────────────────────────────────
+  function showDimensions() {
+    if (!info || !info.obb || !info.obb.extents) return;
+    const cm = info.obb.extents.map(v => v * 100);
+    const el = document.getElementById('obj-dims');
+    if (!el) return;
+    el.innerHTML = `<b>${cm[0].toFixed(1)} × ${cm[1].toFixed(1)} × ${cm[2].toFixed(1)}</b> cm`;
+    el.title = 'Oriented bounding-box size (W × D × H)';
+    el.style.display = '';
+  }
+  showDimensions();
+
+  // ── View presets / turntable / snapshot ────────────────────────────────────
+  // The scene is z-up (floor at z = 0, standing pose maximises z), so orbit the
+  // camera about +z — keeps the horizon level and makes the presets meaningful.
+  camera.upVector = new BABYLON.Vector3(0, 0, 1);
+  const VIEWS = {
+    iso:   [-Math.PI / 4, Math.PI / 3],
+    front: [-Math.PI / 2, Math.PI / 2],
+    side:  [0,            Math.PI / 2],
+    top:   [-Math.PI / 2, 0.01],
+  };
+  function setView(which) {
+    const v = VIEWS[which]; if (!v) return;
+    camera.alpha = v[0]; camera.beta = v[1];
+    if (currentContainer) fitCamera(currentContainer);
+  }
+
+  let turntable = false;
+  function snapshot() {
+    BABYLON.Tools.CreateScreenshotUsingRenderTarget(
+      engine, camera, { precision: 2 }, undefined, 'image/png', 4, true, `${objectId}.png`);
+  }
+
+  // ── Compare: load raw + simplified together, wipe between them with a clip
+  // plane in world x driven by the slider. Each mesh sets the clip plane only for
+  // its own draw (before/after observers), so the two halves meet at the cut.
+  async function loadCmp(stage) {
+    try { return await BABYLON.SceneLoader.LoadAssetContainerAsync(assetBase, stage.file, scene); }
+    catch (e) {
+      if (stage.fallback) return await BABYLON.SceneLoader.LoadAssetContainerAsync(assetBase, stage.fallback, scene);
+      throw e;
+    }
+  }
+  async function enterCompare() {
+    compareOn = true;
+    disposeOverlays();
+    document.getElementById('compare-bar').style.display = 'flex';
+    if (standWrap) standWrap.setEnabled(false); else if (currentRoot) currentRoot.setEnabled(false);
+
+    const S = standingPose();
+    const specs = [{ stage: STAGES[0], plane: 'a' }, { stage: STAGES[2], plane: 'b' }];
+    cmp.containers = [];
+    let mn = Infinity, mx = -Infinity;
+    for (const sp of specs) {
+      const c = await loadCmp(sp.stage);
+      c.addAllToScene();
+      const root = c.meshes.find(m => m.name === '__root__')
+        || c.transformNodes.find(n => n.name === '__root__');
+      if (S && root) { const w = new BABYLON.TransformNode('cmpstand', scene); setNodeMatrix(w, S); root.parent = w; }
+      c.meshes.filter(m => m.getTotalVertices() > 0).forEach(m => {
+        m.computeWorldMatrix(true);
+        const b = m.getBoundingInfo().boundingBox;
+        mn = Math.min(mn, b.minimumWorld.x); mx = Math.max(mx, b.maximumWorld.x);
+        m.onBeforeRenderObservable.add(() => {
+          scene.clipPlane = sp.plane === 'a'
+            ? new BABYLON.Plane(1, 0, 0, -cut) : new BABYLON.Plane(-1, 0, 0, cut);
+        });
+        m.onAfterRenderObservable.add(() => { scene.clipPlane = null; });
+      });
+      cmp.containers.push(c);
+    }
+    cmp.minX = mn; cmp.maxX = mx; cut = (mn + mx) / 2;
+    document.getElementById('compare-range').value = 0.5;
+    if (cmp.containers[1]) fitCamera(cmp.containers[1]);
+  }
+  function exitCompare() {
+    compareOn = false;
+    document.getElementById('compare-bar').style.display = 'none';
+    scene.clipPlane = null;
+    cmp.containers.forEach(c => c.dispose());
+    cmp.containers = [];
+    scene.transformNodes.filter(n => n.name === 'cmpstand').forEach(n => n.dispose());
+    if (standWrap) standWrap.setEnabled(true); else if (currentRoot) currentRoot.setEnabled(true);
+  }
+  document.getElementById('compare-range').addEventListener('input', e => {
+    cut = cmp.minX + (cmp.maxX - cmp.minX) * parseFloat(e.target.value);
+  });
+
+  const actions = {
+    setView, snapshot,
+    setTurntable: (v) => { turntable = v; },
+    setCompare: (on) => { on ? enterCompare() : exitCompare(); },
+    hasCompare: true,
+  };
+
   // ── Controls ───────────────────────────────────────────────────────────────
-  buildControls(STAGES, info, loadStage, toggleOverlay);
+  buildControls(STAGES, info, loadStage, toggleOverlay, actions);
 
   try {
     await loadStage(STAGES[2]);  // default: simplified
+    setView('iso');
   } catch (e) {
     console.error(e);
     showError(`Failed to load 3D model: ${e.message || e}`);
   }
 
-  engine.runRenderLoop(() => scene.render());
+  engine.runRenderLoop(() => {
+    if (turntable && !compareOn) camera.alpha += 0.004;
+    scene.render();
+  });
   window.addEventListener('resize', () => engine.resize());
 })();
 
-function buildControls(stages, info, onStage, onOverlay) {
+function buildControls(stages, info, onStage, onOverlay, actions) {
   const panel = document.getElementById('controls');
   if (!panel) return;
+  actions = actions || {};
 
   const stageWrap = document.createElement('div');
   stageWrap.className = 'ctl-group';
   stageWrap.innerHTML = '<div class="ctl-title">Stage</div>';
+  const stageInputs = [];
   stages.forEach((s, i) => {
     const id = 'stage-' + s.id;
     const lab = document.createElement('label');
     lab.className = 'ctl-radio';
     lab.innerHTML = `<input type="radio" name="stage" id="${id}" ${i === 2 ? 'checked' : ''}> ${s.label}`;
-    lab.querySelector('input').addEventListener('change', () => onStage(s));
+    const input = lab.querySelector('input');
+    input.addEventListener('change', () => onStage(s));
+    stageInputs.push(input);
     stageWrap.appendChild(lab);
   });
   panel.appendChild(stageWrap);
+
+  // Compare (raw ↔ simplified). Disables the stage radios while active.
+  if (actions.hasCompare) {
+    const cmpWrap = document.createElement('div');
+    cmpWrap.className = 'ctl-group';
+    const lab = document.createElement('label');
+    lab.className = 'ctl-check';
+    lab.innerHTML = '<input type="checkbox"> Compare raw ↔ simplified';
+    lab.querySelector('input').addEventListener('change', (e) => {
+      const on = e.target.checked;
+      stageInputs.forEach(inp => { inp.disabled = on; });
+      if (actions.setCompare) actions.setCompare(on);
+    });
+    cmpWrap.appendChild(lab);
+    panel.appendChild(cmpWrap);
+  }
+
+  // View presets + turntable + snapshot.
+  if (actions.setView || actions.snapshot) {
+    const vWrap = document.createElement('div');
+    vWrap.className = 'ctl-group';
+    vWrap.innerHTML = '<div class="ctl-title">View</div>';
+    const row = document.createElement('div');
+    row.className = 'ctl-btnrow';
+    [['Reset', 'iso'], ['Front', 'front'], ['Side', 'side'], ['Top', 'top']].forEach(([label, key]) => {
+      const b = document.createElement('button');
+      b.className = 'ctl-btn'; b.type = 'button'; b.textContent = label;
+      b.addEventListener('click', () => actions.setView && actions.setView(key));
+      row.appendChild(b);
+    });
+    vWrap.appendChild(row);
+    const tlab = document.createElement('label');
+    tlab.className = 'ctl-check'; tlab.style.marginTop = '4px';
+    tlab.innerHTML = '<input type="checkbox"> Turntable';
+    tlab.querySelector('input').addEventListener('change', (e) => actions.setTurntable && actions.setTurntable(e.target.checked));
+    vWrap.appendChild(tlab);
+    const snap = document.createElement('button');
+    snap.className = 'ctl-btn'; snap.type = 'button'; snap.textContent = 'Snapshot PNG';
+    snap.style.marginTop = '6px';
+    snap.addEventListener('click', () => actions.snapshot && actions.snapshot());
+    vWrap.appendChild(snap);
+    panel.appendChild(vWrap);
+  }
 
   const overlayDefs = [
     { kind: 'obb', label: 'Bounding box', has: info && info.obb },
     { kind: 'symmetry', label: 'Symmetry axis', has: info && info.symmetry && info.symmetry.axes.length },
     { kind: 'tabletop', label: 'Tabletop poses', has: info && info.tabletop_poses && info.tabletop_poses.length },
+    { kind: 'axes', label: 'World axes', has: true },
   ];
   const ovWrap = document.createElement('div');
   ovWrap.className = 'ctl-group';

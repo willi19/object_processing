@@ -143,6 +143,49 @@
 
     .ctl-radio input, .ctl-check input { cursor: pointer; accent-color: #58a6ff; }
     .ctl-check.disabled input { cursor: default; }
+
+    .ctl-btnrow { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ctl-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      font: inherit;
+      font-size: 12px;
+      padding: 5px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .ctl-btn:hover { border-color: #58a6ff; background: #262c36; }
+    .ctl-btn:active { background: #1c2129; }
+
+    .dims {
+      font-size: 13px;
+      color: #8b949e;
+      font-variant-numeric: tabular-nums;
+    }
+    .dims b { color: #e6edf3; font-weight: 500; }
+
+    #compare-bar {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(22, 27, 34, 0.9);
+      backdrop-filter: blur(8px);
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 10px 16px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: #8b949e;
+      user-select: none;
+    }
+    #compare-bar input[type="range"] { width: 220px; accent-color: #58a6ff; cursor: ew-resize; }
+    #compare-bar .lab { min-width: 64px; }
+    #compare-bar .lab.right { text-align: right; }
   </style>
 </head>
 <body>
@@ -150,13 +193,20 @@
     <a href="index.html">&larr; Back</a>
     <h2 id="obj-label">Loading...</h2>
     <div class="meta">
+      <span class="dims" id="obj-dims" style="display:none;"></span>
       <span class="category" id="obj-category" style="display:none;"></span>
+      <a id="buy-link" href="#" target="_blank" rel="noopener" style="display:none;">Buy on IKEA &#8599;</a>
       <a id="download-link" href="#" style="display:none;">Download GLB</a>
     </div>
   </header>
   <div id="viewer-container">
     <canvas id="renderCanvas"></canvas>
     <div id="controls"></div>
+    <div id="compare-bar">
+      <span class="lab">Raw</span>
+      <input type="range" id="compare-range" min="0" max="1" step="0.001" value="0.5">
+      <span class="lab right">Simplified</span>
+    </div>
     <div id="loading">
       <div class="spinner"></div>
       <div>Loading 3D model...</div>

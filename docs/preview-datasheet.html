@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Object Library — Datasheet</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #fbfbfa;
+    --panel: #ffffff;
+    --line: #dcdcd7;
+    --line-strong: #1a1a17;
+    --ink: #1a1a17;
+    --ink-soft: #6e6e66;
+    --accent: #c77400;        /* amber signal */
+  }
+
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, 'Cascadia Mono', monospace;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 2px solid var(--line-strong);
+    padding: 18px 28px;
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    background: var(--panel);
+    position: sticky; top: 0; z-index: 5;
+  }
+  .mark { font-size: 14px; letter-spacing: 0.18em; font-weight: 700; }
+  .badge {
+    font-size: 11px; letter-spacing: 0.1em; color: var(--accent);
+    border: 1px solid var(--accent); padding: 2px 8px; border-radius: 2px;
+  }
+  .spacer { flex: 1; }
+  input[type="text"] {
+    background: var(--bg); border: 1px solid var(--line-strong); color: var(--ink);
+    font-family: inherit; font-size: 13px; padding: 7px 12px; width: 280px; outline: none;
+    border-radius: 2px;
+  }
+  input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(199,116,0,0.15); }
+  input[type="text"]::placeholder { color: var(--ink-soft); }
+  select {
+    background: var(--bg); border: 1px solid var(--line-strong); color: var(--ink);
+    font-family: inherit; font-size: 12px; padding: 7px 10px; cursor: pointer; border-radius: 2px;
+  }
+  .meta-row {
+    display: flex; gap: 24px; padding: 8px 28px; font-size: 11px; letter-spacing: 0.06em;
+    color: var(--ink-soft); border-bottom: 1px solid var(--line); background: var(--panel);
+  }
+  .meta-row b { color: var(--ink); font-weight: 700; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+    gap: 1px; background: var(--line);
+    border: 1px solid var(--line); margin: 0; padding: 1px;
+  }
+  .card {
+    background: var(--panel); cursor: pointer; padding: 0;
+    display: flex; flex-direction: column; transition: background .12s;
+  }
+  .card:hover { background: #fffaf0; }
+  .card .frame {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    overflow: hidden; border-bottom: 1px solid var(--line);
+  }
+  .card .frame img { width: 88%; height: 88%; object-fit: contain; }
+  .card:hover .frame img { transform: scale(1.05); transition: transform .2s; }
+  .card .row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 7px 10px 3px; gap: 8px;
+  }
+  .card .label { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
+  .card .idx { font-size: 10px; color: var(--accent); }
+  .card .id { font-size: 10px; color: var(--ink-soft); padding: 0 10px 9px; word-break: break-all; }
+  .placeholder { font-size: 36px; color: var(--line); }
+  mark { background: rgba(199,116,0,0.25); color: inherit; }
+  .empty { text-align: center; padding: 70px 28px; color: var(--ink-soft); font-size: 13px; letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+  <header>
+    <span class="mark">OBJECT_LIBRARY</span>
+    <span class="badge" id="count">—</span>
+    <div class="spacer"></div>
+    <input type="text" id="search" placeholder="grep objects… ( / )" autocomplete="off">
+    <select id="sort">
+      <option value="az">SORT: A-Z</option>
+      <option value="za">SORT: Z-A</option>
+    </select>
+  </header>
+  <div class="meta-row">
+    <span>SET <b>paradex</b></span>
+    <span>FORMAT <b>glb</b></span>
+    <span>FIELDS <b>obb · symmetry · tabletop</b></span>
+    <span>RELEASE <b>RSS-2026</b></span>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none;">NO MATCHES</div>
+  <script src="preview-shared.js"></script>
+  <script>initGallery({ indexed: true });</script>
+</body>
+</html>

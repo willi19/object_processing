@@ -197,6 +197,76 @@
       object-fit: cover;
       border-bottom: 1px solid var(--border);
     }
+
+    /* Segmented Grid / Table view toggle */
+    .viewtoggle {
+      display: inline-flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .viewtoggle button {
+      background: var(--bg);
+      color: var(--muted);
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .viewtoggle button + button { border-left: 1px solid var(--border); }
+    .viewtoggle button.active { background: var(--chip); color: var(--text); }
+
+    /* Small IKEA purchase link on gallery cards */
+    .card .info .buy {
+      display: inline-block;
+      margin-top: 7px;
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .card .info .buy:hover { text-decoration: underline; }
+
+    /* Catalog table */
+    .table-wrap { padding: 12px 32px 48px; overflow-x: auto; }
+    table.catalog {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    table.catalog th, table.catalog td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    table.catalog th {
+      position: sticky;
+      top: 0;
+      background: var(--header-bg);
+      backdrop-filter: blur(8px);
+      font-weight: 600;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    table.catalog tbody tr:hover { background: var(--surface); }
+    table.catalog .t-thumb {
+      width: 44px; height: 44px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: var(--bg);
+      display: block;
+    }
+    table.catalog .t-obj { font-weight: 500; }
+    table.catalog .t-id {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    table.catalog .t-ikea { font-weight: 600; white-space: nowrap; }
+    table.catalog .t-price { white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+    table.catalog a { color: var(--accent); text-decoration: none; }
+    table.catalog a:hover { text-decoration: underline; }
+    table.catalog tr { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -214,10 +284,29 @@
         <option value="az">Name A → Z</option>
         <option value="za">Name Z → A</option>
       </select>
+      <div class="viewtoggle" id="viewtoggle">
+        <button type="button" data-view="grid" class="active">Grid</button>
+        <button type="button" data-view="table">Table</button>
+      </div>
     </div>
   </header>
   <img class="teaser" src="img/teaser.png" alt="Object Library" loading="lazy">
   <div class="grid" id="grid"></div>
+  <div class="table-wrap" id="table-wrap" style="display:none;">
+    <table class="catalog">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Object</th>
+          <th>IKEA name</th>
+          <th>Description</th>
+          <th class="t-price">Price</th>
+          <th>Purchase</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
   <div class="empty" id="empty" style="display:none;">
     <div id="empty-msg">No objects found.</div>
     <button id="clear-search" type="button">Clear search</button>
@@ -232,6 +321,11 @@
     const $empty = document.getElementById('empty');
     const $emptyMsg = document.getElementById('empty-msg');
     const $badge = document.getElementById('count-badge');
+    const $tableWrap = document.getElementById('table-wrap');
+    const $tableBody = document.getElementById('table-body');
+    const $viewToggle = document.getElementById('viewtoggle');
+
+    let view = 'grid';  // 'grid' | 'table'
 
     async function loadCatalog() {
       try {
@@ -243,6 +337,12 @@
         $empty.style.display = 'block';
         return;
       }
+      // IKEA purchase metadata is optional and lives in a separate file so the
+      // generated catalog.json stays untouched. Merge it onto matching objects.
+      try {
+        const ikea = (await (await fetch('ikea.json')).json()).objects || {};
+        catalog.objects.forEach(obj => { if (ikea[obj.id]) obj.ikea = ikea[obj.id]; });
+      } catch (e) { /* purchase links simply stay hidden */ }
       render();
     }
 
@@ -275,6 +375,20 @@
     function render() {
       const q = $search.value.toLowerCase().trim();
       const filtered = getFiltered();
+      const tableItems = filtered.filter(obj => obj.ikea);
+
+      if (view === 'table') {
+        $grid.style.display = 'none';
+        $tableWrap.style.display = '';
+        $badge.textContent = q
+          ? `${tableItems.length} / ${catalog.objects.length}`
+          : `${tableItems.length} with purchase link`;
+        renderTable(tableItems, q);
+        return;
+      }
+
+      $grid.style.display = '';
+      $tableWrap.style.display = 'none';
 
       $badge.textContent = q
         ? `${filtered.length} / ${catalog.objects.length}`
@@ -308,12 +422,54 @@
           <div class="info">
             <div class="label">${highlight(obj.label, q)}</div>
             <div class="id">${highlight(obj.id, q)}</div>
+            ${obj.ikea
+              ? `<a class="buy" href="${escapeHtml(obj.ikea.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escapeHtml(obj.ikea.name)} · IKEA &#8599;</a>`
+              : ''}
           </div>
         `;
         frag.appendChild(card);
       });
       $grid.appendChild(frag);
     }
+
+    function renderTable(items, q) {
+      $empty.style.display = 'none';
+      if (items.length === 0) {
+        $tableBody.innerHTML =
+          `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:48px;">` +
+          (q ? `No objects with a purchase link match “${escapeHtml(q)}”.`
+             : 'No objects have a purchase link yet.') +
+          `</td></tr>`;
+        return;
+      }
+      const fmt = new Intl.NumberFormat('ko-KR');
+      $tableBody.innerHTML = items.map(obj => {
+        const k = obj.ikea;
+        const viewerUrl = `viewer.html?id=${encodeURIComponent(obj.id)}`;
+        return `
+          <tr onclick="window.location.href='${viewerUrl}'">
+            <td><img class="t-thumb" src="objects/${obj.id}/thumb.png" alt="" loading="lazy"
+                     onerror="this.style.visibility='hidden'"></td>
+            <td>
+              <div class="t-obj"><a href="${viewerUrl}" onclick="event.stopPropagation()">${highlight(obj.label, q)}</a></div>
+              <div class="t-id">${highlight(obj.id, q)}</div>
+            </td>
+            <td class="t-ikea">${escapeHtml(k.name)}</td>
+            <td>${escapeHtml(k.description)}</td>
+            <td class="t-price">₩${fmt.format(k.price)}</td>
+            <td><a href="${escapeHtml(k.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">IKEA &#8599;</a></td>
+          </tr>`;
+      }).join('');
+    }
+
+    $viewToggle.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-view]');
+      if (!btn) return;
+      view = btn.dataset.view;
+      $viewToggle.querySelectorAll('button').forEach(b =>
+        b.classList.toggle('active', b === btn));
+      render();
+    });
 
     $search.addEventListener('input', render);
     $sort.addEventListener('change', render);

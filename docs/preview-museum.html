@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Object Library — Museum</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --paper: #f7f4ee;
+    --paper-2: #efeae0;
+    --ink: #20201d;
+    --ink-soft: #6b675e;
+    --line: #d8d1c4;
+    --accent: #9c4a2f;        /* muted terracotta */
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 40px; }
+
+  header {
+    padding: 48px 0 24px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .topline {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
+  }
+  h1 {
+    font-size: 40px; font-weight: 500; letter-spacing: -0.01em; line-height: 1;
+  }
+  .eyebrow {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px;
+  }
+  .count {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px; letter-spacing: 0.12em; color: var(--ink-soft);
+  }
+  .lede {
+    margin-top: 18px; max-width: 56ch; font-size: 16px; line-height: 1.5;
+    color: var(--ink-soft); font-style: italic;
+  }
+
+  .toolbar {
+    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+    padding: 22px 0; border-bottom: 1px solid var(--line);
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 220px; }
+  input[type="text"] {
+    width: 100%; background: transparent; border: none;
+    border-bottom: 1px solid var(--line);
+    font-family: inherit; font-size: 18px; color: var(--ink);
+    padding: 6px 2px; outline: none;
+  }
+  input[type="text"]::placeholder { color: var(--ink-soft); font-style: italic; }
+  input[type="text"]:focus { border-bottom-color: var(--accent); }
+  select {
+    background: transparent; border: 1px solid var(--line); color: var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px; letter-spacing: 0.08em; padding: 8px 12px; cursor: pointer;
+    border-radius: 0;
+  }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 40px 32px; padding: 40px 0 80px;
+  }
+  .card { cursor: pointer; }
+  .card .frame {
+    aspect-ratio: 1; background: var(--paper-2);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; transition: border-color .2s;
+  }
+  .card:hover .frame { border-color: var(--accent); }
+  .card .frame img {
+    width: 86%; height: 86%; object-fit: contain;
+    mix-blend-mode: multiply; transition: transform .35s ease;
+  }
+  .card:hover .frame img { transform: scale(1.04); }
+  .card .cap { padding: 12px 2px 0; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .card .label { font-size: 18px; font-weight: 500; }
+  .card .num {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px; color: var(--ink-soft); letter-spacing: 0.08em;
+  }
+  .card .id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px; color: var(--accent); margin-top: 2px; padding: 0 2px;
+    letter-spacing: 0.04em;
+  }
+  .placeholder { font-size: 44px; color: var(--line); }
+  mark { background: rgba(156,74,47,0.18); color: inherit; }
+  .empty { text-align: center; padding: 80px 0; color: var(--ink-soft); font-style: italic; font-size: 18px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">RSS 2026 · Object Set</div>
+      <div class="topline">
+        <h1>Object Library</h1>
+        <span class="count" id="count"></span>
+      </div>
+      <p class="lede">A catalog of scanned everyday objects with simplified collision meshes, oriented bounding boxes, symmetry axes, and stable tabletop poses.</p>
+    </header>
+    <div class="toolbar">
+      <div class="search-wrap">
+        <input type="text" id="search" placeholder="Search the collection…" autocomplete="off">
+      </div>
+      <select id="sort">
+        <option value="az">A → Z</option>
+        <option value="za">Z → A</option>
+      </select>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none;">No objects found.</div>
+  </div>
+  <script src="preview-shared.js"></script>
+  <script>initGallery({ pad: 4 });</script>
+</body>
+</html>
