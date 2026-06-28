@@ -189,6 +189,14 @@
       font-size: 14px;
     }
     .empty button:hover { border-color: var(--accent); }
+
+    .teaser {
+      display: block;
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-bottom: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
@@ -208,6 +216,7 @@
       </select>
     </div>
   </header>
+  <img class="teaser" src="img/teaser.png" alt="Object Library" loading="lazy">
   <div class="grid" id="grid"></div>
   <div class="empty" id="empty" style="display:none;">
     <div id="empty-msg">No objects found.</div>

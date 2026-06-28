@@ -212,9 +212,10 @@ const AXIS_COLORS = [
     // Shared floor at table level (z = 0). Thin slab in the xy-plane so it works
     // in this z-up right-handed scene regardless of Babylon's default handedness.
     const half = (cols * spacing) / 2 + Math.max(...e);
+    // depth (z) is the thin dimension, so this box is already a flat slab in the
+    // xy-plane (z up) — no rotation, which would stand it up into a wall.
     const floor = BABYLON.MeshBuilder.CreateBox('tt_floor',
       { width: half * 2, height: half * 2, depth: 0.002 }, scene);
-    floor.rotation.x = Math.PI / 2;          // lay the slab flat (xy-plane)
     floor.position.z = -0.001;
     const fmat = new BABYLON.StandardMaterial('tt_floor_mat', scene);
     fmat.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.55);
