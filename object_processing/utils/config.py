@@ -21,10 +21,10 @@ This replaces the scattered ``autodex.utils.path.obj_path`` /
 
 import os
 
-# Active object root used by the live AutoDex pipeline and the viewers.
+# This repo's own object data root (decoupled from AutoDex).
 # Override per-machine with the OBJECT_ROOT environment variable.
 DEFAULT_OBJECT_ROOT = os.path.join(
-    os.path.expanduser("~"), "shared_data", "AutoDex", "object", "paradex"
+    os.path.expanduser("~"), "shared_data", "object_processing"
 )
 
 

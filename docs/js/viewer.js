@@ -167,9 +167,10 @@ const AXIS_COLORS = [
     return group;
   }
 
-  // Tabletop poses are drawn as the oriented bounding box at each stable pose,
-  // laid out on a grid (lightweight and frame-safe: every point is in object
-  // frame, so the group parents cleanly to __root__).
+  // Tabletop poses: for each stable pose, draw a TABLE-ALIGNED bounding box (the
+  // axis-aligned bounds of the OBB after the resting transform, so a face sits
+  // flat on the floor) on a grid, over a shared ground plane at table level
+  // (z = 0). Frame-safe: every point is in object frame == world (z up) here.
   function buildTabletop() {
     if (!info || !info.tabletop_poses || !info.tabletop_poses.length || !info.obb) return null;
     const e = info.obb.extents, T = mat4(info.obb.transform);
@@ -184,20 +185,44 @@ const AXIS_COLORS = [
     const cols = Math.ceil(Math.sqrt(n));
     const spacing = Math.max(...e) * 1.6;
     const group = new BABYLON.TransformNode('tabletop', scene);
+
     info.tabletop_poses.forEach((pose, k) => {
       const P = mat4(pose);
       const dx = ((k % cols) - (cols - 1) / 2) * spacing;
       const dy = (Math.floor(k / cols) - (cols - 1) / 2) * spacing;
-      const pts = local.map(c => {
-        const w = BABYLON.Vector3.TransformCoordinates(
-          BABYLON.Vector3.TransformCoordinates(c, T), P);
-        return new BABYLON.Vector3(w.x + dx, w.y + dy, w.z);
-      });
+
+      // OBB corners after the resting pose (table frame, z up).
+      const w = local.map(c => BABYLON.Vector3.TransformCoordinates(
+        BABYLON.Vector3.TransformCoordinates(c, T), P));
+      // Table-aligned AABB of those corners → a box flat on the floor.
+      let mn = new BABYLON.Vector3(Infinity, Infinity, Infinity);
+      let mx = new BABYLON.Vector3(-Infinity, -Infinity, -Infinity);
+      w.forEach(p => { mn = BABYLON.Vector3.Minimize(mn, p); mx = BABYLON.Vector3.Maximize(mx, p); });
+      const box = [
+        [mn.x, mn.y, mn.z], [mx.x, mn.y, mn.z], [mx.x, mx.y, mn.z], [mn.x, mx.y, mn.z],
+        [mn.x, mn.y, mx.z], [mx.x, mn.y, mx.z], [mx.x, mx.y, mx.z], [mn.x, mx.y, mx.z],
+      ].map(p => new BABYLON.Vector3(p[0] + dx, p[1] + dy, p[2]));
+
       const m = BABYLON.MeshBuilder.CreateLineSystem('tt' + k,
-        { lines: E.map(([a, b]) => [pts[a], pts[b]]) }, scene);
+        { lines: E.map(([a, b]) => [box[a], box[b]]) }, scene);
       m.color = new BABYLON.Color3(0.20, 0.85, 0.40);
       m.parent = group;
     });
+
+    // Shared floor at table level (z = 0). Thin slab in the xy-plane so it works
+    // in this z-up right-handed scene regardless of Babylon's default handedness.
+    const half = (cols * spacing) / 2 + Math.max(...e);
+    const floor = BABYLON.MeshBuilder.CreateBox('tt_floor',
+      { width: half * 2, height: half * 2, depth: 0.002 }, scene);
+    floor.rotation.x = Math.PI / 2;          // lay the slab flat (xy-plane)
+    floor.position.z = -0.001;
+    const fmat = new BABYLON.StandardMaterial('tt_floor_mat', scene);
+    fmat.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.55);
+    fmat.alpha = 0.25;
+    fmat.backFaceCulling = false;
+    floor.material = fmat;
+    floor.parent = group;
+
     return group;
   }
 

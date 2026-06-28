@@ -22,31 +22,67 @@ from scipy.spatial.transform import Rotation as Rot
 from object_processing.utils.rotation import batched_quat_delta
 
 
-def _is_duplicated_cylindrical_pose(qpos, accepted, z_tol=0.01):
-    """Cylindrical objects: two poses match if their up-axis tilt (R[2,2]) is
-    nearly equal, since rotation about the symmetry axis is irrelevant."""
-    if not accepted:
-        return False
+def _resting_up(qpos):
+    """World-up direction expressed in the object frame.
+
+    Invariant to **yaw**: spinning the whole object about world-z leaves this
+    vector unchanged, so two poses resting on the same face compare equal
+    regardless of their rotation on the table.
+    """
     R = Rot.from_quat([qpos[4], qpos[5], qpos[6], qpos[3]]).as_matrix()
-    for prev in accepted:
-        R_prev = Rot.from_quat([prev[4], prev[5], prev[6], prev[3]]).as_matrix()
-        if np.abs(R[2, 2] - R_prev[2, 2]) < z_tol:
-            return True
-    return False
+    return R[2, :]
 
 
-def _is_duplicated_pose(qpos, accepted, angle_thresh_deg=5.0):
-    """Generic objects: two poses match if their body z-axes point within
-    ``angle_thresh_deg`` of each other."""
+def _symmetry_ops(symmetry):
+    """From a detected-symmetry dict, derive ``(continuous_axes, discrete_rots,
+    spherical)``: object-frame revolute axes, n-fold rotation matrices, and a
+    flag for full spherical symmetry (>= 2 independent revolute axes)."""
+    cont_axes, discrete_rots = [], []
+    for a in (symmetry or {}).get("axes", []):
+        axis = np.asarray(a["axis"], float)
+        norm = np.linalg.norm(axis)
+        if norm < 1e-9:
+            continue
+        axis = axis / norm
+        fold = a["fold"]
+        if fold == "inf":
+            cont_axes.append(axis)
+        else:
+            for k in range(1, int(fold)):
+                discrete_rots.append(
+                    Rot.from_rotvec(axis * (2 * np.pi * k / int(fold))).as_matrix())
+    spherical = len(cont_axes) >= 2  # only a sphere has two+ revolute axes
+    return cont_axes, discrete_rots, spherical
+
+
+def _is_duplicated_pose(qpos, accepted, sym_ops, angle_thresh_deg=5.0, axis_tol=0.02):
+    """True if this resting pose matches an accepted one, up to **yaw** and the
+    object's **rotational symmetry**:
+
+    - yaw: compared via the object-frame up-vector (:func:`_resting_up`);
+    - revolute symmetry: up-vectors on the same cone about a revolute axis are
+      equivalent (equal projection onto the axis);
+    - discrete n-fold: the up-vector maps onto the other under an n-fold rotation;
+    - spherical: every pose is equivalent, so only the first is kept.
+    """
     if not accepted:
         return False
-    R = Rot.from_quat([qpos[4], qpos[5], qpos[6], qpos[3]]).as_matrix()
-    z_axis = R[2, :]
-    cos_thresh = np.cos(np.deg2rad(angle_thresh_deg))
+    cont_axes, discrete_rots, spherical = sym_ops
+    if spherical:
+        return True
+
+    u = _resting_up(qpos)
+    cos_th = np.cos(np.deg2rad(angle_thresh_deg))
     for prev in accepted:
-        R_prev = Rot.from_quat([prev[4], prev[5], prev[6], prev[3]]).as_matrix()
-        if np.dot(z_axis, R_prev[2, :]) > cos_thresh:
+        v = _resting_up(prev)
+        if np.dot(u, v) > cos_th:                      # same resting face (yaw)
             return True
+        for a in cont_axes:                            # same cone about a revolute axis
+            if abs(np.dot(u, a) - np.dot(v, a)) < axis_tol:
+                return True
+        for Rk in discrete_rots:                        # related by an n-fold rotation
+            if np.dot(Rk @ u, v) > cos_th:
+                return True
     return False
 
 
@@ -97,16 +133,18 @@ def generate_tabletop_poses(
     output_dir,
     max_try_num=200,
     remove_duplicated=True,
-    cylindrical=False,
+    symmetry=None,
     debug_vis_path=None,
 ):
     """Generate stable resting poses for the object described by ``mjcf_path``.
 
     Writes accepted poses to ``output_dir/{idx:03d}.npy`` as 4x4 SE(3) matrices.
-    ``cylindrical`` switches de-duplication to the symmetry-aware criterion for
-    bodies of revolution. Both ``output_dir`` and ``debug_vis_path`` are cleared
-    first.
+    De-duplication folds out **yaw** (spin on the table) and, when ``symmetry`` is
+    given (a detect_symmetry dict), the object's **rotational symmetry** — so a
+    revolute can keeps one upright pose instead of dozens. Both ``output_dir`` and
+    ``debug_vis_path`` are cleared first.
     """
+    sym_ops = _symmetry_ops(symmetry)
     shutil.rmtree(output_dir, ignore_errors=True)
     if debug_vis_path is not None:
         shutil.rmtree(debug_vis_path, ignore_errors=True)
@@ -182,11 +220,8 @@ def generate_tabletop_poses(
                 settling_traj.append(deepcopy(data.qpos))
         settled_qpos = deepcopy(data.qpos)
 
-        if remove_duplicated:
-            if cylindrical and _is_duplicated_cylindrical_pose(settled_qpos, accepted):
-                continue
-            if not cylindrical and _is_duplicated_pose(settled_qpos, accepted):
-                continue
+        if remove_duplicated and _is_duplicated_pose(settled_qpos, accepted, sym_ops):
+            continue
 
         # Stability check: re-simulate briefly and require it stays put.
         mujoco.mj_resetDataKeyframe(model, data, 0)

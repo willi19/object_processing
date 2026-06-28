@@ -16,15 +16,20 @@ COLOR_AXIS_Z = (0.20, 0.20, 1.00)
 
 LINE_WIDTH_OBB  = 4.0
 LINE_WIDTH_AXIS = 3.0
+LINE_WIDTH_SYM  = 6.0
+
+# Detected symmetry axes (primary, then any perpendicular)
+COLOR_SYM_AXES = [(1.00, 0.82, 0.10), (0.20, 0.85, 0.40), (0.36, 0.62, 0.95)]
 # ──────────────────────────────────────────────────────────────────────────────
 
+# Only objects that have actually been processed (this viewer reads the
+# simplified mesh + OBB/symmetry info), not every object with a raw mesh.
 available_objects = sorted([
     d for d in os.listdir(obj_path)
-    if os.path.isdir(os.path.join(obj_path, d))
-    and os.path.exists(os.path.join(obj_path, d, "raw_mesh", f"{d}.obj"))
+    if os.path.exists(os.path.join(obj_path, d, "processed_data", "info", "simplified.json"))
 ])
 
-print(f"Found {len(available_objects)} objects")
+print(f"Found {len(available_objects)} processed objects")
 
 vis = ViserViewer()
 
@@ -54,6 +59,7 @@ def clear_scene():
 
 
 obb_handles = []  # Store all OBB scene node handles for toggling
+sym_handles = []  # Symmetry axis/label handles for toggling
 mesh_frames = {}  # label -> frame handle for mesh visibility toggling
 
 
@@ -101,9 +107,36 @@ def add_obb(parent_frame, obb_extents, obb_transform, axis_len):
         obb_handles.append(handle)
 
 
+def add_symmetry(parent_frame, sym, default_len):
+    """Draw the detected symmetry axes through the center + a type label.
+
+    Axes and center are in the object frame (same as the OBB), so this parents
+    cleanly under the mesh frame.
+    """
+    center = np.array(sym.get("center", [0.0, 0.0, 0.0]), float)
+    L = float(sym.get("scale", default_len)) * 0.6
+    for i, a in enumerate(sym.get("axes", [])):
+        d = np.array(a["axis"], float)
+        d = d / (np.linalg.norm(d) + 1e-9)
+        handle = vis.server.scene.add_spline_catmull_rom(
+            name=f"{parent_frame}/sym_axis_{i}",
+            positions=np.array([center - d * L, center + d * L]),
+            color=COLOR_SYM_AXES[i % len(COLOR_SYM_AXES)],
+            line_width=LINE_WIDTH_SYM,
+        )
+        sym_handles.append(handle)
+    label = vis.server.scene.add_label(
+        name=f"{parent_frame}/sym_type",
+        text=f"symmetry: {sym.get('type', '?')}",
+        position=tuple((center + np.array([0.0, 0.0, L * 1.3])).tolist()),
+    )
+    sym_handles.append(label)
+
+
 def load_object(obj_name):
     clear_scene()
     obb_handles.clear()
+    sym_handles.clear()
     mesh_frames.clear()
 
     obj_dir = os.path.join(obj_path, obj_name)
@@ -116,6 +149,10 @@ def load_object(obj_name):
     obb_extents   = np.array(info['obb'])
     obb_transform = np.array(info['obb_transform'])
     axis_len = float(np.max(obb_extents)) * 0.6
+
+    # Detected symmetry (optional — drawn on the raw mesh)
+    sym_path = os.path.join(obj_dir, "processed_data", "info", "symmetry.json")
+    sym = json.load(open(sym_path)) if os.path.exists(sym_path) else None
 
     # Spacing between the three meshes
     spacing = float(np.linalg.norm(obb_extents)) * 1.5
@@ -144,6 +181,8 @@ def load_object(obj_name):
 
         fp = f"/objects/{name}_frame"
         add_obb(fp, obb_extents, obb_transform, axis_len)
+        if label == "raw" and sym is not None:
+            add_symmetry(fp, sym, axis_len)
 
 
     print(f"Loaded: {obj_name}  (raw / simplified / coacd)")
@@ -160,6 +199,7 @@ with vis.server.gui.add_folder("Object Selection"):
 
 with vis.server.gui.add_folder("Display"):
     show_obb_checkbox = vis.server.gui.add_checkbox("Show OBB", initial_value=True)
+    show_symmetry_checkbox = vis.server.gui.add_checkbox("Show Symmetry", initial_value=True)
     show_raw_checkbox = vis.server.gui.add_checkbox("Show Raw", initial_value=True)
     show_simplified_checkbox = vis.server.gui.add_checkbox("Show Simplified", initial_value=True)
     show_coacd_checkbox = vis.server.gui.add_checkbox("Show CoACD", initial_value=True)
@@ -177,6 +217,11 @@ def _(_) -> None:
     visible = show_obb_checkbox.value
     for handle in obb_handles:
         handle.visible = visible
+
+@show_symmetry_checkbox.on_update
+def _(_) -> None:
+    for handle in sym_handles:
+        handle.visible = show_symmetry_checkbox.value
 
 def _make_mesh_toggle(checkbox, label):
     @checkbox.on_update

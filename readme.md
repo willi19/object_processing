@@ -40,7 +40,8 @@ holds the **runnable scripts** that drive it.
 | [`object_processing/pipeline/`](object_processing/pipeline/) | mesh processing stage functions (decompose → simplify → measure → symmetry → tabletop) | [README](object_processing/pipeline/README.md) |
 | [`object_processing/visualization/`](object_processing/visualization/) | headless figure / turntable / web-export functions | [README](object_processing/visualization/README.md) |
 | [`object_processing/utils/`](object_processing/utils/) | data-root config, external-tool resolution, rotation math | [README](object_processing/utils/README.md) |
-| [`src/run.py`](src/run.py) | pipeline CLI — `process` / `decimate` / `symmetry` | — |
+| [`object_processing/runner.py`](object_processing/runner.py) | batch orchestration the run scripts share (per-object actions + parallel runner) | — |
+| `src/{process,decimate,symmetry,tabletop}.py` + [`src/run.sh`](src/run.sh) | per-command run scripts (thin; logic lives in the library) | — |
 | [`src/render.py`](src/render.py), [`src/webexport.py`](src/webexport.py) | figure + web-export CLIs | — |
 | [`src/viewers/`](src/viewers/) | interactive desktop viewers (Viser) | [README](src/viewers/README.md) |
 
@@ -76,13 +77,18 @@ export OBJECT_ROOT=~/object_data/paradex
 
 ### Run the pipeline
 
-```bash
-python src/run.py process <obj> [<obj> ...]
-python src/run.py process --all --workers 8     # everything, parallel
-python src/run.py process --all --skip          # skip stages already done
+Each stage is its own script (run directly, or via `src/run.sh <cmd>`):
 
-python src/run.py symmetry --all                # (re)detect symmetry only
-python src/run.py decimate --all                # lightweight meshes for viewing
+```bash
+python src/process.py <obj> [<obj> ...]
+python src/process.py --all --workers 8     # everything, parallel
+python src/process.py --all --skip          # skip stages already done
+
+python src/symmetry.py --all                 # (re)detect symmetry only
+python src/tabletop.py --all                  # (re)generate stable poses (+settling motion)
+python src/decimate.py --all                  # lightweight meshes for viewing
+
+./src/run.sh process --all --skip             # same thing via the dispatcher
 ```
 
 ### Download meshes (no dependencies)
