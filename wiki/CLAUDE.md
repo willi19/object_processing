@@ -39,11 +39,13 @@ This directory contains the Python processing pipeline and the source HTML/JS fo
 - `--list` shows all available objects
 
 ### index.html (source)
-- Main gallery page with search bar, category dropdown filter, thumbnail grid
+- Main gallery page ("Object Library") with search bar, sort dropdown (name A→Z / Z→A), thumbnail grid
+- Sticky header with a live count badge; search matches label + id and highlights matches
+- Keyboard: `/` focuses search, `Esc` clears it; cards are keyboard-focusable (Enter opens)
 - Fetches `catalog.json` at load, renders cards dynamically
 - **Thumbnails loaded locally** from `objects/{id}/thumb.png` (NOT from HuggingFace)
-- Cards link to `viewer.html?id={object_id}`
-- Thumbnail `onerror` shows a placeholder glyph
+- Cards link to `viewer.html?id={object_id}`; thumbnail `onerror` shows a placeholder glyph
+- No category filter — categories were unused (all empty); removed in favor of sort
 
 ### viewer.html (source)
 - 3D viewer page using Babylon.js 7.34.3 (pinned UMD builds from jsdelivr CDN)

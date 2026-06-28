@@ -25,6 +25,10 @@ Thumbs.db
 # Logs
 *.log
 MUJOCO_LOG.TXT
+log/
+
+# OMC plugin state
+.omc/
 
 # Local stage GLBs for viewer ?local=1 testing — hosted on HuggingFace, not git
 docs/objects/*/stages/

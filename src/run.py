@@ -2,8 +2,9 @@
 
 Usage::
 
-    python -m object_processing process [obj ...] [--all] [--skip] [--workers N]
-    python -m object_processing decimate [obj ...] [--all] [--target-faces N]
+    python src/run.py process [obj ...] [--all] [--skip] [--workers N]
+    python src/run.py decimate [obj ...] [--all] [--target-faces N]
+    python src/run.py symmetry [obj ...] [--all]
 
 Stages run in dependency order. Each stage raises on failure; the batch runner
 collects failures per object and prints a loud summary with full tracebacks,
@@ -16,7 +17,7 @@ import sys
 import traceback
 from multiprocessing import Pool
 
-from object_processing.utils.config import object_root, obj_dir
+from object_processing.utils.config import object_root, obj_dir, find_raw_mesh
 from object_processing import pipeline
 
 # Objects that are bodies of revolution: de-duplicate stable poses by up-axis
@@ -37,9 +38,7 @@ def process_object(obj_name, skip=False, quiet=True):
         processed_data/info/{simplified.json,tabletop/*.npy}
     """
     root = obj_dir(obj_name)
-    raw_in = os.path.join(root, "raw_mesh", f"{obj_name}.obj")
-    if not os.path.isfile(raw_in):
-        raise FileNotFoundError(f"{obj_name}: missing raw mesh {raw_in}")
+    raw_in = find_raw_mesh(obj_name)  # format/name-agnostic; raises if absent/ambiguous
 
     mesh_dir = os.path.join(root, "processed_data", "mesh")
     urdf_dir = os.path.join(root, "processed_data", "urdf")

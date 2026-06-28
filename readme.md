@@ -32,23 +32,33 @@ Inputs live at `{OBJECT_ROOT}/{obj}/raw_mesh/`; outputs land under
 
 ## Code layout
 
-The package is split by role — each part has its own README:
+`object_processing/` is the importable **library** (the processing code); `src/`
+holds the **runnable scripts** that drive it.
 
-| Module | Role | Docs |
-|--------|------|------|
-| [`pipeline/`](object_processing/pipeline/) | mesh processing stages (decompose → simplify → measure → symmetry → tabletop) | [README](object_processing/pipeline/README.md) |
-| [`visualization/`](object_processing/visualization/) | headless figures, turntables, web export (GLB + `info.json`) | [README](object_processing/visualization/README.md) |
-| [`viewers/`](object_processing/viewers/) | interactive desktop viewers (Viser) | [README](object_processing/viewers/README.md) |
-| [`utils/`](object_processing/utils/) | data-root config, external-tool resolution, rotation math | [README](object_processing/utils/README.md) |
+| Path | Role | Docs |
+|------|------|------|
+| [`object_processing/pipeline/`](object_processing/pipeline/) | mesh processing stage functions (decompose → simplify → measure → symmetry → tabletop) | [README](object_processing/pipeline/README.md) |
+| [`object_processing/visualization/`](object_processing/visualization/) | headless figure / turntable / web-export functions | [README](object_processing/visualization/README.md) |
+| [`object_processing/utils/`](object_processing/utils/) | data-root config, external-tool resolution, rotation math | [README](object_processing/utils/README.md) |
+| [`src/run.py`](src/run.py) | pipeline CLI — `process` / `decimate` / `symmetry` | — |
+| [`src/render.py`](src/render.py), [`src/webexport.py`](src/webexport.py) | figure + web-export CLIs | — |
+| [`src/viewers/`](src/viewers/) | interactive desktop viewers (Viser) | [README](src/viewers/README.md) |
 
 ## How to
 
 ### Install
 
 ```bash
-pip install -e .            # core pipeline
-pip install -e .[render]    # + headless Open3D figures/GIFs
-pip install -e .[viewers]   # + the Viser desktop viewers
+# Create and activate the environment (Python 3.10)
+conda create -n object_processing python=3.10 -y
+conda activate object_processing
+
+# Install dependencies, then the package itself
+pip install -r requirements.txt
+pip install -e .            # core pipeline (editable, so AutoDex can import it)
+
+pip install -e .[render]    # optional: + headless Open3D figures/GIFs
+pip install -e .[viewers]   # optional: + the Viser desktop viewers (also needs `paradex`)
 ```
 
 CoACD and ACVD are native binaries, resolved from `$COACD_BIN` / `$ACVD_BIN`,
@@ -67,12 +77,12 @@ export OBJECT_ROOT=~/object_data/paradex
 ### Run the pipeline
 
 ```bash
-python -m object_processing process <obj> [<obj> ...]
-python -m object_processing process --all --workers 8     # everything, parallel
-python -m object_processing process --all --skip          # skip stages already done
+python src/run.py process <obj> [<obj> ...]
+python src/run.py process --all --workers 8     # everything, parallel
+python src/run.py process --all --skip          # skip stages already done
 
-python -m object_processing symmetry --all                # (re)detect symmetry only
-python -m object_processing decimate --all                # lightweight meshes for viewing
+python src/run.py symmetry --all                # (re)detect symmetry only
+python src/run.py decimate --all                # lightweight meshes for viewing
 ```
 
 ### Download meshes (no dependencies)
@@ -89,15 +99,43 @@ Files are saved to `downloaded_meshes/{name}/` (override with `--output`).
 
 ### Visualize
 
+Three ways to inspect the processed data, by increasing setup.
+
+**1. Interactive desktop viewers** — `src/viewers/` (Viser). Needs
+`pip install -e ".[viewers]"` **and** the `paradex` package on `PYTHONPATH`. Each
+opens a Viser server in your browser; the object root comes from `$OBJECT_ROOT`.
+
 ```bash
-python -m object_processing.visualization.render pipeline <obj> --out fig.png
-python -m object_processing.visualization.render tabletop <obj> --out poses.png
-python -m object_processing.visualization.render overlays <obj> --out obb_sym.png
+python src/viewers/object_viewer.py      # raw / coacd / simplified side by side + OBB
+python src/viewers/table_top.py          # grid of all stable tabletop poses + OBB/axes
+python src/viewers/tabletop_compare.py   # compare pose pairs (gravity-axis/yaw factored out)
+python src/viewers/cylinder_axis.py      # rotate about a candidate axis, measure symmetry residual
+```
+
+**2. Headless figures / GIFs** — `src/render.py` (Open3D offscreen, no display).
+Needs `pip install -e ".[render]"`.
+
+```bash
+python src/render.py pipeline  <obj> --out fig.png       # raw → coacd → manifold → simplified strip
+python src/render.py tabletop  <obj> --out poses.png     # mesh in each stable pose on a ground plane
+python src/render.py overlays  <obj> --out obb_sym.png   # mesh + OBB + symmetry axes
+python src/render.py turntable <obj> --out spin.gif [--stage simplified]
 ```
 
 | Tabletop poses | OBB + symmetry overlay |
 |---|---|
 | ![tabletop](docs/img/tabletop_french_mustard.png) | ![overlays](docs/img/overlays_blue_alarm.png) |
+
+**3. Web gallery** — `src/webexport.py` bundles per-object assets for the static
+site: stage GLBs (uploaded to HuggingFace) and small `info.json` overlays (OBB +
+symmetry + tabletop poses, committed to `docs/`).
+
+```bash
+python src/webexport.py <obj> --all      # stage GLBs + info.json
+```
+
+Then serve `docs/` (see [Deploy the gallery website](#deploy-the-gallery-website)).
+Live gallery: https://willi19.github.io/object_processing/
 
 ### Deploy the gallery website
 

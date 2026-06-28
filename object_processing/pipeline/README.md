@@ -19,7 +19,7 @@ raw.obj → convex_decompose → manifold → simplify → basic_info → comput
 | [`tabletop.py`](tabletop.py) | `generate_tabletop_poses` | **MuJoCo** | stable resting `SE(3)` poses |
 | [`decimate.py`](decimate.py) | `decimate` | pymeshlab | lightweight textured mesh for viewing |
 
-Run the whole chain for an object with `python -m object_processing process <obj>`
+Run the whole chain for an object with `python src/run.py process <obj>`
 (see the [main README](../../readme.md#run-the-pipeline)).
 
 ## Symmetry detection

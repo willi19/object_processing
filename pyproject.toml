@@ -18,6 +18,7 @@ dependencies = [
     "imageio",
     "tqdm",
     "pymeshlab",
+    "rtree",
 ]
 
 # Visualization viewers depend on the external `paradex` package
@@ -25,8 +26,9 @@ dependencies = [
 # from the paradex repo rather than vendored here.
 [project.optional-dependencies]
 viewers = ["viser", "shapely"]
-# Headless Open3D rendering for object_processing.render (pipeline-stage figures,
-# turntable GIFs). Optional and heavy; the rest of the package never imports it.
+# Headless Open3D rendering for object_processing.visualization.render (run via
+# src/render.py: pipeline-stage figures, turntable GIFs). Optional and heavy;
+# the rest of the package never imports it.
 render = ["open3d"]
 
 [tool.setuptools.packages.find]

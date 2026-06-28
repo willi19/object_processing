@@ -12,11 +12,15 @@ external `paradex` package and are installed with `pip install -e .[viewers]`.
 | [`table_top.py`](table_top.py) | grid of all stable tabletop poses for an object |
 | [`tabletop_compare.py`](tabletop_compare.py) | compare pose pairs after factoring out gravity-axis (yaw) rotation; reports residual angle |
 | [`cylinder_axis.py`](cylinder_axis.py) | rotate the mesh about a candidate axis and measure the symmetry residual |
-| [`scene_viewer.py`](scene_viewer.py) | a scene JSON (target + obstacles) with the target's OBB and axes |
+
+Scene viewers are intentionally **not** here — this repo does mesh/object
+processing, not scene generation, so a scene viewer would have nothing to show.
+They live with AutoDex's `scene_generation`.
 
 ```bash
-python -m object_processing.viewers.table_top      # opens a Viser server
+python src/viewers/table_top.py      # opens a Viser server
 ```
 
-Object roots are resolved via [`utils/config.py`](../utils/config.py)
+Object roots are resolved via
+[`object_processing/utils/config.py`](../../object_processing/utils/config.py)
 (`$OBJECT_ROOT`).

@@ -7,7 +7,7 @@ Files here are copies from `wiki/` — edit source in `wiki/`, then copy here to
 ## Structure
 ```
 docs/
-├── index.html          # Gallery page (copy of wiki/index.html)
+├── index.html          # Gallery page — search + sort, sticky header (copy of wiki/index.html)
 ├── viewer.html         # 3D viewer page (copy of wiki/viewer.html)
 ├── catalog.json        # Object metadata (copy of wiki/catalog.json)
 ├── js/

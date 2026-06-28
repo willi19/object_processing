@@ -1,0 +1,20 @@
+# Core runtime dependencies for the object_processing pipeline.
+# (Mirrors [project.dependencies] in pyproject.toml — `pip install -e .` uses those.)
+numpy
+trimesh
+transforms3d
+scipy
+lxml
+mujoco
+imageio
+tqdm
+pymeshlab
+rtree          # trimesh proximity queries (symmetry detection)
+
+# This file is the CORE pipeline only (headless). The runnable scripts in src/
+# that need a GUI or GPU are NOT covered here — install their extras separately:
+#
+#   src/viewers/*   ->  pip install -e ".[viewers]"   (viser, shapely)
+#                       ALSO requires the external `paradex` package on PYTHONPATH
+#                       (local repo, not on PyPI) — requirements.txt cannot supply it.
+#   src/render.py   ->  pip install -e ".[render]"    (open3d, headless GPU)

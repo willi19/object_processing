@@ -6,7 +6,7 @@ Install it with `pip install -e .[render]`.
 
 ## [`render.py`](render.py) — figures & GIFs (Open3D offscreen)
 
-No display needed (EGL/GPU offscreen). Run as `python -m object_processing.visualization.render <cmd>`:
+No display needed (EGL/GPU offscreen). The functions live here; run the CLI as `python src/render.py <cmd>`:
 
 | Command | What it makes |
 |---------|---------------|
@@ -26,7 +26,7 @@ Tabletop poses &nbsp;·&nbsp; OBB + symmetry overlays:
 
 ## [`webexport.py`](webexport.py) — assets for the web viewer
 
-Run as `python -m object_processing.visualization.webexport --all`:
+Run as `python src/webexport.py --all`:
 
 - **stage GLBs** → `wiki/output/objects/{id}/stages/{raw,coacd,simplified}.glb`
   (coacd colored per piece) — uploaded to HuggingFace next to `mesh.glb`.
