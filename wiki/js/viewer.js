@@ -40,6 +40,18 @@ const AXIS_COLORS = [
     catEl.style.display = '';
   }
 
+  // Optional IKEA purchase link (separate file, merged client-side).
+  try {
+    const ikea = (await (await fetch('ikea.json')).json()).objects || {};
+    const k = ikea[objectId];
+    if (k && k.link) {
+      const buy = document.getElementById('buy-link');
+      buy.href = k.link;
+      buy.title = `${k.name} — ${k.description}`;
+      buy.style.display = '';
+    }
+  } catch (e) { /* no purchase link for this object */ }
+
   // Overlay metadata (OBB / symmetry / tabletop), served locally. Optional.
   let info = null;
   try {
@@ -75,6 +87,8 @@ const AXIS_COLORS = [
   // State shared across stage loads.
   let currentContainer = null;
   let currentRoot = null;          // glTF __root__ node; overlays parent here
+  let standWrap = null;            // wraps currentRoot with the standing pose
+  let floorMesh = null;            // ground plane under the standing object
   let overlays = { obb: null, symmetry: null, tabletop: null };
   const shown = { obb: false, symmetry: false, tabletop: false };
 
@@ -88,6 +102,8 @@ const AXIS_COLORS = [
     document.getElementById('loading').style.display = '';
     document.getElementById('error').style.display = 'none';
     disposeOverlays();
+    if (standWrap) { standWrap.dispose(); standWrap = null; }
+    if (floorMesh) { floorMesh.dispose(); floorMesh = null; }
     if (currentContainer) { currentContainer.dispose(); currentContainer = null; }
 
     let file = stage.file;
@@ -104,6 +120,8 @@ const AXIS_COLORS = [
       || currentContainer.transformNodes.find(n => n.name === '__root__')
       || currentContainer.meshes.find(m => m.name === '__root__');
 
+    applyStandingPose();   // rotate the object upright onto the floor
+    rebuildFloor();
     fitCamera(currentContainer);
     rebuildOverlays();
     document.getElementById('download-link').href = assetBase + file;
@@ -137,6 +155,66 @@ const AXIS_COLORS = [
     ]);
   }
 
+  // The most upright stable pose = the one giving the tallest footprint
+  // (largest z-extent of the OBB after the resting transform). Returns a Babylon
+  // Matrix (object -> table) or null.
+  function standingPose() {
+    if (!info || !info.tabletop_poses || !info.tabletop_poses.length || !info.obb) return null;
+    const e = info.obb.extents, T = mat4(info.obb.transform);
+    const hx = e[0] / 2, hy = e[1] / 2, hz = e[2] / 2;
+    const local = [
+      [-hx, -hy, -hz], [hx, -hy, -hz], [hx, hy, -hz], [-hx, hy, -hz],
+      [-hx, -hy, hz], [hx, -hy, hz], [hx, hy, hz], [-hx, hy, hz],
+    ].map(p => new BABYLON.Vector3(p[0], p[1], p[2]));
+    let best = null, bestH = -Infinity;
+    info.tabletop_poses.forEach(pose => {
+      const P = mat4(pose);
+      let mn = Infinity, mx = -Infinity;
+      local.forEach(c => {
+        const w = BABYLON.Vector3.TransformCoordinates(BABYLON.Vector3.TransformCoordinates(c, T), P);
+        mn = Math.min(mn, w.z); mx = Math.max(mx, w.z);
+      });
+      const h = mx - mn;
+      if (h > bestH) { bestH = h; best = P; }
+    });
+    return best;
+  }
+
+  // Set a node's local transform from a Babylon Matrix.
+  function setNodeMatrix(node, M) {
+    const s = new BABYLON.Vector3(), q = new BABYLON.Quaternion(), t = new BABYLON.Vector3();
+    M.decompose(s, q, t);
+    node.scaling = s; node.rotationQuaternion = q; node.position = t;
+  }
+
+  // Rotate the loaded object into its standing pose by wrapping __root__ (so the
+  // container's template stays identity — pose instances aren't double-rotated).
+  function applyStandingPose() {
+    const S = standingPose();
+    if (!S || !currentRoot) return;
+    standWrap = new BABYLON.TransformNode('stand', scene);
+    setNodeMatrix(standWrap, S);
+    currentRoot.parent = standWrap;
+  }
+
+  function makeFloorSlab(name, size) {
+    const m = BABYLON.MeshBuilder.CreateBox(name, { width: size, height: size, depth: 0.002 }, scene);
+    m.position.z = -0.001;
+    const mat = new BABYLON.StandardMaterial(name + '_mat', scene);
+    mat.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.55);
+    mat.alpha = 0.25;
+    mat.backFaceCulling = false;
+    m.material = mat;
+    return m;
+  }
+
+  // Ground plane under the single standing object.
+  function rebuildFloor() {
+    if (floorMesh) { floorMesh.dispose(); floorMesh = null; }
+    const e = info && info.obb ? info.obb.extents : [0.1, 0.1, 0.1];
+    floorMesh = makeFloorSlab('floor', Math.max(...e) * 4);
+  }
+
   function buildOBB() {
     if (!info || !info.obb) return null;
     const e = info.obb.extents, T = mat4(info.obb.transform);
@@ -167,63 +245,31 @@ const AXIS_COLORS = [
     return group;
   }
 
-  // Tabletop poses: for each stable pose, draw a TABLE-ALIGNED bounding box (the
-  // axis-aligned bounds of the OBB after the resting transform, so a face sits
-  // flat on the floor) on a grid, over a shared ground plane at table level
-  // (z = 0). Frame-safe: every point is in object frame == world (z up) here.
+  // Tabletop poses: instance the object MESH resting in each stable pose, laid
+  // out on a grid over a shared floor at table level (z = 0). Each pose matrix
+  // (object -> table) plus a grid offset goes straight onto an instance root.
   function buildTabletop() {
-    if (!info || !info.tabletop_poses || !info.tabletop_poses.length || !info.obb) return null;
-    const e = info.obb.extents, T = mat4(info.obb.transform);
-    const hx = e[0] / 2, hy = e[1] / 2, hz = e[2] / 2;
-    const local = [
-      [-hx, -hy, -hz], [hx, -hy, -hz], [hx, hy, -hz], [-hx, hy, -hz],
-      [-hx, -hy, hz], [hx, -hy, hz], [hx, hy, hz], [-hx, hy, hz],
-    ].map(p => new BABYLON.Vector3(p[0], p[1], p[2]));
-    const E = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
-
+    if (!info || !info.tabletop_poses || !info.tabletop_poses.length || !currentContainer) return null;
+    const e = info.obb ? info.obb.extents : [0.1, 0.1, 0.1];
     const n = info.tabletop_poses.length;
     const cols = Math.ceil(Math.sqrt(n));
-    const spacing = Math.max(...e) * 1.6;
+    const spacing = Math.max(...e) * 1.8;
     const group = new BABYLON.TransformNode('tabletop', scene);
 
     info.tabletop_poses.forEach((pose, k) => {
-      const P = mat4(pose);
       const dx = ((k % cols) - (cols - 1) / 2) * spacing;
       const dy = (Math.floor(k / cols) - (cols - 1) / 2) * spacing;
-
-      // OBB corners after the resting pose (table frame, z up).
-      const w = local.map(c => BABYLON.Vector3.TransformCoordinates(
-        BABYLON.Vector3.TransformCoordinates(c, T), P));
-      // Table-aligned AABB of those corners → a box flat on the floor.
-      let mn = new BABYLON.Vector3(Infinity, Infinity, Infinity);
-      let mx = new BABYLON.Vector3(-Infinity, -Infinity, -Infinity);
-      w.forEach(p => { mn = BABYLON.Vector3.Minimize(mn, p); mx = BABYLON.Vector3.Maximize(mx, p); });
-      const box = [
-        [mn.x, mn.y, mn.z], [mx.x, mn.y, mn.z], [mx.x, mx.y, mn.z], [mn.x, mx.y, mn.z],
-        [mn.x, mn.y, mx.z], [mx.x, mn.y, mx.z], [mx.x, mx.y, mx.z], [mn.x, mx.y, mx.z],
-      ].map(p => new BABYLON.Vector3(p[0] + dx, p[1] + dy, p[2]));
-
-      const m = BABYLON.MeshBuilder.CreateLineSystem('tt' + k,
-        { lines: E.map(([a, b]) => [box[a], box[b]]) }, scene);
-      m.color = new BABYLON.Color3(0.20, 0.85, 0.40);
-      m.parent = group;
+      const M = mat4(pose).multiply(BABYLON.Matrix.Translation(dx, dy, 0));
+      // Clone the loaded model (materials shared) and drop it at the pose. The
+      // container template is identity, so the standing-pose wrapper is NOT
+      // inherited here — instances get exactly the resting pose.
+      const inst = currentContainer.instantiateModelsToScene(
+        name => `tt${k}_${name}`, false, { doNotInstantiate: true });
+      inst.rootNodes.forEach(rn => { setNodeMatrix(rn, M); rn.parent = group; });
     });
 
-    // Shared floor at table level (z = 0). Thin slab in the xy-plane so it works
-    // in this z-up right-handed scene regardless of Babylon's default handedness.
     const half = (cols * spacing) / 2 + Math.max(...e);
-    // depth (z) is the thin dimension, so this box is already a flat slab in the
-    // xy-plane (z up) — no rotation, which would stand it up into a wall.
-    const floor = BABYLON.MeshBuilder.CreateBox('tt_floor',
-      { width: half * 2, height: half * 2, depth: 0.002 }, scene);
-    floor.position.z = -0.001;
-    const fmat = new BABYLON.StandardMaterial('tt_floor_mat', scene);
-    fmat.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.55);
-    fmat.alpha = 0.25;
-    fmat.backFaceCulling = false;
-    floor.material = fmat;
-    floor.parent = group;
-
+    makeFloorSlab('tt_floor', half * 2).parent = group;
     return group;
   }
 
@@ -232,11 +278,16 @@ const AXIS_COLORS = [
     if (shown.obb) overlays.obb = buildOBB();
     if (shown.symmetry) overlays.symmetry = buildSymmetry();
     if (shown.tabletop) overlays.tabletop = buildTabletop();
-    // OBB and symmetry live in object frame -> parent to glTF root so they align.
+    // OBB and symmetry live in object frame -> parent to glTF root so they align
+    // with the (standing) object. The pose grid is world-frame, left at scene root.
     for (const k of ['obb', 'symmetry']) {
       if (overlays[k] && currentRoot) overlays[k].parent = currentRoot;
     }
-    if (overlays.tabletop && currentRoot) overlays.tabletop.parent = currentRoot;
+    // While showing all poses, hide the single standing object + its floor.
+    const single = !shown.tabletop;
+    if (standWrap) standWrap.setEnabled(single);
+    else if (currentRoot) currentRoot.setEnabled(single);
+    if (floorMesh) floorMesh.setEnabled(single);
   }
 
   function toggleOverlay(kind, on) {
