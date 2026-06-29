@@ -1,0 +1,204 @@
+{
+  "french_mustard": {
+    "removed": [
+      "025"
+    ],
+    "reason": "impossible",
+    "poses_before": [
+      "000",
+      "002",
+      "004",
+      "007",
+      "025"
+    ],
+    "poses_after": [
+      "000",
+      "002",
+      "004",
+      "007"
+    ],
+    "n_tabletop_poses": 4
+  },
+  "frog_cup": {
+    "removed": [
+      "019"
+    ],
+    "reason": "impossible",
+    "poses_before": [
+      "000",
+      "001",
+      "002",
+      "005",
+      "006",
+      "008",
+      "019",
+      "032"
+    ],
+    "poses_after": [
+      "000",
+      "001",
+      "002",
+      "005",
+      "006",
+      "008",
+      "032"
+    ],
+    "n_tabletop_poses": 7
+  },
+  "fruit_cutter_green": {
+    "removed": [
+      "009",
+      "010",
+      "019"
+    ],
+    "reason": "impossible",
+    "poses_before": [
+      "000",
+      "001",
+      "009",
+      "010",
+      "019"
+    ],
+    "poses_after": [
+      "000",
+      "001"
+    ],
+    "n_tabletop_poses": 2
+  },
+  "fruit_cutter_light_green": {
+    "removed": [
+      "001",
+      "010",
+      "028"
+    ],
+    "reason": "impossible",
+    "poses_before": [
+      "000",
+      "001",
+      "003",
+      "010",
+      "028"
+    ],
+    "poses_after": [
+      "000",
+      "003"
+    ],
+    "n_tabletop_poses": 2
+  },
+  "large_peg": {
+    "removed": [
+      "017"
+    ],
+    "reason": "impossible",
+    "poses_before": [
+      "000",
+      "002",
+      "017"
+    ],
+    "poses_after": [
+      "000",
+      "002"
+    ],
+    "n_tabletop_poses": 2
+  },
+  "icecream_scoop": {
+    "removed": [
+      "002"
+    ],
+    "reason": "duplicate",
+    "poses_before": [
+      "000",
+      "001",
+      "002"
+    ],
+    "poses_after": [
+      "000",
+      "001"
+    ],
+    "n_tabletop_poses": 2
+  },
+  "toothbrush_holder": {
+    "removed": [
+      "001"
+    ],
+    "reason": "impossible",
+    "poses_before": [
+      "000",
+      "001",
+      "002",
+      "003",
+      "004",
+      "006",
+      "007",
+      "008",
+      "016",
+      "024",
+      "027"
+    ],
+    "poses_after": [
+      "000",
+      "002",
+      "003",
+      "004",
+      "006",
+      "007",
+      "008",
+      "016",
+      "024",
+      "027"
+    ],
+    "n_tabletop_poses": 10
+  },
+  "white_table_lamp": {
+    "removed": [
+      "035"
+    ],
+    "reason": "impossible",
+    "poses_before": [
+      "000",
+      "012",
+      "035"
+    ],
+    "poses_after": [
+      "000",
+      "012"
+    ],
+    "n_tabletop_poses": 2
+  },
+  "white_watering_can": {
+    "removed": [
+      "004"
+    ],
+    "reason": "impossible",
+    "poses_before": [
+      "000",
+      "004",
+      "009",
+      "018"
+    ],
+    "poses_after": [
+      "000",
+      "009",
+      "018"
+    ],
+    "n_tabletop_poses": 3
+  },
+  "standing_frame": {
+    "removed": [
+      "017",
+      "034"
+    ],
+    "reason": "impossible",
+    "poses_before": [
+      "000",
+      "017",
+      "030",
+      "034"
+    ],
+    "poses_after": [
+      "000",
+      "030"
+    ],
+    "n_tabletop_poses": 2
+  }
+}
