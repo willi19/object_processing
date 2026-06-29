@@ -26,13 +26,13 @@ _VIEW_DIR = np.array([0.65, -1.0, 0.55])   # match render.py's 3/4 view
 # Per-object pose override: use a specific tabletop pose (.npy filename stem in
 # processed_data/info/tabletop/) instead of the auto-selected tallest pose.
 POSE_OVERRIDE = {
-    "blue_alarm": "011",
+    "blue_alarm": "000",   # stands the clock up on its legs (vs 011 lying flat)
 }
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
 # default 3/4 view faces an uninteresting side.
 VIEW_OVERRIDE = {
-    "blue_alarm": np.array([-0.65, 1.0, 0.55]),   # show the display-window front
+    "blue_alarm": np.array([0.6, 1.0, 0.4]),   # front-3/4, shows the standing clock
 }
 
 
