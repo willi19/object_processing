@@ -158,7 +158,13 @@ def render_thumb(o3d, obj_path, P, size, bg_rgb, view_dir=_VIEW_DIR, base_color=
     center = ((mn + mx) / 2).tolist()
     radius = float(np.linalg.norm(mx - mn) / 2)
     eye = np.asarray(center) + np.asarray(view_dir) / np.linalg.norm(view_dir) * radius * 2.3
-    rnd.setup_camera(55.0, center, eye.tolist(), [0.0, 0.0, 1.0])
+    # Set the near plane explicitly well in front of the object. Open3D's auto
+    # near-plane (via setup_camera) was clipping the object's front face, slicing
+    # it open and showing the interior as a cross-section.
+    cam = rnd.scene.camera
+    cam.set_projection(55.0, 1.0, radius * 0.3, radius * 20.0,
+                       o3d.visualization.rendering.Camera.FovType.Vertical)
+    cam.look_at(center, eye.tolist(), [0.0, 0.0, 1.0])
     img = np.asarray(rnd.render_to_image()).copy()
     del rnd
     return img
