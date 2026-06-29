@@ -16,7 +16,7 @@ import os
 import sys
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from object_processing.visualization import render as R
@@ -45,7 +45,7 @@ def standing_transform(info):
     return best
 
 
-def render_thumb(o3d, mesh, size, bg_rgb, albedo=None, base_color=(0.72, 0.74, 0.78)):
+def render_thumb(o3d, mesh, size, bg_rgb, albedo=None, base_color=(0.85, 0.86, 0.88)):
     rnd = o3d.visualization.rendering.OffscreenRenderer(size, size)
     rnd.scene.set_background([*bg_rgb, 1.0])
     mat = o3d.visualization.rendering.MaterialRecord()
@@ -55,8 +55,8 @@ def render_thumb(o3d, mesh, size, bg_rgb, albedo=None, base_color=(0.72, 0.74, 0
         mat.base_color = [1.0, 1.0, 1.0, 1.0]
         mat.albedo_img = o3d.io.read_image(albedo)
     rnd.scene.add_geometry("mesh", mesh, mat)
-    rnd.scene.scene.set_sun_light([0.3, -0.5, -0.8], [1.0, 1.0, 1.0], 75000)
-    rnd.scene.scene.enable_sun_light(True)
+    # Sun + image-based fill light so the shadowed side isn't near-black.
+    rnd.scene.set_lighting(rnd.scene.LightingProfile.SOFT_SHADOWS, [0.3, -0.5, -0.8])
     center, radius = R._bounds(mesh)
     eye = np.asarray(center) + _VIEW_DIR / np.linalg.norm(_VIEW_DIR) * radius * 2.3
     rnd.setup_camera(55.0, center, eye.tolist(), [0.0, 0.0, 1.0])
@@ -104,10 +104,16 @@ def main():
                     mesh.compute_vertex_normals()
             img = render_thumb(o3d, mesh, args.size * args.ss, bg,
                                albedo=R._find_texture(base, name))
+            thumb = Image.fromarray(img).resize((args.size, args.size), Image.LANCZOS)
+            # The renderer's tone-mapping shifts the flat background a few levels;
+            # flood-fill the corners back to the exact target so it matches the page.
+            tgt = tuple(int(round(c * 255)) for c in bg)
+            w, h = thumb.size
+            for seed in [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]:
+                ImageDraw.floodfill(thumb, seed, tgt, thresh=18)
             out_dir = os.path.join(args.output, "objects", name)
             os.makedirs(out_dir, exist_ok=True)
-            Image.fromarray(img).resize((args.size, args.size), Image.LANCZOS) \
-                 .save(os.path.join(out_dir, "thumb.png"))
+            thumb.save(os.path.join(out_dir, "thumb.png"))
             print(f"  OK   {name}")
             ok += 1
         except Exception as e:
