@@ -234,10 +234,6 @@
         </a>
       </div>
 
-      <div class="stats">
-        <div class="stat"><div class="num" id="stat-objects">105</div><div class="lab">scanned objects</div></div>
-        <div class="stat"><div class="num">38</div><div class="lab">IKEA products</div></div>
-      </div>
     </div>
   </header>
 
@@ -290,12 +286,5 @@
     </div>
   </footer>
 
-  <script>
-    // Keep the object count in sync with the live catalog.
-    fetch('catalog.json')
-      .then(r => r.json())
-      .then(d => { if (d && d.objects) document.getElementById('stat-objects').textContent = d.objects.length; })
-      .catch(() => {});
-  </script>
 </body>
 </html>
