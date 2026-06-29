@@ -11,7 +11,6 @@ square thumbnail on a flat background. Supersampled then downscaled for clean AA
 """
 
 import argparse
-import json
 import os
 import sys
 import traceback
@@ -22,63 +21,13 @@ from PIL import Image, ImageDraw
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from object_processing.visualization import render as R
+from object_processing.visualization.poses import teaser_pose
 
 _VIEW_DIR = np.array([0.65, -1.0, 0.55])   # match render.py's 3/4 view
 
-# Per-object pose override: use a specific tabletop pose (.npy filename stem in
-# processed_data/info/tabletop/) instead of the auto-selected tallest pose.
-POSE_OVERRIDE = {
-    "blue_alarm": "000",   # stands the clock up on its legs (vs 011 lying flat)
-    "apple": "004",
-    "baby_beaker": "033",
-    "beige_brush": "000",
-    "colander_green": "000",
-    "blue_vase": "003",
-    "box_pink": "002",
-    "brass_pot": "017",
-    "brown_ramen": "003",
-    "container_pink": "005",
-    "french_mustard": "002",   # 025 was an impossible resting pose
-    "frog_bowl": "000",
-    "frog_cup": "002",         # 019 was an impossible resting pose
-    "fruit_cutter_base": "004",
-    "fruit_cutter_green": "001",   # 009/010/019 were impossible poses
-    "fruit_cutter_light_green": "000",   # 010/028/001 were impossible poses
-    "green_attached_container": "008",
-    "green_lamp": "001",
-    "green_soap_dispenser": "002",
-    "icecream_scoop": "000",   # 002 was a duplicate pose
-    "large_peg": "002",        # 017 was an impossible pose
-    "lemon_squeezer": "003",
-    "light_green_basket": "001",
-    "open_box": "002",
-    "organizer_beige": "001",
-    "pastel_blue_cup": "000",
-    "mug_holder": "009",
-    "jja_ramen": "000",
-    "pink_clock": "012",
-    "paper_bowl": "001",
-    "paper_cup": "025",
-    "pepper_tuna": "019",
-    "pepper_tuna_light": "010",
-    "yellow_plastic_cup": "001",
-    "wood_tray_big": "001",
-    "wood_tray_small": "002",
-    "soaptray": "001",
-    "standing_frame": "030",   # 034/017 were impossible resting poses
-    "yellow_funnel": "001",
-    "plant_pot": "001",
-    "toothbrush_holder": "024",   # 001 was an impossible resting pose
-    "white_plastic_box": "001",
-    "white_soap_dish": "002",
-    "white_table_lamp": "012",    # 035 was an impossible resting pose
-    "white_watering_can": "000",  # 004 was impossible; no truly upright pose exists, 000 is the best of {000,009,018}
-    "magazine_file": "007",
-    "shoe_organizer": "006",
-    "smallbowl": "000",
-    "spam_can": "006",
-    "wateringcan": "003",
-}
+# Per-object pose override (the curated 'teaser' pose) lives in
+# object_processing.visualization.poses.POSE_OVERRIDE — the single source of
+# truth shared with the overlay figure and the web viewer (via teaser_pose()).
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
 # default 3/4 view faces an uninteresting side.
@@ -103,7 +52,7 @@ VIEW_OVERRIDE = {
     "work_lamp": np.array([1.0, 0.65, 0.55]),            # 90deg from default (270 + 180 relative)
     "green_cactus_vase": np.array([0.167, -1.181, 0.55]),  # 335deg from default (45 + 290 relative)
     "box_pink": np.array([1.0, 0.65, 0.55]),             # 90deg from default (270 + 180 relative)
-    "pink_clock": np.array([-0.953, 0.717, 0.55]),       # 200deg from default (335 + 225 relative)
+    "pink_clock": np.array([-0.717, -0.953, 0.55]),      # 290deg from default (200 + 90 relative)
     "screwdriver": np.array([-0.269, 1.162, 0.55]),      # 160deg from default (45 + 115 relative)
     "potato_mesher": np.array([0.247, 1.167, 0.55]),     # default view rotated 135deg about +z
     "thermo_clock": np.array([-1.0, -0.65, 0.55]),       # 270deg from default (180 + 90 relative)
@@ -112,28 +61,8 @@ VIEW_OVERRIDE = {
     "knife_sharpner": np.array([1.063, -0.541, 0.55]),   # 30deg from default (70 - 40 relative)
     "white_soap_dish": np.array([1.0, 0.65, 0.55]),      # 90deg from default (270 + 180 relative)
     "soaptray": np.array([1.0, 0.65, 0.55]),             # default view rotated 90deg about +z
+    "shoe_organizer": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
 }
-
-
-def standing_transform(info):
-    """4x4 object->table transform for the most-upright stable pose, or None."""
-    poses, obb = info.get("tabletop_poses"), info.get("obb")
-    if not poses or not obb:
-        return None
-    e = obb["extents"]
-    T = np.array(obb["transform"])
-    hx, hy, hz = e[0] / 2, e[1] / 2, e[2] / 2
-    local = np.array([[sx * hx, sy * hy, sz * hz, 1.0]
-                      for sx in (-1, 1) for sy in (-1, 1) for sz in (-1, 1)]).T
-    cobj = T @ local
-    best, best_h = None, -1e9
-    for pose in poses:
-        P = np.array(pose)
-        w = P @ cobj
-        h = w[2].max() - w[2].min()
-        if h > best_h:
-            best_h, best = h, P
-    return best
 
 
 def render_thumb(o3d, obj_path, P, size, bg_rgb, view_dir=_VIEW_DIR, base_color=(0.85, 0.86, 0.88)):
@@ -217,7 +146,6 @@ def main():
     ap.add_argument("object_root")
     ap.add_argument("output", help="dir; writes <output>/objects/<name>/thumb.png")
     ap.add_argument("--only", help="comma-separated object names")
-    ap.add_argument("--info-root", default="docs", help="where objects/<name>/info.json live")
     ap.add_argument("--glb-root", default="wiki/output/objects",
                     help="prefer GLB meshes here (fixed normals; no see-through on hollow objects)")
     ap.add_argument("--bg", default="faf8f5", help="background hex (no #), default = page cream")
@@ -250,14 +178,7 @@ def main():
                     if not cands:
                         raise FileNotFoundError("no GLB and no .obj in raw_mesh/")
                     obj = os.path.join(base, "raw_mesh", cands[0])
-            if name in POSE_OVERRIDE:
-                P = np.load(os.path.join(base, "processed_data", "info", "tabletop",
-                                         f"{POSE_OVERRIDE[name]}.npy"))
-            else:
-                P = None
-                info_path = os.path.join(args.info_root, "objects", name, "info.json")
-                if os.path.exists(info_path):
-                    P = standing_transform(json.load(open(info_path)))
+            P = teaser_pose(name, base)
             img = render_thumb(o3d, obj, P, args.size * args.ss, bg,
                                view_dir=VIEW_OVERRIDE.get(name, _VIEW_DIR))
             thumb = Image.fromarray(img).resize((args.size, args.size), Image.LANCZOS)
