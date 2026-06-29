@@ -67,6 +67,12 @@ POSE_OVERRIDE = {
     "soaptray": "003",
     "standing_frame": "030",   # 034/017 were impossible resting poses
     "yellow_funnel": "001",
+    "plant_pot": "001",
+    "toothbrush_holder": "024",   # 001 was an impossible resting pose
+    "white_plastic_box": "001",
+    "white_soap_dish": "002",
+    "white_table_lamp": "012",    # 035 was an impossible resting pose
+    "white_watering_can": "000",  # 004 was impossible; no truly upright pose exists, 000 is the best of {000,009,018}
 }
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
@@ -77,17 +83,24 @@ VIEW_OVERRIDE = {
     "blue_vase": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
     "clock": np.array([0.248, 1.166, 0.55]),     # default 3/4 view rotated 135deg about +z
     "donut_light": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
-    "frame_oak": np.array([1.191, 0.063, 0.55]),  # 60deg from default (90 + 330 relative)
+    "frame_oak": np.array([-0.541, -1.063, 0.55]),  # 300deg from default (30 + 270 relative)
     "frog_cup": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
-    "green_attached_container": np.array([-1.0, -0.65, 0.55]),  # default view rotated 270deg
+    "green_attached_container": np.array([0.247, 1.167, 0.55]),  # 135deg from default (45 + 90 relative)
     "balloon_whisk": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
     "black_holder_with_handle": np.array([-0.541, -1.063, 0.55]),  # default view rotated 300deg
-    "container_pink": np.array([1.106, -0.446, 0.55]),  # 35deg from default (80 + 315 relative)
-    "french_mustard": np.array([1.141, -0.348, 0.55]),  # default view rotated 40deg about +z
-    "metal_scoop_big": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
-    "metal_scoop_small": np.array([-1.0, -0.65, 0.55]),  # default view rotated 270deg about +z
+    "container_pink": np.array([0.446, 1.106, 0.55]),   # 125deg from default (305 + 180 relative)
+    "french_mustard": np.array([-0.348, -1.141, 0.55]),  # 310deg from default (130 + 180 relative)
+    "coffee_tin": np.array([1.0, 0.65, 0.55]),          # default view rotated 90deg about +z
+    "corkscrew": np.array([-1.167, 0.247, 0.55]),       # 225deg from default (180 + 45 relative)
+    "metal_scoop_big": np.array([-0.247, -1.167, 0.55]),  # 315deg from default (90 + 225 relative)
+    "metal_scoop_small": np.array([0.247, 1.167, 0.55]),  # 135deg from default (270 + 225 relative)
     "icecream_scoop": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
-    "work_lamp": np.array([-1.0, -0.65, 0.55]),          # default view rotated 270deg about +z
+    "work_lamp": np.array([1.0, 0.65, 0.55]),            # 90deg from default (270 + 180 relative)
+    "green_cactus_vase": np.array([1.167, -0.247, 0.55]),  # default view rotated 45deg about +z
+    "pink_clock": np.array([-1.167, 0.247, 0.55]),       # default view rotated 225deg about +z
+    "screwdriver": np.array([-1.167, 0.247, 0.55]),      # default view rotated 225deg about +z
+    "potato_mesher": np.array([0.247, 1.167, 0.55]),     # default view rotated 135deg about +z
+    "thermo_clock": np.array([-0.65, 1.0, 0.55]),        # default view rotated 180deg about +z
 }
 
 
@@ -189,6 +202,8 @@ def main():
     ap.add_argument("output", help="dir; writes <output>/objects/<name>/thumb.png")
     ap.add_argument("--only", help="comma-separated object names")
     ap.add_argument("--info-root", default="docs", help="where objects/<name>/info.json live")
+    ap.add_argument("--glb-root", default="wiki/output/objects",
+                    help="prefer GLB meshes here (fixed normals; no see-through on hollow objects)")
     ap.add_argument("--bg", default="faf8f5", help="background hex (no #), default = page cream")
     ap.add_argument("--size", type=int, default=256)
     ap.add_argument("--ss", type=int, default=3, help="supersample factor")
@@ -207,13 +222,18 @@ def main():
             continue
         try:
             base = os.path.join(args.object_root, name)
-            obj = os.path.join(base, "raw_mesh", f"{name}.obj")
+            # Prefer the GLB (same asset the Babylon viewer shows): its normals are
+            # fixed, so hollow objects (boxes, baskets, pots) render solid instead of
+            # showing through to the gray interior, which the raw OBJ does in Open3D.
+            obj = os.path.join(args.glb_root, name, "mesh.glb")
             if not os.path.exists(obj):
-                cands = [f for f in os.listdir(os.path.join(base, "raw_mesh"))
-                         if f.lower().endswith(".obj")] if os.path.isdir(os.path.join(base, "raw_mesh")) else []
-                if not cands:
-                    raise FileNotFoundError("no .obj in raw_mesh/")
-                obj = os.path.join(base, "raw_mesh", cands[0])
+                obj = os.path.join(base, "raw_mesh", f"{name}.obj")
+                if not os.path.exists(obj):
+                    cands = [f for f in os.listdir(os.path.join(base, "raw_mesh"))
+                             if f.lower().endswith(".obj")] if os.path.isdir(os.path.join(base, "raw_mesh")) else []
+                    if not cands:
+                        raise FileNotFoundError("no GLB and no .obj in raw_mesh/")
+                    obj = os.path.join(base, "raw_mesh", cands[0])
             if name in POSE_OVERRIDE:
                 P = np.load(os.path.join(base, "processed_data", "info", "tabletop",
                                          f"{POSE_OVERRIDE[name]}.npy"))
