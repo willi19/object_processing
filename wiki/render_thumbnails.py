@@ -58,23 +58,36 @@ POSE_OVERRIDE = {
     "jja_ramen": "000",
     "pink_clock": "012",
     "paper_bowl": "001",
+    "paper_cup": "025",
+    "pepper_tuna": "019",
+    "pepper_tuna_light": "010",
+    "yellow_plastic_cup": "001",
+    "wood_tray_big": "001",
+    "wood_tray_small": "002",
+    "soaptray": "003",
+    "standing_frame": "030",   # 034/017 were impossible resting poses
+    "yellow_funnel": "001",
 }
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
 # default 3/4 view faces an uninteresting side.
 VIEW_OVERRIDE = {
-    "blue_alarm": np.array([-0.6, -1.0, 0.4]),   # front-3/4 rotated 180deg about +z
+    "bamboo_box": np.array([-0.65, 1.0, 0.55]),   # 180deg: clean face, avoids the texture's diagonal grain smear
+    "blue_alarm": np.array([0.283, -1.131, 0.4]),  # 225deg from front base (315 + 270 relative)
     "blue_vase": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
     "clock": np.array([0.248, 1.166, 0.55]),     # default 3/4 view rotated 135deg about +z
     "donut_light": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
-    "frame_oak": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
+    "frame_oak": np.array([1.191, 0.063, 0.55]),  # 60deg from default (90 + 330 relative)
     "frog_cup": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
     "green_attached_container": np.array([-1.0, -0.65, 0.55]),  # default view rotated 270deg
     "balloon_whisk": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
     "black_holder_with_handle": np.array([-0.541, -1.063, 0.55]),  # default view rotated 300deg
-    "container_pink": np.array([1.098, 0.466, 0.55]),  # default view rotated 80deg about +z
+    "container_pink": np.array([1.106, -0.446, 0.55]),  # 35deg from default (80 + 315 relative)
+    "french_mustard": np.array([1.141, -0.348, 0.55]),  # default view rotated 40deg about +z
     "metal_scoop_big": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
     "metal_scoop_small": np.array([-1.0, -0.65, 0.55]),  # default view rotated 270deg about +z
+    "icecream_scoop": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
+    "work_lamp": np.array([-1.0, -0.65, 0.55]),          # default view rotated 270deg about +z
 }
 
 
@@ -151,12 +164,18 @@ def render_thumb(o3d, obj_path, P, size, bg_rgb, view_dir=_VIEW_DIR, base_color=
     mn, mx = pts.min(0), pts.max(0)
     center = ((mn + mx) / 2).tolist()
     radius = float(np.linalg.norm(mx - mn) / 2)
-    eye = np.asarray(center) + np.asarray(view_dir) / np.linalg.norm(view_dir) * radius * 2.3
+    # Use a longer "lens" (narrow FOV) and pull the camera back to compensate.
+    # A wide FOV (55deg) badly exaggerated perspective foreshortening — near parts
+    # ballooned ("big-head"/fisheye look, esp. tall objects like jja_ramen). 30deg
+    # is much closer to an orthographic, distortion-free projection.
+    fov = 30.0
+    dist = radius / np.tan(np.deg2rad(fov / 2)) * 1.15  # 15% margin around object
+    eye = np.asarray(center) + np.asarray(view_dir) / np.linalg.norm(view_dir) * dist
     # Set the near plane explicitly well in front of the object. Open3D's auto
     # near-plane (via setup_camera) was clipping the object's front face, slicing
     # it open and showing the interior as a cross-section.
     cam = rnd.scene.camera
-    cam.set_projection(55.0, 1.0, radius * 0.3, radius * 20.0,
+    cam.set_projection(fov, 1.0, dist * 0.2, dist + radius * 10.0,
                        o3d.visualization.rendering.Camera.FovType.Vertical)
     cam.look_at(center, eye.tolist(), [0.0, 0.0, 1.0])
     img = np.asarray(rnd.render_to_image()).copy()

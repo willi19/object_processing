@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>thumb gen</title>
+<style>html,body{margin:0;padding:0;overflow:hidden}#c{display:block}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/babylonjs@7.34.3/babylon.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/babylonjs-loaders@7.34.3/babylonjs.loaders.min.js"></script>
+<script>
+// Render one object's mesh.glb in its standing pose to a square canvas, matching
+// the viewer's framing/lighting. Headless Chrome screenshots the canvas.
+//   ?id=apple  &bg=595c61  &size=512
+const params = new URLSearchParams(location.search);
+const id = params.get('id');
+const SIZE = parseInt(params.get('size') || '512', 10);
+const bg = params.get('bg') || '595c61';
+const HF = 'https://huggingface.co/datasets/willi19/object_processing/resolve/main/objects/' + id + '/';
+window.__thumbReady = false;
+window.__thumbError = null;
+
+function hexColor4(h) {
+  return new BABYLON.Color4(parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255,
+                            parseInt(h.slice(4,6),16)/255, 1);
+}
+// Row-major numpy 4x4 -> Babylon column-major (transpose).
+function mat4(r){return BABYLON.Matrix.FromArray([
+  r[0][0],r[1][0],r[2][0],r[3][0], r[0][1],r[1][1],r[2][1],r[3][1],
+  r[0][2],r[1][2],r[2][2],r[3][2], r[0][3],r[1][3],r[2][3],r[3][3]]);}
+function setNodeMatrix(n,M){const s=new BABYLON.Vector3(),q=new BABYLON.Quaternion(),t=new BABYLON.Vector3();
+  M.decompose(s,q,t); n.scaling=s; n.rotationQuaternion=q; n.position=t;}
+
+// Most-upright stable pose = tallest z-extent of the OBB after the resting transform.
+function standingPose(info){
+  if(!info||!info.tabletop_poses||!info.tabletop_poses.length||!info.obb) return null;
+  const e=info.obb.extents,T=mat4(info.obb.transform);
+  const hx=e[0]/2,hy=e[1]/2,hz=e[2]/2;
+  const local=[[-hx,-hy,-hz],[hx,-hy,-hz],[hx,hy,-hz],[-hx,hy,-hz],
+               [-hx,-hy,hz],[hx,-hy,hz],[hx,hy,hz],[-hx,hy,hz]].map(p=>new BABYLON.Vector3(p[0],p[1],p[2]));
+  let best=null,bestH=-Infinity;
+  info.tabletop_poses.forEach(pose=>{const P=mat4(pose);let mn=Infinity,mx=-Infinity;
+    local.forEach(c=>{const w=BABYLON.Vector3.TransformCoordinates(BABYLON.Vector3.TransformCoordinates(c,T),P);
+      mn=Math.min(mn,w.z);mx=Math.max(mx,w.z);}); const h=mx-mn; if(h>bestH){bestH=h;best=P;}});
+  return best;
+}
+
+(async function(){
+  try{
+    const canvas=document.getElementById('c');
+    canvas.width=SIZE; canvas.height=SIZE;
+    canvas.style.width=SIZE+'px'; canvas.style.height=SIZE+'px';
+    const engine=new BABYLON.Engine(canvas,true,{preserveDrawingBuffer:true},false);
+    engine.setSize(SIZE,SIZE);
+    const scene=new BABYLON.Scene(engine);
+    scene.useRightHandedSystem=true;
+    scene.clearColor=hexColor4(bg);
+    const camera=new BABYLON.ArcRotateCamera('cam',-Math.PI/4,Math.PI/3,2,BABYLON.Vector3.Zero(),scene);
+    camera.upVector=new BABYLON.Vector3(0,0,1);
+    camera.minZ=0.001; camera.maxZ=100;  // object is ~0.1 units away — default near-clip 1.0 hides it
+    new BABYLON.HemisphericLight('h',new BABYLON.Vector3(0,1,0),scene).intensity=0.9;
+    const dir=new BABYLON.DirectionalLight('d',new BABYLON.Vector3(-1,-2,1),scene); dir.intensity=0.6;
+    try{
+      scene.environmentTexture=BABYLON.CubeTexture.CreateFromPrefilteredData(
+        'https://assets.babylonjs.com/environments/environmentSpecular.env',scene);
+      scene.environmentIntensity=0.85;
+      scene.imageProcessingConfiguration.toneMappingEnabled=true;
+      scene.imageProcessingConfiguration.toneMappingType=BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
+    }catch(e){}
+
+    let info=null;
+    try{ info=await (await fetch('objects/'+id+'/info.json')).json(); }catch(e){}
+
+    console.log('TG: loading mesh from '+HF);
+    const c=await BABYLON.SceneLoader.LoadAssetContainerAsync(HF,'mesh.glb',scene);
+    c.addAllToScene();
+    console.log('TG: mesh loaded, meshes='+c.meshes.length+' info='+(info?'yes':'no'));
+    const root=scene.getTransformNodeByName('__root__')
+      || c.transformNodes.find(n=>n.name==='__root__') || c.meshes.find(m=>m.name==='__root__');
+    const S=standingPose(info);
+    if(S&&root){const w=new BABYLON.TransformNode('stand',scene);setNodeMatrix(w,S);root.parent=w;}
+
+    // Fit camera to the (posed) mesh bounds.
+    const meshes=c.meshes.filter(m=>m.getTotalVertices()>0);
+    let mn=new BABYLON.Vector3(Infinity,Infinity,Infinity),mx=new BABYLON.Vector3(-Infinity,-Infinity,-Infinity);
+    meshes.forEach(m=>{m.computeWorldMatrix(true);const b=m.getBoundingInfo().boundingBox;
+      mn=BABYLON.Vector3.Minimize(mn,b.minimumWorld);mx=BABYLON.Vector3.Maximize(mx,b.maximumWorld);});
+    camera.target=BABYLON.Vector3.Center(mn,mx);
+    camera.radius=mx.subtract(mn).length()*1.25;
+
+    // Keep rendering every frame; by the time Chrome's virtual-time budget
+    // expires the mesh + env are loaded and the latest frame shows the object.
+    engine.runRenderLoop(()=>scene.render());
+    window.__thumbReady=true;
+  }catch(e){ window.__thumbError=String(e&&e.message||e); window.__thumbReady=true; }
+})();
+</script>
+</body>
+</html>
