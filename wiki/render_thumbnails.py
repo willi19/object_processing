@@ -51,6 +51,13 @@ POSE_OVERRIDE = {
     "large_peg": "002",        # 017 was an impossible pose
     "lemon_squeezer": "003",
     "light_green_basket": "001",
+    "open_box": "002",
+    "organizer_beige": "001",
+    "pastel_blue_cup": "000",
+    "mug_holder": "009",
+    "jja_ramen": "000",
+    "pink_clock": "012",
+    "paper_bowl": "001",
 }
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
@@ -66,6 +73,8 @@ VIEW_OVERRIDE = {
     "balloon_whisk": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
     "black_holder_with_handle": np.array([-0.541, -1.063, 0.55]),  # default view rotated 300deg
     "container_pink": np.array([1.098, 0.466, 0.55]),  # default view rotated 80deg about +z
+    "metal_scoop_big": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
+    "metal_scoop_small": np.array([-1.0, -0.65, 0.55]),  # default view rotated 270deg about +z
 }
 
 
