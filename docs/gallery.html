@@ -222,7 +222,7 @@
         card.onkeydown = (e) => { if (e.key === 'Enter') go(); };
 
         const thumb = obj.thumb
-          ? `<img src="objects/${obj.id}/thumb.png?v=22" alt="${escapeHtml(obj.label)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>&#9645;</div>'">`
+          ? `<img src="objects/${obj.id}/thumb.png?v=23" alt="${escapeHtml(obj.label)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>&#9645;</div>'">`
           : '<div class="placeholder">&#9645;</div>';
         card.innerHTML = `
           <div class="frame">${thumb}</div>

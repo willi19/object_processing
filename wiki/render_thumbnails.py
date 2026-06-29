@@ -58,7 +58,7 @@ VIEW_OVERRIDE = {
     "thermo_clock": np.array([-1.0, -0.65, 0.55]),       # 270deg from default (180 + 90 relative)
     "white_clock": np.array([-0.65, 1.0, 0.55]),         # default view rotated 180deg about +z
     "green_soap_dispenser": np.array([-0.467, 1.098, 0.55]),  # default view rotated 170deg about +z
-    "knife_sharpner": np.array([1.063, -0.541, 0.55]),   # 30deg from default (70 - 40 relative)
+    "knife_sharpner": np.array([0.541, 1.063, 0.55]),    # 120deg from default (30 + 90 relative)
     "white_soap_dish": np.array([1.0, 0.65, 0.55]),      # 90deg from default (270 + 180 relative)
     "soaptray": np.array([1.0, 0.65, 0.55]),             # default view rotated 90deg about +z
     "shoe_organizer": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
