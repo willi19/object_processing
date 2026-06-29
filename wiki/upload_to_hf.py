@@ -42,13 +42,16 @@ def upload(glb_dir):
 
     print(f"Uploading {total} objects to {REPO_ID}...")
 
-    # Upload entire folder at once (much faster than individual files)
+    # Upload entire folder at once (much faster than individual files). Only the
+    # GLBs (mesh.glb + stages/*.glb) go to HuggingFace — thumbnails live in the
+    # GitHub repo (docs/), so they're excluded to keep the dataset GLB-only.
     api.upload_folder(
         folder_path=objects_dir,
         path_in_repo="objects",
         repo_id=REPO_ID,
         repo_type=REPO_TYPE,
-        commit_message=f"Add {total} object meshes (GLB)",
+        allow_patterns=["*.glb"],
+        commit_message=f"Sync {total} object meshes (mesh + raw/coacd/simplified stages)",
     )
 
     print(f"\nDone! {total} objects uploaded to:")

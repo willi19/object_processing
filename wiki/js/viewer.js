@@ -2,11 +2,15 @@ const HF_BASE = 'https://huggingface.co/datasets/willi19/object_processing/resol
 
 // Pipeline stages the viewer can toggle between. `file` is relative to the
 // object dir on HuggingFace; `simplified` falls back to the legacy mesh.glb.
+// Every stage falls back to mesh.glb so the viewer still shows the object when a
+// stage GLB hasn't been uploaded yet (otherwise raw/coacd 404 to a blank screen).
 const STAGES = [
-  { id: 'raw',        label: 'Raw',        file: 'stages/raw.glb' },
-  { id: 'coacd',      label: 'CoACD',      file: 'stages/coacd.glb' },
+  { id: 'raw',        label: 'Raw',        file: 'stages/raw.glb',        fallback: 'mesh.glb' },
+  { id: 'manifold',   label: 'Manifold',   file: 'stages/manifold.glb',   fallback: 'mesh.glb' },
+  { id: 'coacd',      label: 'CoACD',      file: 'stages/coacd.glb',      fallback: 'mesh.glb' },
   { id: 'simplified', label: 'Simplified', file: 'stages/simplified.glb', fallback: 'mesh.glb' },
 ];
+const DEFAULT_STAGE = STAGES[STAGES.length - 1];  // simplified
 
 const AXIS_COLORS = [
   new BABYLON.Color3(1.0, 0.82, 0.10),  // primary symmetry axis
@@ -146,8 +150,8 @@ const AXIS_COLORS = [
     document.getElementById('loading').style.display = 'none';
   }
 
-  function fitCamera(container) {
-    const meshes = container.meshes.filter(m => m.getTotalVertices() > 0);
+  function fitMeshes(meshes) {
+    meshes = meshes.filter(m => m.getTotalVertices && m.getTotalVertices() > 0);
     if (!meshes.length) return;
     let min = new BABYLON.Vector3(Infinity, Infinity, Infinity);
     let max = new BABYLON.Vector3(-Infinity, -Infinity, -Infinity);
@@ -160,6 +164,7 @@ const AXIS_COLORS = [
     camera.target = BABYLON.Vector3.Center(min, max);
     camera.radius = max.subtract(min).length() * 1.4;
   }
+  function fitCamera(container) { fitMeshes(container.meshes); }
 
   // ── Overlays (built in object frame, parented to __root__) ─────────────────
   // Row-major 4x4 (numpy) -> Babylon Matrix (column-major) is a transpose.
@@ -222,7 +227,24 @@ const AXIS_COLORS = [
     mat.alpha = 0.25;
     mat.backFaceCulling = false;
     m.material = mat;
+    addFloorGrid(name + '_grid', size).parent = m;
     return m;
+  }
+
+  // Faint reference grid on the floor (xy-plane), ~20 divisions, sitting just
+  // above the slab's top face so it reads against the dark surface.
+  function addFloorGrid(name, size) {
+    const half = size / 2, step = size / 20, lines = [];
+    for (let i = -half; i <= half + step * 0.01; i += step) {
+      lines.push([new BABYLON.Vector3(i, -half, 0), new BABYLON.Vector3(i, half, 0)]);
+      lines.push([new BABYLON.Vector3(-half, i, 0), new BABYLON.Vector3(half, i, 0)]);
+    }
+    const grid = BABYLON.MeshBuilder.CreateLineSystem(name, { lines }, scene);
+    grid.color = new BABYLON.Color3(0.42, 0.45, 0.52);
+    grid.alpha = 0.55;
+    grid.position.z = 0.0015;   // local: slab top sits +0.001 above slab centre
+    grid.isPickable = false;
+    return grid;
   }
 
   // Ground plane under the single standing object.
@@ -325,12 +347,14 @@ const AXIS_COLORS = [
       const dx = ((k % cols) - (cols - 1) / 2) * spacing;
       const dy = (Math.floor(k / cols) - (cols - 1) / 2) * spacing;
       const M = mat4(pose).multiply(BABYLON.Matrix.Translation(dx, dy, 0));
-      // Clone the loaded model (materials shared) and drop it at the pose. The
-      // container template is identity, so the standing-pose wrapper is NOT
-      // inherited here — instances get exactly the resting pose.
-      const inst = currentContainer.instantiateModelsToScene(
-        name => `tt${k}_${name}`, false, { doNotInstantiate: true });
-      inst.rootNodes.forEach(rn => { setNodeMatrix(rn, M); rn.parent = group; });
+      // Deep-clone the loaded object subtree (clone copies the descendant meshes
+      // and keeps intermediate node transforms) and drop it at the resting pose.
+      // currentRoot's own transform is identity — the standing-pose wrapper lives
+      // on its parent and is intentionally not inherited here.
+      const clone = currentRoot.clone(`ttpose${k}`, null, false);
+      clone.setEnabled(true);
+      setNodeMatrix(clone, M);
+      clone.parent = group;
     });
 
     const half = (cols * spacing) / 2 + Math.max(...e);
@@ -340,20 +364,26 @@ const AXIS_COLORS = [
 
   function rebuildOverlays() {
     disposeOverlays();
-    if (shown.obb) overlays.obb = buildOBB();
-    if (shown.symmetry) overlays.symmetry = buildSymmetry();
-    if (shown.tabletop) overlays.tabletop = buildTabletop();
-    if (shown.axes) overlays.axes = buildAxes();
+    const build = (cond, fn, tag) => {
+      try { return cond ? fn() : null; } catch (e) { console.error('overlay ' + tag, e); return null; }
+    };
+    overlays.obb = build(shown.obb, buildOBB, 'obb');
+    overlays.symmetry = build(shown.symmetry, buildSymmetry, 'symmetry');
+    overlays.tabletop = build(shown.tabletop, buildTabletop, 'tabletop');
+    overlays.axes = build(shown.axes, buildAxes, 'axes');
     // OBB / symmetry / axes live in object frame -> parent to glTF root so they
     // align with the (standing) object. The pose grid is world-frame, at scene root.
     for (const k of ['obb', 'symmetry', 'axes']) {
       if (overlays[k] && currentRoot) overlays[k].parent = currentRoot;
     }
-    // While showing all poses, hide the single standing object + its floor.
-    const single = !shown.tabletop;
+    // Hide the single object only when the pose grid actually built — a failed
+    // tabletop build must never leave a blank screen.
+    const single = !(shown.tabletop && overlays.tabletop);
     if (standWrap) standWrap.setEnabled(single);
     else if (currentRoot) currentRoot.setEnabled(single);
     if (floorMesh) floorMesh.setEnabled(single);
+    // Frame the pose grid (it's bigger and elsewhere than the single object).
+    if (!single && overlays.tabletop) fitMeshes(overlays.tabletop.getChildMeshes(false));
   }
 
   function toggleOverlay(kind, on) {
@@ -406,17 +436,31 @@ const AXIS_COLORS = [
     }
   }
   async function enterCompare() {
+    document.getElementById('loading').style.display = '';
+    document.getElementById('error').style.display = 'none';
+    const S = standingPose();
+    const specs = [{ stage: STAGES[0], plane: 'a' }, { stage: DEFAULT_STAGE, plane: 'b' }];
+    // Load BOTH stages first; only hide the live object once they're in hand, so
+    // a missing stage can never strand us on a blank screen.
+    const loaded = [];
+    try {
+      for (const sp of specs) loaded.push({ sp, c: await loadCmp(sp.stage) });
+    } catch (e) {
+      console.error('compare load', e);
+      loaded.forEach(l => l.c.dispose());
+      document.getElementById('loading').style.display = 'none';
+      showError('Compare needs the raw and simplified stage meshes, which are not uploaded for this object yet.');
+      return false;
+    }
+
     compareOn = true;
     disposeOverlays();
     document.getElementById('compare-bar').style.display = 'flex';
     if (standWrap) standWrap.setEnabled(false); else if (currentRoot) currentRoot.setEnabled(false);
 
-    const S = standingPose();
-    const specs = [{ stage: STAGES[0], plane: 'a' }, { stage: STAGES[2], plane: 'b' }];
     cmp.containers = [];
     let mn = Infinity, mx = -Infinity;
-    for (const sp of specs) {
-      const c = await loadCmp(sp.stage);
+    for (const { sp, c } of loaded) {
       c.addAllToScene();
       const root = c.meshes.find(m => m.name === '__root__')
         || c.transformNodes.find(n => n.name === '__root__');
@@ -435,11 +479,14 @@ const AXIS_COLORS = [
     }
     cmp.minX = mn; cmp.maxX = mx; cut = (mn + mx) / 2;
     document.getElementById('compare-range').value = 0.5;
-    if (cmp.containers[1]) fitCamera(cmp.containers[1]);
+    fitMeshes(cmp.containers[1].meshes);
+    document.getElementById('loading').style.display = 'none';
+    return true;
   }
   function exitCompare() {
     compareOn = false;
     document.getElementById('compare-bar').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
     scene.clipPlane = null;
     cmp.containers.forEach(c => c.dispose());
     cmp.containers = [];
@@ -453,16 +500,27 @@ const AXIS_COLORS = [
   const actions = {
     setView, snapshot,
     setTurntable: (v) => { turntable = v; },
-    setCompare: (on) => { on ? enterCompare() : exitCompare(); },
+    setCompare: async (on) => { if (on) return await enterCompare(); exitCompare(); return true; },
     hasCompare: true,
   };
+
+  // Deep-link state for sharing / testing:
+  //   ?overlay=obb,symmetry,tabletop,axes   ?view=front|side|top   ?compare=1
+  async function applyUrlState() {
+    const ov = (params.get('overlay') || '').split(',').map(s => s.trim()).filter(Boolean);
+    ov.forEach(k => { if (k in shown) shown[k] = true; });
+    if (ov.length) rebuildOverlays();
+    const v = params.get('view'); if (v) setView(v);
+    if (params.get('compare') === '1') await enterCompare();
+  }
 
   // ── Controls ───────────────────────────────────────────────────────────────
   buildControls(STAGES, info, loadStage, toggleOverlay, actions);
 
   try {
-    await loadStage(STAGES[2]);  // default: simplified
+    await loadStage(DEFAULT_STAGE);  // default: simplified
     setView('iso');
+    await applyUrlState();
   } catch (e) {
     console.error(e);
     showError(`Failed to load 3D model: ${e.message || e}`);
@@ -488,7 +546,7 @@ function buildControls(stages, info, onStage, onOverlay, actions) {
     const id = 'stage-' + s.id;
     const lab = document.createElement('label');
     lab.className = 'ctl-radio';
-    lab.innerHTML = `<input type="radio" name="stage" id="${id}" ${i === 2 ? 'checked' : ''}> ${s.label}`;
+    lab.innerHTML = `<input type="radio" name="stage" id="${id}" ${i === stages.length - 1 ? 'checked' : ''}> ${s.label}`;
     const input = lab.querySelector('input');
     input.addEventListener('change', () => onStage(s));
     stageInputs.push(input);
@@ -503,10 +561,14 @@ function buildControls(stages, info, onStage, onOverlay, actions) {
     const lab = document.createElement('label');
     lab.className = 'ctl-check';
     lab.innerHTML = '<input type="checkbox"> Compare raw ↔ simplified';
-    lab.querySelector('input').addEventListener('change', (e) => {
+    lab.querySelector('input').addEventListener('change', async (e) => {
       const on = e.target.checked;
       stageInputs.forEach(inp => { inp.disabled = on; });
-      if (actions.setCompare) actions.setCompare(on);
+      const ok = actions.setCompare ? await actions.setCompare(on) : true;
+      if (on && ok === false) {  // stage missing — revert the toggle
+        e.target.checked = false;
+        stageInputs.forEach(inp => { inp.disabled = false; });
+      }
     });
     cmpWrap.appendChild(lab);
     panel.appendChild(cmpWrap);

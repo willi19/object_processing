@@ -400,11 +400,25 @@
       "thumb": "objects/pepper_tuna/thumb.png"
     },
     {
+      "id": "pepper_tuna_light",
+      "label": "Pepper Tuna Light",
+      "category": "",
+      "url": "objects/pepper_tuna_light/mesh.glb",
+      "thumb": "objects/pepper_tuna_light/thumb.png"
+    },
+    {
       "id": "pepsi",
       "label": "Pepsi",
       "category": "",
       "url": "objects/pepsi/mesh.glb",
       "thumb": "objects/pepsi/thumb.png"
+    },
+    {
+      "id": "pepsi_light",
+      "label": "Pepsi Light",
+      "category": "",
+      "url": "objects/pepsi_light/mesh.glb",
+      "thumb": "objects/pepsi_light/thumb.png"
     },
     {
       "id": "pingpong",
@@ -517,6 +531,13 @@
       "category": "",
       "url": "objects/spicemill/mesh.glb",
       "thumb": "objects/spicemill/thumb.png"
+    },
+    {
+      "id": "sponge_simple_hyunsu",
+      "label": "Sponge Simple Hyunsu",
+      "category": "",
+      "url": "objects/sponge_simple_hyunsu/mesh.glb",
+      "thumb": "objects/sponge_simple_hyunsu/thumb.png"
     },
     {
       "id": "spray_bottle",
