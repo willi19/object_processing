@@ -102,7 +102,7 @@ VIEW_OVERRIDE = {
     "icecream_scoop": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
     "work_lamp": np.array([1.0, 0.65, 0.55]),            # 90deg from default (270 + 180 relative)
     "green_cactus_vase": np.array([0.167, -1.181, 0.55]),  # 335deg from default (45 + 290 relative)
-    "box_pink": np.array([-1.0, -0.65, 0.55]),           # default view rotated 270deg about +z
+    "box_pink": np.array([1.0, 0.65, 0.55]),             # 90deg from default (270 + 180 relative)
     "pink_clock": np.array([-0.953, 0.717, 0.55]),       # 200deg from default (335 + 225 relative)
     "screwdriver": np.array([-0.269, 1.162, 0.55]),      # 160deg from default (45 + 115 relative)
     "potato_mesher": np.array([0.247, 1.167, 0.55]),     # default view rotated 135deg about +z
