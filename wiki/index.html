@@ -74,9 +74,20 @@
   }
 
   /* ---- authors ---- */
-  .authors { margin: 26px auto 0; font-size: 15px; color: var(--ink); }
-  .authors sup { color: var(--accent); font-weight: 700; }
-  .affil { margin-top: 6px; font-size: 13px; color: var(--ink-soft); }
+  .team { display: flex; flex-wrap: wrap; gap: 22px; justify-content: center; margin: 32px auto 0; }
+  .member {
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column; align-items: center; width: 132px;
+  }
+  .member .ph { height: 150px; display: flex; align-items: flex-end; justify-content: center; }
+  .member img {
+    max-height: 150px; width: auto; max-width: 132px; border-radius: 14px; display: block;
+    box-shadow: 0 6px 18px rgba(40,30,20,0.12); transition: transform .15s, box-shadow .2s;
+  }
+  .member:hover img { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(40,30,20,0.16); }
+  .member .nm { margin-top: 12px; font-size: 14px; font-weight: 600; }
+  .member:hover .nm { color: var(--accent); }
+  .affil { margin-top: 20px; font-size: 13px; color: var(--ink-soft); }
 
   /* ---- hero buttons ---- */
   .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
@@ -176,14 +187,32 @@
         bounding boxes, symmetry, and stable tabletop poses.
       </p>
 
-      <p class="authors">
-        <strong>Mingi Choi</strong>&nbsp;&nbsp;
-        <strong>Jisoo Kim</strong>&nbsp;&nbsp;
-        <strong>Gunhee Joe</strong>&nbsp;&nbsp;
-        <strong>Taeyun Ha</strong>&nbsp;&nbsp;
-        <strong>Jongbin Lee</strong>&nbsp;&nbsp;
-        <strong>Junyoung Lee</strong>
-      </p>
+      <div class="team">
+        <a class="member" href="https://willi19.github.io/" target="_blank" rel="noopener">
+          <span class="ph"><img src="img/authors/mingi_choi.jpg" alt="Mingi Choi" loading="lazy"></span>
+          <span class="nm">Mingi Choi</span>
+        </a>
+        <a class="member" href="https://jlogkim.github.io/" target="_blank" rel="noopener">
+          <span class="ph"><img src="img/authors/jisoo_kim.jpg" alt="Jisoo Kim" loading="lazy"></span>
+          <span class="nm">Jisoo Kim</span>
+        </a>
+        <a class="member" href="https://gunhee1113.github.io/" target="_blank" rel="noopener">
+          <span class="ph"><img src="img/authors/gunhee_kim.jpg" alt="Gunhee Kim" loading="lazy"></span>
+          <span class="nm">Gunhee Kim</span>
+        </a>
+        <a class="member" href="https://hahahataeyun.github.io/" target="_blank" rel="noopener">
+          <span class="ph"><img src="img/authors/taeyun_ha.jpg" alt="Taeyun Ha" loading="lazy"></span>
+          <span class="nm">Taeyun Ha</span>
+        </a>
+        <a class="member" href="https://jongbinlim.github.io/" target="_blank" rel="noopener">
+          <span class="ph"><img src="img/authors/jongbin_lim.jpg" alt="Jongbin Lim" loading="lazy"></span>
+          <span class="nm">Jongbin Lim</span>
+        </a>
+        <a class="member" href="https://junc0ng.github.io/" target="_blank" rel="noopener">
+          <span class="ph"><img src="img/authors/junyoung_lee.jpg" alt="Junyoung Lee" loading="lazy"></span>
+          <span class="nm">Junyoung Lee</span>
+        </a>
+      </div>
       <p class="affil">Seoul National University</p>
 
       <div class="btns">
