@@ -46,10 +46,13 @@ POSE_OVERRIDE = {
 # Per-object camera-direction override (object frame, +z up), for objects whose
 # default 3/4 view faces an uninteresting side.
 VIEW_OVERRIDE = {
-    "blue_alarm": np.array([-0.6, -1.0, 0.4]),   # front-3/4 rotated 180deg about +z
+    "blue_alarm": np.array([-0.881, 0.765, 0.4]),  # front-3/4 rotated 80deg about +z
     "clock": np.array([0.248, 1.166, 0.55]),     # default 3/4 view rotated 135deg about +z
     "donut_light": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
     "frame_oak": np.array([-0.65, 1.0, 0.55]),   # default view rotated 180deg about +z
+    "balloon_whisk": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
+    "black_holder_with_handle": np.array([-0.541, -1.063, 0.55]),  # default view rotated 300deg
+    "container_pink": np.array([1.098, 0.466, 0.55]),  # default view rotated 80deg about +z
 }
 
 
@@ -125,7 +128,12 @@ def render_thumb(o3d, obj_path, P, size, bg_rgb, view_dir=_VIEW_DIR, base_color=
             g = mi.mesh
             if P is not None:
                 g.transform(P)
-            add_two_sided(f"m{i}", g, model.materials[mi.material_idx])
+            mat = model.materials[mi.material_idx]
+            # A dim mtl Kd (e.g. brass_pot's 0.4) becomes base_color and multiplies
+            # the albedo down to gray. With a texture present, show it full-bright.
+            if getattr(mat, "albedo_img", None) is not None:
+                mat.base_color = [1.0, 1.0, 1.0, 1.0]
+            add_two_sided(f"m{i}", g, mat)
     else:
         # Open3D's OBJ reader ignores per-vertex colors, so load with trimesh
         # (which reads them) and copy the colors onto an Open3D mesh.
