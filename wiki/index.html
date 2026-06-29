@@ -169,7 +169,7 @@
       <a class="logo" href="index.html"><span class="dot"></span>Object Processing</a>
       <div class="nav-links">
         <a href="#objects">Objects</a>
-        <a href="#pipeline">Pipeline</a>
+        <a href="#features">Features</a>
         <a href="https://github.com/willi19/object_processing" target="_blank" rel="noopener">Code</a>
         <a href="https://huggingface.co/datasets/willi19/object_processing" target="_blank" rel="noopener">Hugging Face</a>
         <a class="cta" href="gallery.html">Gallery</a>
@@ -247,28 +247,28 @@
       </p>
       <div class="teaser" style="margin-top:30px;">
         <img src="img/object_library.jpg" alt="The complete AutoDex object library — 100 everyday objects" onerror="this.closest('.teaser').style.display='none'">
-        <div class="cap">The complete AutoDex object library, as shown in the CoRL 2026 supplementary.</div>
+        <div class="cap">The complete AutoDex object library.</div>
       </div>
     </div>
   </section>
 
-  <section class="block" id="pipeline">
+  <section class="block" id="features">
     <div class="wrap">
-      <h2>From raw scan to robot-ready asset</h2>
+      <h2>What you get for every object</h2>
       <p class="lead">
-        Give the pipeline a raw textured <code>.obj</code> and it produces everything downstream needs.
-        Every stage takes explicit input/output paths and raises on failure — nothing is silently swallowed.
+        Each object ships as a bundle of robot-ready assets — not just a mesh, but the collision
+        geometry, simplified viewing mesh, and the metadata a simulator or grasp planner needs.
       </p>
 
       <div class="stages">
-        <div class="stage"><span class="n">1</span><h3>change_format</h3><p>Normalize the raw scan into a clean OBJ (trimesh).</p></div>
-        <div class="stage"><span class="n">2</span><h3>convex_decompose</h3><p>Convex collision decomposition with CoACD.</p></div>
-        <div class="stage"><span class="n">3</span><h3>export_urdf / mjcf</h3><p>URDF and MJCF for simulation (lxml).</p></div>
-        <div class="stage"><span class="n">4</span><h3>manifold</h3><p>Watertight mesh repair (CoACD).</p></div>
-        <div class="stage"><span class="n">5</span><h3>simplify</h3><p>Decimate to ~2k verts for viewing (ACVD).</p></div>
-        <div class="stage"><span class="n">6</span><h3>basic_info</h3><p>Oriented bounding box, mass, center (trimesh).</p></div>
-        <div class="stage"><span class="n">7</span><h3>compute_symmetry</h3><p>Rotational symmetry axes (trimesh + scipy).</p></div>
-        <div class="stage"><span class="n">8</span><h3>generate_tabletop_poses</h3><p>Stable resting poses via MuJoCo.</p></div>
+        <div class="stage"><h3>Textured mesh</h3><p>High-resolution scanned <code>.glb</code> with full color texture.</p></div>
+        <div class="stage"><h3>Collision mesh</h3><p>Convex decomposition (CoACD) for fast, stable contact physics.</p></div>
+        <div class="stage"><h3>Watertight mesh</h3><p>Manifold-repaired geometry — hole-free and closed.</p></div>
+        <div class="stage"><h3>Simplified mesh</h3><p>Decimated to ~2k verts for real-time viewing.</p></div>
+        <div class="stage"><h3>Bounding box</h3><p>Oriented bounding box, with mass and center.</p></div>
+        <div class="stage"><h3>Symmetry axes</h3><p>Detected rotational symmetry for each object.</p></div>
+        <div class="stage"><h3>Tabletop poses</h3><p>Stable resting poses on a ground plane.</p></div>
+        <div class="stage"><h3>Sim-ready URDF / MJCF</h3><p>Drop-in description files for MuJoCo and other simulators.</p></div>
       </div>
 
       <div class="teaser" style="margin-top:34px;">

@@ -64,7 +64,7 @@ POSE_OVERRIDE = {
     "yellow_plastic_cup": "001",
     "wood_tray_big": "001",
     "wood_tray_small": "002",
-    "soaptray": "003",
+    "soaptray": "001",
     "standing_frame": "030",   # 034/017 were impossible resting poses
     "yellow_funnel": "001",
     "plant_pot": "001",
@@ -73,6 +73,11 @@ POSE_OVERRIDE = {
     "white_soap_dish": "002",
     "white_table_lamp": "012",    # 035 was an impossible resting pose
     "white_watering_can": "000",  # 004 was impossible; no truly upright pose exists, 000 is the best of {000,009,018}
+    "magazine_file": "007",
+    "shoe_organizer": "006",
+    "smallbowl": "000",
+    "spam_can": "006",
+    "wateringcan": "003",
 }
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
@@ -83,7 +88,7 @@ VIEW_OVERRIDE = {
     "blue_vase": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
     "clock": np.array([0.248, 1.166, 0.55]),     # default 3/4 view rotated 135deg about +z
     "donut_light": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
-    "frame_oak": np.array([-0.541, -1.063, 0.55]),  # 300deg from default (30 + 270 relative)
+    "frame_oak": np.array([0.541, 1.063, 0.55]),    # 120deg from default (300 + 180 relative)
     "frog_cup": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
     "green_attached_container": np.array([0.247, 1.167, 0.55]),  # 135deg from default (45 + 90 relative)
     "balloon_whisk": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
@@ -92,15 +97,21 @@ VIEW_OVERRIDE = {
     "french_mustard": np.array([-0.348, -1.141, 0.55]),  # 310deg from default (130 + 180 relative)
     "coffee_tin": np.array([1.0, 0.65, 0.55]),          # default view rotated 90deg about +z
     "corkscrew": np.array([-1.167, 0.247, 0.55]),       # 225deg from default (180 + 45 relative)
-    "metal_scoop_big": np.array([-0.247, -1.167, 0.55]),  # 315deg from default (90 + 225 relative)
-    "metal_scoop_small": np.array([0.247, 1.167, 0.55]),  # 135deg from default (270 + 225 relative)
+    "metal_scoop_big": np.array([-1.167, 0.247, 0.55]),   # 225deg from default (45 + 180 relative)
+    "metal_scoop_small": np.array([1.167, -0.247, 0.55]),  # 45deg from default (225 + 180 relative)
     "icecream_scoop": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
     "work_lamp": np.array([1.0, 0.65, 0.55]),            # 90deg from default (270 + 180 relative)
-    "green_cactus_vase": np.array([1.167, -0.247, 0.55]),  # default view rotated 45deg about +z
-    "pink_clock": np.array([-1.167, 0.247, 0.55]),       # default view rotated 225deg about +z
-    "screwdriver": np.array([-1.167, 0.247, 0.55]),      # default view rotated 225deg about +z
+    "green_cactus_vase": np.array([0.167, -1.181, 0.55]),  # 335deg from default (45 + 290 relative)
+    "box_pink": np.array([-1.0, -0.65, 0.55]),           # default view rotated 270deg about +z
+    "pink_clock": np.array([-0.953, 0.717, 0.55]),       # 200deg from default (335 + 225 relative)
+    "screwdriver": np.array([-0.269, 1.162, 0.55]),      # 160deg from default (45 + 115 relative)
     "potato_mesher": np.array([0.247, 1.167, 0.55]),     # default view rotated 135deg about +z
-    "thermo_clock": np.array([-0.65, 1.0, 0.55]),        # default view rotated 180deg about +z
+    "thermo_clock": np.array([-1.0, -0.65, 0.55]),       # 270deg from default (180 + 90 relative)
+    "white_clock": np.array([-0.65, 1.0, 0.55]),         # default view rotated 180deg about +z
+    "green_soap_dispenser": np.array([-0.467, 1.098, 0.55]),  # default view rotated 170deg about +z
+    "knife_sharpner": np.array([1.063, -0.541, 0.55]),   # 30deg from default (70 - 40 relative)
+    "white_soap_dish": np.array([1.0, 0.65, 0.55]),      # 90deg from default (270 + 180 relative)
+    "soaptray": np.array([1.0, 0.65, 0.55]),             # default view rotated 90deg about +z
 }
 
 
@@ -173,6 +184,11 @@ def render_thumb(o3d, obj_path, P, size, bg_rgb, view_dir=_VIEW_DIR, base_color=
 
     # Sun + image-based fill light so the shadowed side isn't near-black.
     rnd.scene.set_lighting(rnd.scene.LightingProfile.SOFT_SHADOWS, [0.3, -0.5, -0.8])
+    # The default SOFT_SHADOWS fill crushes dark-colored objects (black bowls, bins)
+    # to near-black; lift the indirect (ambient) and sun so they read as a
+    # product-photo dark-gray. Light objects don't blow out at these levels.
+    rnd.scene.scene.set_indirect_light_intensity(75000)
+    rnd.scene.scene.set_sun_light([0.3, -0.5, -0.8], [1.0, 1.0, 1.0], 100000)
     pts = np.vstack(pts)
     mn, mx = pts.min(0), pts.max(0)
     center = ((mn + mx) / 2).tolist()
