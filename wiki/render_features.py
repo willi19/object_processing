@@ -29,6 +29,25 @@ _WHITE = [1.0, 1.0, 1.0, 1.0]
 _AXIS_COLORS = [(0.85, 0.10, 0.55), (0.10, 0.55, 0.90), (0.95, 0.50, 0.10)]
 
 
+def _symmetry_label(t):
+    """Human-readable description of a symmetry group code (Cn / Dn / Cinf / ...).
+    Returns (description, code) so the image can show both."""
+    if not t:
+        return ("", "")
+    t = t.strip()
+    if t in ("C1", "1"):
+        return ("No symmetry", t)
+    if t == "Cinf":
+        return ("Axially symmetric", t)
+    if t == "Dinf":
+        return ("Axially symmetric, with mirror", t)
+    if t.startswith("C") and t[1:].isdigit():
+        return (f"{t[1:]}-fold rotational symmetry", t)
+    if t.startswith("D") and t[1:].isdigit():
+        return (f"{t[1:]}-fold rotational + mirror", t)
+    return (t, t)
+
+
 def _key_white(img):
     """Key the uniform corner background to pure white for clean compositing."""
     corner = img[1, 1].astype(int)
@@ -233,10 +252,12 @@ def main():
             sym_ov.append((f"axis_{i}", ls))
     sym_img = Image.fromarray(_textured(o3d, base, name, P, center, radius, size, overlays=sym_ov))
     if sym_type:
+        desc, code = _symmetry_label(sym_type)
         draw = ImageDraw.Draw(sym_img)
-        font = R._font(max(18, int(size * 0.075)))
-        draw.text((int(size * 0.045), int(size * 0.035)), sym_type, font=font,
-                  fill=(156, 74, 47))  # terracotta accent
+        big, small = R._font(max(16, int(size * 0.05))), R._font(max(11, int(size * 0.03)))
+        x, y = int(size * 0.045), int(size * 0.035)
+        draw.text((x, y), desc, font=big, fill=(156, 74, 47))   # terracotta accent
+        draw.text((x, y + int(size * 0.065)), code, font=small, fill=(138, 129, 120))
     sym_img.save(os.path.join(a.out, "symmetry.png"))
     print("  wrote symmetry.png")
 
