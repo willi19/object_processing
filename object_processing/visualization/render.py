@@ -327,25 +327,86 @@ def render_tabletop_figure(obj_name, out_path, root=None, width=1200, height=820
     return n
 
 
+def _add_textured(o3d, rnd, base, obj_name, P):
+    """Add the object's own textured display mesh (raw_mesh/<name>.obj) to the
+    scene, posed by 4x4 ``P``. Returns the stacked posed vertices (Nx3) so the
+    caller can frame the camera. Mirrors the thumbnail renderer: per-vertex-color
+    meshes (apple/banana) load via trimesh; everything else via
+    read_triangle_model so mtl Kd + albedo textures survive."""
+    import trimesh
+    raw_dir = os.path.join(base, "raw_mesh")
+    obj_path = os.path.join(raw_dir, f"{obj_name}.obj")
+    if not os.path.exists(obj_path):
+        cands = [f for f in os.listdir(raw_dir) if f.lower().endswith(".obj")] \
+            if os.path.isdir(raw_dir) else []
+        if not cands:
+            raise FileNotFoundError(f"render: no .obj in {raw_dir}")
+        obj_path = os.path.join(raw_dir, cands[0])
+
+    pts = []
+    tmesh = trimesh.load(obj_path, force="mesh")
+    has_vc = getattr(tmesh.visual, "kind", None) == "vertex"
+    if not has_vc:
+        model = o3d.io.read_triangle_model(obj_path)
+        for i, mi in enumerate(model.meshes):
+            g = mi.mesh
+            g.transform(P)
+            g.compute_vertex_normals()
+            mat = model.materials[mi.material_idx]
+            # A dim mtl Kd would multiply the albedo down to gray; show textured
+            # surfaces full-bright, but keep the Kd color when there's no texture.
+            if getattr(mat, "albedo_img", None) is not None:
+                mat.base_color = [1.0, 1.0, 1.0, 1.0]
+            rnd.scene.add_geometry(f"mesh_{i}", g, mat)
+            pts.append(np.asarray(g.vertices))
+    else:
+        g = o3d.geometry.TriangleMesh(
+            o3d.utility.Vector3dVector(np.asarray(tmesh.vertices, float)),
+            o3d.utility.Vector3iVector(np.asarray(tmesh.faces, np.int32)))
+        g.vertex_colors = o3d.utility.Vector3dVector(
+            np.asarray(tmesh.visual.vertex_colors)[:, :3] / 255.0)
+        g.transform(P)
+        g.compute_vertex_normals()
+        mat = o3d.visualization.rendering.MaterialRecord()
+        mat.shader = "defaultLit"
+        mat.base_color = [1.0, 1.0, 1.0, 1.0]
+        rnd.scene.add_geometry("mesh", g, mat)
+        pts.append(np.asarray(g.vertices))
+    return np.vstack(pts)
+
+
 def render_overlays_figure(obj_name, out_path, root=None, width=820, height=820):
-    """Render the simplified mesh with its oriented bounding box (blue) and
-    rotational symmetry axes (yellow/green/blue) overlaid."""
+    """Render the textured display mesh in its curated 'teaser' tabletop pose,
+    with its oriented bounding box (blue) and rotational symmetry axes
+    (yellow/green/blue) overlaid. Overlays are transformed into the posed frame
+    so they stay aligned with the standing mesh."""
+    from .poses import teaser_pose
     o3d = _o3d()
     base = obj_dir(obj_name) if root is None else os.path.join(root, obj_name)
     info_dir = os.path.join(base, "processed_data", "info")
-    mesh = _load(o3d, os.path.join(base, "processed_data", "mesh", "simplified.obj"))
-    center, radius = _bounds(mesh)
+
+    # Teaser resting pose (object -> table); identity if the object has none.
+    Pt = teaser_pose(obj_name, base)
+    P = np.asarray(Pt) if Pt is not None else np.eye(4)
 
     rnd = o3d.visualization.rendering.OffscreenRenderer(width, height)
     rnd.scene.set_background([1.0, 1.0, 1.0, 1.0])
-    rnd.scene.scene.set_sun_light([0.3, -0.5, -0.8], [1.0, 1.0, 1.0], 75000)
-    rnd.scene.scene.enable_sun_light(True)
-    rnd.scene.add_geometry("mesh", mesh, _lit(o3d, (0.80, 0.82, 0.85)))
+    # Image-based + sun fill, matching the thumbnails, so PBR textures aren't flat
+    # and dark-colored objects read as product-photo gray rather than near-black.
+    rnd.scene.set_lighting(rnd.scene.LightingProfile.SOFT_SHADOWS, [0.3, -0.5, -0.8])
+    rnd.scene.scene.set_indirect_light_intensity(75000)
+    rnd.scene.scene.set_sun_light([0.3, -0.5, -0.8], [1.0, 1.0, 1.0], 100000)
+
+    verts = _add_textured(o3d, rnd, base, obj_name, P)
+    mn, mx = verts.min(0), verts.max(0)
+    center = (mn + mx) / 2
+    radius = max(float(np.linalg.norm(mx - mn) / 2), 1e-6)
 
     simp = os.path.join(info_dir, "simplified.json")
     if os.path.exists(simp):
         s = json.load(open(simp))
         obb = _obb_lineset(o3d, s["obb"], s["obb_transform"], (0.20, 0.45, 1.0))
+        obb.transform(P)
         rnd.scene.add_geometry("obb", obb, _line_material(o3d, 3.0))
 
     sym_path = os.path.join(info_dir, "symmetry.json")
@@ -360,10 +421,11 @@ def render_overlays_figure(obj_name, out_path, root=None, width=820, height=820)
             ls.points = o3d.utility.Vector3dVector([ctr - d * L, ctr + d * L])
             ls.lines = o3d.utility.Vector2iVector([[0, 1]])
             ls.paint_uniform_color(list(axis_colors[i % len(axis_colors)]))
+            ls.transform(P)
             rnd.scene.add_geometry(f"axis_{i}", ls, _line_material(o3d, 5.0))
 
     eye = np.asarray(center) + _VIEW_DIR / np.linalg.norm(_VIEW_DIR) * radius * 2.3
-    rnd.setup_camera(55.0, center, eye.tolist(), [0.0, 0.0, 1.0])
+    rnd.setup_camera(55.0, center.tolist(), eye.tolist(), [0.0, 0.0, 1.0])
     img = np.asarray(rnd.render_to_image())
     del rnd
 

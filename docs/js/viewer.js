@@ -12,6 +12,11 @@ const STAGES = [
 ];
 const DEFAULT_STAGE = STAGES[STAGES.length - 1];  // simplified
 
+// Not user-selectable: the full textured display mesh. Shown automatically while
+// a 3D overlay that needs a clean hero shot (symmetry axis / tabletop poses) is
+// on, in place of the processed stage mesh.
+const MESH_STAGE = { id: 'textured', label: 'Textured', file: 'mesh.glb', fallback: 'mesh.glb' };
+
 const AXIS_COLORS = [
   new BABYLON.Color3(1.0, 0.82, 0.10),  // primary symmetry axis
   new BABYLON.Color3(0.20, 0.85, 0.40),
@@ -103,6 +108,8 @@ const AXIS_COLORS = [
 
   // State shared across stage loads.
   let currentContainer = null;
+  let selectedStage = DEFAULT_STAGE;  // stage the user picked via the radios
+  let loadedStageId = null;           // id of the stage actually in the scene
   let currentRoot = null;          // glTF __root__ node; overlays parent here
   let standWrap = null;            // wraps currentRoot with the standing pose
   let floorMesh = null;            // ground plane under the standing object
@@ -137,6 +144,7 @@ const AXIS_COLORS = [
       } else { throw e; }
     }
     currentContainer.addAllToScene();
+    loadedStageId = stage.id;
     currentRoot = scene.getTransformNodeByName('__root__')
       || currentContainer.transformNodes.find(n => n.name === '__root__')
       || currentContainer.meshes.find(m => m.name === '__root__');
@@ -181,6 +189,9 @@ const AXIS_COLORS = [
   // (largest z-extent of the OBB after the resting transform). Returns a Babylon
   // Matrix (object -> table) or null.
   function standingPose() {
+    // Prefer the curated 'teaser' pose (same one the thumbnails use) so the
+    // standing object matches the gallery; fall back to the tallest stable pose.
+    if (info && info.display_pose) return mat4(info.display_pose);
     if (!info || !info.tabletop_poses || !info.tabletop_poses.length || !info.obb) return null;
     const e = info.obb.extents, T = mat4(info.obb.transform);
     const hx = e[0] / 2, hy = e[1] / 2, hz = e[2] / 2;
@@ -386,9 +397,24 @@ const AXIS_COLORS = [
     if (!single && overlays.tabletop) fitMeshes(overlays.tabletop.getChildMeshes(false));
   }
 
-  function toggleOverlay(kind, on) {
+  // Show the textured display mesh while symmetry/tabletop overlays are on,
+  // otherwise the user-selected pipeline stage. Reload only when the chosen mesh
+  // actually changes; loadStage() rebuilds the overlays on the way out.
+  async function syncMesh() {
+    if (compareOn) { rebuildOverlays(); return; }
+    const want = (shown.symmetry || shown.tabletop) ? MESH_STAGE : selectedStage;
+    if (loadedStageId === want.id) { rebuildOverlays(); return; }
+    await loadStage(want);
+  }
+
+  async function selectStage(s) {
+    selectedStage = s;
+    await syncMesh();
+  }
+
+  async function toggleOverlay(kind, on) {
     shown[kind] = on;
-    rebuildOverlays();
+    await syncMesh();
   }
 
   // ── Real-world dimensions (header) ─────────────────────────────────────────
@@ -509,13 +535,13 @@ const AXIS_COLORS = [
   async function applyUrlState() {
     const ov = (params.get('overlay') || '').split(',').map(s => s.trim()).filter(Boolean);
     ov.forEach(k => { if (k in shown) shown[k] = true; });
-    if (ov.length) rebuildOverlays();
+    if (ov.length) await syncMesh();
     const v = params.get('view'); if (v) setView(v);
     if (params.get('compare') === '1') await enterCompare();
   }
 
   // ── Controls ───────────────────────────────────────────────────────────────
-  buildControls(STAGES, info, loadStage, toggleOverlay, actions);
+  buildControls(STAGES, info, selectStage, toggleOverlay, actions);
 
   try {
     await loadStage(DEFAULT_STAGE);  // default: simplified

@@ -25,6 +25,7 @@ import trimesh
 
 from object_processing.utils.config import obj_dir
 from object_processing.pipeline.symmetry import detect_symmetry
+from object_processing.visualization.poses import teaser_pose
 
 # Per-piece colors for the convex decomposition (RGB 0-255), matching render.py.
 _PALETTE = [
@@ -109,6 +110,13 @@ def export_web_info(obj_name, out_path, root=None, max_poses=24):
     poses = [np.load(p).tolist() for p in pose_files[:max_poses]]
     info["tabletop_poses"] = poses
     info["n_tabletop_poses"] = len(pose_files)
+
+    # Curated 'teaser' resting pose (object -> table) used for the hero shot in
+    # the viewer (symmetry / tabletop overlays) and the thumbnails. Loaded from
+    # disk directly so curated overrides beyond max_poses still resolve.
+    P = teaser_pose(obj_name, base)
+    if P is not None:
+        info["display_pose"] = P.tolist()
 
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     with open(out_path, "w") as f:
