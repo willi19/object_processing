@@ -45,19 +45,39 @@ def standing_transform(info):
     return best
 
 
-def render_thumb(o3d, mesh, size, bg_rgb, albedo=None, base_color=(0.85, 0.86, 0.88)):
+def render_thumb(o3d, obj_path, P, size, bg_rgb, base_color=(0.85, 0.86, 0.88)):
+    """Render an object's OWN materials (handles multi-texture meshes), in the
+    standing pose ``P`` (4x4 or None), on a flat ``bg_rgb`` background."""
+    model = o3d.io.read_triangle_model(obj_path)
     rnd = o3d.visualization.rendering.OffscreenRenderer(size, size)
     rnd.scene.set_background([*bg_rgb, 1.0])
-    mat = o3d.visualization.rendering.MaterialRecord()
-    mat.shader = "defaultLit"
-    mat.base_color = [*base_color, 1.0]
-    if albedo and os.path.exists(albedo):
-        mat.base_color = [1.0, 1.0, 1.0, 1.0]
-        mat.albedo_img = o3d.io.read_image(albedo)
-    rnd.scene.add_geometry("mesh", mesh, mat)
+
+    pts = []
+    if model.meshes:                       # textured / multi-material path
+        for i, mi in enumerate(model.meshes):
+            g = mi.mesh
+            if P is not None:
+                g.transform(P)
+            g.compute_vertex_normals()
+            rnd.scene.add_geometry(f"m{i}", g, model.materials[mi.material_idx])
+            pts.append(np.asarray(g.vertices))
+    else:                                  # fallback: bare geometry, no materials
+        g = R._load(o3d, obj_path)
+        if P is not None:
+            g.transform(P)
+            g.compute_vertex_normals()
+        mat = o3d.visualization.rendering.MaterialRecord()
+        mat.shader = "defaultLit"
+        mat.base_color = [*base_color, 1.0]
+        rnd.scene.add_geometry("mesh", g, mat)
+        pts.append(np.asarray(g.vertices))
+
     # Sun + image-based fill light so the shadowed side isn't near-black.
     rnd.scene.set_lighting(rnd.scene.LightingProfile.SOFT_SHADOWS, [0.3, -0.5, -0.8])
-    center, radius = R._bounds(mesh)
+    pts = np.vstack(pts)
+    mn, mx = pts.min(0), pts.max(0)
+    center = ((mn + mx) / 2).tolist()
+    radius = float(np.linalg.norm(mx - mn) / 2)
     eye = np.asarray(center) + _VIEW_DIR / np.linalg.norm(_VIEW_DIR) * radius * 2.3
     rnd.setup_camera(55.0, center, eye.tolist(), [0.0, 0.0, 1.0])
     img = np.asarray(rnd.render_to_image()).copy()
@@ -95,15 +115,11 @@ def main():
                 print(f"  SKIP {name}: no raw_mesh obj"); continue
             obj = os.path.join(base, "raw_mesh", cands[0])
         try:
-            mesh = R._load(o3d, obj)
+            P = None
             info_path = os.path.join(args.info_root, "objects", name, "info.json")
             if os.path.exists(info_path):
                 P = standing_transform(json.load(open(info_path)))
-                if P is not None:
-                    mesh.transform(P)
-                    mesh.compute_vertex_normals()
-            img = render_thumb(o3d, mesh, args.size * args.ss, bg,
-                               albedo=R._find_texture(base, name))
+            img = render_thumb(o3d, obj, P, args.size * args.ss, bg)
             thumb = Image.fromarray(img).resize((args.size, args.size), Image.LANCZOS)
             # The renderer's tone-mapping shifts the flat background a few levels;
             # flood-fill the corners back to the exact target so it matches the page.
