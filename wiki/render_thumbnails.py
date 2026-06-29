@@ -33,12 +33,23 @@ POSE_OVERRIDE = {
     "baby_beaker": "033",
     "beige_brush": "000",
     "colander_green": "000",
+    "blue_vase": "003",
+    "box_pink": "002",
+    "brass_pot": "017",
+    "brown_ramen": "003",
+    "container_pink": "005",
+    "french_mustard": "002",   # 025 was an impossible resting pose
+    "frog_bowl": "000",
+    "frog_cup": "002",         # 019 was an impossible resting pose
 }
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
 # default 3/4 view faces an uninteresting side.
 VIEW_OVERRIDE = {
-    "blue_alarm": np.array([0.6, 1.0, 0.4]),   # front-3/4, shows the standing clock
+    "blue_alarm": np.array([-0.6, -1.0, 0.4]),   # front-3/4 rotated 180deg about +z
+    "clock": np.array([0.248, 1.166, 0.55]),     # default 3/4 view rotated 135deg about +z
+    "donut_light": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
+    "frame_oak": np.array([-0.65, 1.0, 0.55]),   # default view rotated 180deg about +z
 }
 
 
