@@ -29,6 +29,10 @@ _VIEW_DIR = np.array([0.65, -1.0, 0.55])   # match render.py's 3/4 view
 # processed_data/info/tabletop/) instead of the auto-selected tallest pose.
 POSE_OVERRIDE = {
     "blue_alarm": "000",   # stands the clock up on its legs (vs 011 lying flat)
+    "apple": "004",
+    "baby_beaker": "033",
+    "beige_brush": "000",
+    "colander_green": "000",
 }
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
@@ -74,11 +78,18 @@ def render_thumb(o3d, obj_path, P, size, bg_rgb, view_dir=_VIEW_DIR, base_color=
         # matching Babylon / the interactive Open3D viewer.
         g.compute_vertex_normals()
         rnd.scene.add_geometry(gname, g, mat)
-        # The back copy is coplanar with the front, so it z-fights it. Make it an
-        # IDENTICAL clone (reversed winding + matching UVs/textures/colors) so the
-        # z-fight is invisible — otherwise it washes out the front's texture/color.
+        # Push the back copy slightly INWARD (along -normal) so it isn't coplanar
+        # with the front. Coplanar copies z-fight, and since the back's normals are
+        # flipped (lit from the other side) that z-fight makes thin walls look
+        # semi-transparent/mottled. An identical clone (reversed winding + UVs +
+        # textures + colors) sitting just inside renders the interior cleanly.
+        gv = np.asarray(g.vertices)
+        gn = np.asarray(g.vertex_normals)
+        eps = 0.002 * float(np.linalg.norm(gv.max(0) - gv.min(0)))
         tri = np.asarray(g.triangles)[:, ::-1]
-        back = o3d.geometry.TriangleMesh(g.vertices, o3d.utility.Vector3iVector(tri))
+        back = o3d.geometry.TriangleMesh(
+            o3d.utility.Vector3dVector(gv - gn * eps),
+            o3d.utility.Vector3iVector(tri))
         if g.has_vertex_colors():
             back.vertex_colors = g.vertex_colors
         if g.has_triangle_uvs():
