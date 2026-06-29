@@ -139,6 +139,17 @@
   }
   .stage h3 { font-size: 15px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   .stage p { font-size: 13px; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; }
+  /* Each card leads with a render of that very feature (from one demo object). */
+  .stage .shot {
+    width: 100%; aspect-ratio: 1; object-fit: contain; display: block;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px;
+  }
+  .stage .snip {
+    aspect-ratio: 1; margin-bottom: 14px; overflow: hidden;
+    background: #20201d; color: #d9d2c7; border-radius: 10px; padding: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    line-height: 1.5; white-space: pre;
+  }
 
   .figgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
   .figgrid figure {
@@ -232,7 +243,6 @@
       <div class="stats">
         <div class="stat"><div class="num" id="stat-objects">105</div><div class="lab">scanned objects</div></div>
         <div class="stat"><div class="num">38</div><div class="lab">IKEA products</div></div>
-        <div class="stat"><div class="num">8</div><div class="lab">pipeline stages</div></div>
       </div>
     </div>
   </header>
@@ -260,30 +270,24 @@
         geometry, simplified viewing mesh, and the metadata a simulator or grasp planner needs.
       </p>
 
+      <p class="lead" style="margin-top:6px;font-size:14px;">Every tile below is rendered straight from one object's own assets — French's mustard, in its stable tabletop pose.</p>
+
       <div class="stages">
-        <div class="stage"><h3>Textured mesh</h3><p>High-resolution scanned <code>.glb</code> with full color texture.</p></div>
-        <div class="stage"><h3>Collision mesh</h3><p>Convex decomposition (CoACD) for fast, stable contact physics.</p></div>
-        <div class="stage"><h3>Watertight mesh</h3><p>Manifold-repaired geometry — hole-free and closed.</p></div>
-        <div class="stage"><h3>Simplified mesh</h3><p>Decimated to ~2k verts for real-time viewing.</p></div>
-        <div class="stage"><h3>Bounding box</h3><p>Oriented bounding box, with mass and center.</p></div>
-        <div class="stage"><h3>Symmetry axes</h3><p>Detected rotational symmetry for each object.</p></div>
-        <div class="stage"><h3>Tabletop poses</h3><p>Stable resting poses on a ground plane.</p></div>
-        <div class="stage"><h3>Sim-ready URDF / MJCF</h3><p>Drop-in description files for MuJoCo and other simulators.</p></div>
-      </div>
-
-      <div class="teaser" style="margin-top:34px;">
-        <img src="img/pipeline_french_mustard.png" alt="Pipeline stages: raw to coacd to manifold to simplified" onerror="this.closest('.teaser').style.display='none'">
-      </div>
-
-      <div class="figgrid">
-        <figure>
-          <img src="img/tabletop_french_mustard.png" alt="Stable tabletop poses" onerror="this.closest('figure').style.display='none'">
-          <figcaption>Stable tabletop poses on a ground plane.</figcaption>
-        </figure>
-        <figure>
-          <img src="img/overlays_blue_alarm.png" alt="Oriented bounding box and symmetry overlay" onerror="this.closest('figure').style.display='none'">
-          <figcaption>Oriented bounding box + symmetry-axis overlay.</figcaption>
-        </figure>
+        <div class="stage"><img class="shot" src="img/features/textured.png" alt="Textured mesh render" loading="lazy"><h3>Textured mesh</h3><p>High-resolution scanned <code>.glb</code> with full color texture.</p></div>
+        <div class="stage"><img class="shot" src="img/features/collision.png" alt="Collision mesh render" loading="lazy"><h3>Collision mesh</h3><p>Convex decomposition (CoACD) for fast, stable contact physics.</p></div>
+        <div class="stage"><img class="shot" src="img/features/watertight.png" alt="Watertight mesh render" loading="lazy"><h3>Watertight mesh</h3><p>Manifold-repaired geometry — hole-free and closed.</p></div>
+        <div class="stage"><img class="shot" src="img/features/simplified.png" alt="Simplified mesh render" loading="lazy"><h3>Simplified mesh</h3><p>Decimated to ~2k verts for real-time viewing.</p></div>
+        <div class="stage"><img class="shot" src="img/features/bbox.png" alt="Oriented bounding box render" loading="lazy"><h3>Bounding box</h3><p>Oriented bounding box, with mass and center.</p></div>
+        <div class="stage"><img class="shot" src="img/features/symmetry.png" alt="Symmetry axes render" loading="lazy"><h3>Symmetry axes</h3><p>Detected rotational symmetry for each object.</p></div>
+        <div class="stage"><img class="shot" src="img/features/tabletop.png" alt="Tabletop poses render" loading="lazy"><h3>Tabletop poses</h3><p>Stable resting poses on a ground plane.</p></div>
+        <div class="stage"><pre class="snip">&lt;link name="mustard"&gt;
+  &lt;collision&gt;
+    &lt;geometry&gt;
+      &lt;mesh
+        filename="coacd.obj"/&gt;
+    &lt;/geometry&gt;
+  &lt;/collision&gt;
+&lt;/link&gt;</pre><h3>Sim-ready URDF / MJCF</h3><p>Drop-in description files for MuJoCo and other simulators.</p></div>
       </div>
     </div>
   </section>
