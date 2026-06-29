@@ -144,12 +144,6 @@
     width: 100%; aspect-ratio: 1; object-fit: contain; display: block;
     background: #fff; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px;
   }
-  .stage .snip {
-    aspect-ratio: 1; margin-bottom: 14px; overflow: hidden;
-    background: #20201d; color: #d9d2c7; border-radius: 10px; padding: 14px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
-    line-height: 1.5; white-space: pre;
-  }
 
   .figgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
   .figgrid figure {
@@ -280,21 +274,14 @@
         <div class="stage"><img class="shot" src="img/features/bbox.png" alt="Oriented bounding box render" loading="lazy"><h3>Bounding box</h3><p>Oriented bounding box, with mass and center.</p></div>
         <div class="stage"><img class="shot" src="img/features/symmetry.png" alt="Symmetry axes render" loading="lazy"><h3>Symmetry axes</h3><p>Detected rotational symmetry for each object.</p></div>
         <div class="stage"><img class="shot" src="img/features/tabletop.png" alt="Tabletop poses render" loading="lazy"><h3>Tabletop poses</h3><p>Stable resting poses on a ground plane.</p></div>
-        <div class="stage"><pre class="snip">&lt;link name="mustard"&gt;
-  &lt;collision&gt;
-    &lt;geometry&gt;
-      &lt;mesh
-        filename="coacd.obj"/&gt;
-    &lt;/geometry&gt;
-  &lt;/collision&gt;
-&lt;/link&gt;</pre><h3>Sim-ready URDF / MJCF</h3><p>Drop-in description files for MuJoCo and other simulators.</p></div>
+        <div class="stage"><img class="shot" src="img/features/urdf.png" alt="Sim-ready URDF / MJCF render" loading="lazy"><h3>Sim-ready URDF / MJCF</h3><p>Drop-in description files for MuJoCo and other simulators.</p></div>
       </div>
     </div>
   </section>
 
   <footer>
     <div class="wrap">
-      <span>Object Processing · part of the AutoDex project</span>
+      <span>AutoDex • Object Processing</span>
       <span>
         <a href="gallery.html">Gallery</a> &nbsp;·&nbsp;
         <a href="https://github.com/willi19/object_processing" target="_blank" rel="noopener">GitHub</a> &nbsp;·&nbsp;
