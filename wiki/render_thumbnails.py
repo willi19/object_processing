@@ -56,12 +56,13 @@ POSE_OVERRIDE = {
 # Per-object camera-direction override (object frame, +z up), for objects whose
 # default 3/4 view faces an uninteresting side.
 VIEW_OVERRIDE = {
-    "blue_alarm": np.array([-0.283, 1.131, 0.4]),  # front-3/4 rotated 45deg about +z
+    "blue_alarm": np.array([-0.6, -1.0, 0.4]),   # front-3/4 rotated 180deg about +z
     "blue_vase": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
     "clock": np.array([0.248, 1.166, 0.55]),     # default 3/4 view rotated 135deg about +z
     "donut_light": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
-    "frame_oak": np.array([1.166, -0.248, 0.55]),  # default view rotated 45deg about +z
+    "frame_oak": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
     "frog_cup": np.array([1.0, 0.65, 0.55]),       # default view rotated 90deg about +z
+    "green_attached_container": np.array([-1.0, -0.65, 0.55]),  # default view rotated 270deg
     "balloon_whisk": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
     "black_holder_with_handle": np.array([-0.541, -1.063, 0.55]),  # default view rotated 300deg
     "container_pink": np.array([1.098, 0.466, 0.55]),  # default view rotated 80deg about +z
