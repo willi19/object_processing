@@ -47,6 +47,10 @@ POSE_OVERRIDE = {
     "green_attached_container": "008",
     "green_lamp": "001",
     "green_soap_dispenser": "002",
+    "icecream_scoop": "000",   # 002 was a duplicate pose
+    "large_peg": "002",        # 017 was an impossible pose
+    "lemon_squeezer": "003",
+    "light_green_basket": "001",
 }
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
