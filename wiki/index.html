@@ -1,497 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Object Library</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Object Processing</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --border: #30363d;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --accent: #58a6ff;
-      --chip: #21262d;
-      --header-bg: rgba(22, 27, 34, 0.85);
-    }
+  :root {
+    --bg: #faf8f5;
+    --card: #ffffff;
+    --line: #ece7e0;
+    --ink: #2b2722;
+    --ink-soft: #8a8178;
+    --accent: #e2603b;        /* warm coral */
+    --accent-soft: #fdeee9;
+  }
 
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #ffffff;
-        --surface: #f6f8fa;
-        --border: #d0d7de;
-        --text: #1f2328;
-        --muted: #59636e;
-        --accent: #0969da;
-        --chip: #eaeef2;
-        --header-bg: rgba(255, 255, 255, 0.85);
-      }
-    }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      color-scheme: light dark;
-    }
+  a { color: inherit; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: var(--header-bg);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
+  /* ---- top menubar ---- */
+  nav {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(250, 248, 245, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap {
+    display: flex; align-items: center; gap: 12px;
+    height: 62px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 16px; letter-spacing: -0.01em; text-decoration: none;
+  }
+  .logo .dot {
+    width: 22px; height: 22px; border-radius: 7px;
+    background: var(--accent); flex-shrink: 0;
+    box-shadow: inset 0 0 0 4px var(--accent-soft);
+  }
+  .nav-links { display: flex; align-items: center; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+  .nav-links a {
+    text-decoration: none; color: var(--ink-soft); font-size: 14px; font-weight: 500;
+    padding: 8px 13px; border-radius: 999px; transition: color .15s, background .15s;
+  }
+  .nav-links a:hover { color: var(--ink); background: #f1ece5; }
+  .nav-links a.cta {
+    color: #fff; background: var(--accent);
+    box-shadow: 0 1px 2px rgba(226,96,59,0.25);
+  }
+  .nav-links a.cta:hover { background: #cf512e; color: #fff; }
 
-    .brand { display: flex; align-items: baseline; gap: 12px; }
+  /* ---- hero ---- */
+  .hero { padding: 72px 0 48px; text-align: center; }
+  .eyebrow {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent);
+    background: var(--accent-soft); padding: 6px 14px; border-radius: 999px; margin-bottom: 22px;
+  }
+  .hero h1 {
+    font-size: clamp(38px, 6vw, 60px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.04;
+  }
+  .hero .tagline {
+    max-width: 640px; margin: 20px auto 0; font-size: 18px; line-height: 1.55; color: var(--ink-soft);
+  }
 
-    header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  /* ---- authors ---- */
+  .authors { margin: 26px auto 0; font-size: 15px; color: var(--ink); }
+  .authors sup { color: var(--accent); font-weight: 700; }
+  .affil { margin-top: 6px; font-size: 13px; color: var(--ink-soft); }
 
-    .count-badge {
-      font-size: 13px;
-      color: var(--muted);
-      background: var(--chip);
-      border: 1px solid var(--border);
-      padding: 2px 10px;
-      border-radius: 20px;
-      white-space: nowrap;
-    }
+  /* ---- hero buttons ---- */
+  .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+    font-size: 15px; font-weight: 600; padding: 12px 22px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    box-shadow: 0 1px 2px rgba(40,30,20,0.04); transition: transform .15s, box-shadow .2s, border-color .15s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(40,30,20,0.10); }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn.primary:hover { background: #cf512e; }
+  .btn svg { width: 17px; height: 17px; }
 
-    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  /* ---- stats ---- */
+  .stats {
+    display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 48px;
+  }
+  .stat {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px 28px; min-width: 130px; box-shadow: 0 1px 2px rgba(40,30,20,0.04);
+  }
+  .stat .num { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+  .stat .lab { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
 
-    .search-wrap { position: relative; }
+  /* ---- teaser ---- */
+  .teaser { margin: 64px 0 0; }
+  .teaser img {
+    width: 100%; border-radius: 20px; border: 1px solid var(--line);
+    box-shadow: 0 18px 50px rgba(40,30,20,0.10); display: block;
+  }
+  .teaser .cap { text-align: center; font-size: 13px; color: var(--ink-soft); margin-top: 14px; }
 
-    .search-wrap .kbd {
-      position: absolute;
-      right: 10px; top: 50%;
-      transform: translateY(-50%);
-      font-size: 11px;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 1px 6px;
-      pointer-events: none;
-    }
+  /* ---- sections ---- */
+  section.block { padding: 80px 0 0; }
+  .block h2 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+  .block .lead { margin-top: 12px; font-size: 17px; line-height: 1.6; color: var(--ink-soft); max-width: 680px; }
 
-    input[type="text"] {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 8px 44px 8px 12px;
-      font-size: 14px;
-      width: 280px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    input[type="text"]:focus { border-color: var(--accent); }
+  /* pipeline stages */
+  .stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 32px; }
+  .stage {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 16px;
+    box-shadow: 0 1px 2px rgba(40,30,20,0.04);
+  }
+  .stage .n {
+    font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-soft);
+    width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 8px; margin-bottom: 12px;
+  }
+  .stage h3 { font-size: 15px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .stage p { font-size: 13px; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; }
 
-    select {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 8px 12px;
-      font-size: 14px;
-      outline: none;
-      cursor: pointer;
-    }
-    select:focus { border-color: var(--accent); }
+  .figgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
+  .figgrid figure {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+    box-shadow: 0 1px 2px rgba(40,30,20,0.04);
+  }
+  .figgrid img { width: 100%; display: block; background: #fff; }
+  .figgrid figcaption { font-size: 13px; color: var(--ink-soft); padding: 12px 16px; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-      gap: 16px;
-      padding: 24px 32px 48px;
-    }
+  /* ---- footer ---- */
+  footer {
+    margin-top: 90px; border-top: 1px solid var(--line);
+    padding: 34px 0; font-size: 13px; color: var(--ink-soft);
+  }
+  footer .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { color: var(--ink-soft); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
-    }
-    .card:hover {
-      border-color: var(--accent);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-    .card:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-
-    .card .thumb {
-      width: 100%;
-      aspect-ratio: 1;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .card .thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.25s ease;
-    }
-    .card:hover .thumb img { transform: scale(1.06); }
-    .card .thumb .placeholder { font-size: 48px; color: var(--border); }
-
-    .card .info { padding: 11px 12px; }
-    .card .info .label {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 3px;
-      word-break: break-word;
-    }
-    .card .info .id {
-      font-size: 11px;
-      color: var(--muted);
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      word-break: break-all;
-    }
-
-    mark {
-      background: rgba(88, 166, 255, 0.28);
-      color: inherit;
-      border-radius: 2px;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 80px 32px;
-      color: var(--muted);
-      font-size: 16px;
-    }
-    .empty button {
-      margin-top: 14px;
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--accent);
-      padding: 7px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .empty button:hover { border-color: var(--accent); }
-
-    .teaser {
-      display: block;
-      width: 100%;
-      max-height: 240px;
-      object-fit: cover;
-      border-bottom: 1px solid var(--border);
-    }
-
-    /* Segmented Grid / Table view toggle */
-    .viewtoggle {
-      display: inline-flex;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    .viewtoggle button {
-      background: var(--bg);
-      color: var(--muted);
-      border: none;
-      padding: 8px 14px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .viewtoggle button + button { border-left: 1px solid var(--border); }
-    .viewtoggle button.active { background: var(--chip); color: var(--text); }
-
-    /* Small IKEA purchase link on gallery cards */
-    .card .info .buy {
-      display: inline-block;
-      margin-top: 7px;
-      font-size: 12px;
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .card .info .buy:hover { text-decoration: underline; }
-
-    /* Catalog table */
-    .table-wrap { padding: 12px 32px 48px; overflow-x: auto; }
-    table.catalog {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    table.catalog th, table.catalog td {
-      text-align: left;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-    table.catalog th {
-      position: sticky;
-      top: 0;
-      background: var(--header-bg);
-      backdrop-filter: blur(8px);
-      font-weight: 600;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-    table.catalog tbody tr:hover { background: var(--surface); }
-    table.catalog .t-thumb {
-      width: 44px; height: 44px;
-      object-fit: cover;
-      border-radius: 6px;
-      background: var(--bg);
-      display: block;
-    }
-    table.catalog .t-obj { font-weight: 500; }
-    table.catalog .t-id {
-      font-size: 11px;
-      color: var(--muted);
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    }
-    table.catalog .t-ikea { font-weight: 600; white-space: nowrap; }
-    table.catalog .t-price { white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
-    table.catalog a { color: var(--accent); text-decoration: none; }
-    table.catalog a:hover { text-decoration: underline; }
-    table.catalog tr { cursor: pointer; }
-  </style>
+  @media (max-width: 640px) {
+    .figgrid { grid-template-columns: 1fr; }
+    .nav-links a:not(.cta) { display: none; }
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <h1>Object Library</h1>
-      <span class="count-badge" id="count-badge"></span>
-    </div>
-    <div class="controls">
-      <div class="search-wrap">
-        <input type="text" id="search" placeholder="Search objects..." autocomplete="off">
-        <span class="kbd">/</span>
+  <nav>
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="dot"></span>Object Processing</a>
+      <div class="nav-links">
+        <a href="#objects">Objects</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="https://github.com/willi19/object_processing" target="_blank" rel="noopener">Code</a>
+        <a href="https://huggingface.co/datasets/willi19/object_processing" target="_blank" rel="noopener">Hugging Face</a>
+        <a class="cta" href="gallery.html">Gallery</a>
       </div>
-      <select id="sort">
-        <option value="az">Name A → Z</option>
-        <option value="za">Name Z → A</option>
-      </select>
-      <div class="viewtoggle" id="viewtoggle">
-        <button type="button" data-view="grid" class="active">Grid</button>
-        <button type="button" data-view="table">Table</button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Part of the AutoDex project</span>
+      <h1>Object Processing</h1>
+      <p class="tagline">
+        A mesh and object data-preparation pipeline with a web-based 3D browser.
+        From a raw textured scan to collision meshes, watertight &amp; simplified geometry,
+        bounding boxes, symmetry, and stable tabletop poses.
+      </p>
+
+      <p class="authors">
+        <strong>Mingi Choi</strong>&nbsp;&nbsp;
+        <strong>Jisoo Kim</strong>&nbsp;&nbsp;
+        <strong>Gunhee Joe</strong>&nbsp;&nbsp;
+        <strong>Taeyun Ha</strong>&nbsp;&nbsp;
+        <strong>Jongbin Lee</strong>&nbsp;&nbsp;
+        <strong>Junyoung Lee</strong>
+      </p>
+      <p class="affil">Seoul National University</p>
+
+      <div class="btns">
+        <a class="btn primary" href="gallery.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          Browse Gallery
+        </a>
+        <a class="btn" href="https://github.com/willi19/object_processing" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 1.5 12c0 4.64 3 8.57 7.18 9.96.52.1.71-.23.71-.5v-1.76c-2.92.64-3.54-1.4-3.54-1.4-.48-1.22-1.17-1.55-1.17-1.55-.96-.65.07-.64.07-.64 1.06.07 1.62 1.09 1.62 1.09.94 1.62 2.47 1.15 3.07.88.1-.68.37-1.15.67-1.41-2.33-.27-4.78-1.17-4.78-5.18 0-1.15.41-2.08 1.08-2.82-.11-.27-.47-1.34.1-2.79 0 0 .88-.28 2.88 1.08a9.9 9.9 0 0 1 5.24 0c2-1.36 2.88-1.08 2.88-1.08.57 1.45.21 2.52.1 2.79.67.74 1.08 1.67 1.08 2.82 0 4.02-2.46 4.9-4.8 5.16.38.33.71.97.71 1.96v2.9c0 .28.19.61.72.5A10.5 10.5 0 0 0 22.5 12 10.5 10.5 0 0 0 12 1.5Z"/></svg>
+          GitHub
+        </a>
+        <a class="btn" href="https://huggingface.co/datasets/willi19/object_processing" target="_blank" rel="noopener">
+          🤗 HuggingFace
+        </a>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="num" id="stat-objects">105</div><div class="lab">scanned objects</div></div>
+        <div class="stat"><div class="num">38</div><div class="lab">IKEA products</div></div>
+        <div class="stat"><div class="num">8</div><div class="lab">pipeline stages</div></div>
       </div>
     </div>
   </header>
-  <img class="teaser" src="img/teaser.png" alt="Object Library" loading="lazy">
-  <div class="grid" id="grid"></div>
-  <div class="table-wrap" id="table-wrap" style="display:none;">
-    <table class="catalog">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Object</th>
-          <th>IKEA name</th>
-          <th>Description</th>
-          <th class="t-price">Price</th>
-          <th>Purchase</th>
-        </tr>
-      </thead>
-      <tbody id="table-body"></tbody>
-    </table>
-  </div>
-  <div class="empty" id="empty" style="display:none;">
-    <div id="empty-msg">No objects found.</div>
-    <button id="clear-search" type="button">Clear search</button>
-  </div>
+
+  <section class="block" id="objects" style="padding-top:64px;">
+    <div class="wrap">
+      <h2>100 everyday objects</h2>
+      <p class="lead">
+        The library spans 7 material types — plastic, metal, wood, paper, rubber, glass, and sponge —
+        from lightweight containers to heavy kitchen tools. More than 80% are off-the-shelf IKEA
+        household products, for real-world relevance and reproducibility.
+      </p>
+      <div class="teaser" style="margin-top:30px;">
+        <img src="img/object_library.jpg" alt="The complete AutoDex object library — 100 everyday objects" onerror="this.closest('.teaser').style.display='none'">
+        <div class="cap">The complete AutoDex object library, as shown in the CoRL 2026 supplementary.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="pipeline">
+    <div class="wrap">
+      <h2>From raw scan to robot-ready asset</h2>
+      <p class="lead">
+        Give the pipeline a raw textured <code>.obj</code> and it produces everything downstream needs.
+        Every stage takes explicit input/output paths and raises on failure — nothing is silently swallowed.
+      </p>
+
+      <div class="stages">
+        <div class="stage"><span class="n">1</span><h3>change_format</h3><p>Normalize the raw scan into a clean OBJ (trimesh).</p></div>
+        <div class="stage"><span class="n">2</span><h3>convex_decompose</h3><p>Convex collision decomposition with CoACD.</p></div>
+        <div class="stage"><span class="n">3</span><h3>export_urdf / mjcf</h3><p>URDF and MJCF for simulation (lxml).</p></div>
+        <div class="stage"><span class="n">4</span><h3>manifold</h3><p>Watertight mesh repair (CoACD).</p></div>
+        <div class="stage"><span class="n">5</span><h3>simplify</h3><p>Decimate to ~2k verts for viewing (ACVD).</p></div>
+        <div class="stage"><span class="n">6</span><h3>basic_info</h3><p>Oriented bounding box, mass, center (trimesh).</p></div>
+        <div class="stage"><span class="n">7</span><h3>compute_symmetry</h3><p>Rotational symmetry axes (trimesh + scipy).</p></div>
+        <div class="stage"><span class="n">8</span><h3>generate_tabletop_poses</h3><p>Stable resting poses via MuJoCo.</p></div>
+      </div>
+
+      <div class="teaser" style="margin-top:34px;">
+        <img src="img/pipeline_french_mustard.png" alt="Pipeline stages: raw to coacd to manifold to simplified" onerror="this.closest('.teaser').style.display='none'">
+      </div>
+
+      <div class="figgrid">
+        <figure>
+          <img src="img/tabletop_french_mustard.png" alt="Stable tabletop poses" onerror="this.closest('figure').style.display='none'">
+          <figcaption>Stable tabletop poses on a ground plane.</figcaption>
+        </figure>
+        <figure>
+          <img src="img/overlays_blue_alarm.png" alt="Oriented bounding box and symmetry overlay" onerror="this.closest('figure').style.display='none'">
+          <figcaption>Oriented bounding box + symmetry-axis overlay.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>Object Processing · part of the AutoDex project</span>
+      <span>
+        <a href="gallery.html">Gallery</a> &nbsp;·&nbsp;
+        <a href="https://github.com/willi19/object_processing" target="_blank" rel="noopener">GitHub</a> &nbsp;·&nbsp;
+        <a href="https://huggingface.co/datasets/willi19/object_processing" target="_blank" rel="noopener">HuggingFace</a>
+      </span>
+    </div>
+  </footer>
 
   <script>
-    let catalog = { objects: [] };
-
-    const $search = document.getElementById('search');
-    const $sort = document.getElementById('sort');
-    const $grid = document.getElementById('grid');
-    const $empty = document.getElementById('empty');
-    const $emptyMsg = document.getElementById('empty-msg');
-    const $badge = document.getElementById('count-badge');
-    const $tableWrap = document.getElementById('table-wrap');
-    const $tableBody = document.getElementById('table-body');
-    const $viewToggle = document.getElementById('viewtoggle');
-
-    let view = 'grid';  // 'grid' | 'table'
-
-    async function loadCatalog() {
-      try {
-        const res = await fetch('catalog.json');
-        catalog = await res.json();
-      } catch (e) {
-        console.error('Failed to load catalog.json:', e);
-        $emptyMsg.textContent = 'Failed to load catalog.json.';
-        $empty.style.display = 'block';
-        return;
-      }
-      // IKEA purchase metadata is optional and lives in a separate file so the
-      // generated catalog.json stays untouched. Merge it onto matching objects.
-      try {
-        const ikea = (await (await fetch('ikea.json')).json()).objects || {};
-        catalog.objects.forEach(obj => { if (ikea[obj.id]) obj.ikea = ikea[obj.id]; });
-      } catch (e) { /* purchase links simply stay hidden */ }
-      render();
-    }
-
-    function getFiltered() {
-      const q = $search.value.toLowerCase().trim();
-      let items = catalog.objects.filter(obj =>
-        !q || obj.label.toLowerCase().includes(q) || obj.id.toLowerCase().includes(q)
-      );
-      const dir = $sort.value === 'za' ? -1 : 1;
-      items.sort((a, b) => dir * a.label.localeCompare(b.label));
-      return items;
-    }
-
-    // Highlight the matched substring in a piece of text.
-    function highlight(text, q) {
-      if (!q) return escapeHtml(text);
-      const i = text.toLowerCase().indexOf(q);
-      if (i < 0) return escapeHtml(text);
-      return escapeHtml(text.slice(0, i)) +
-        '<mark>' + escapeHtml(text.slice(i, i + q.length)) + '</mark>' +
-        escapeHtml(text.slice(i + q.length));
-    }
-
-    function escapeHtml(s) {
-      return s.replace(/[&<>"']/g, c => (
-        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-      ));
-    }
-
-    function render() {
-      const q = $search.value.toLowerCase().trim();
-      const filtered = getFiltered();
-      const tableItems = filtered.filter(obj => obj.ikea);
-
-      if (view === 'table') {
-        $grid.style.display = 'none';
-        $tableWrap.style.display = '';
-        $badge.textContent = q
-          ? `${tableItems.length} / ${catalog.objects.length}`
-          : `${tableItems.length} with purchase link`;
-        renderTable(tableItems, q);
-        return;
-      }
-
-      $grid.style.display = '';
-      $tableWrap.style.display = 'none';
-
-      $badge.textContent = q
-        ? `${filtered.length} / ${catalog.objects.length}`
-        : `${catalog.objects.length} objects`;
-
-      $grid.innerHTML = '';
-
-      if (filtered.length === 0) {
-        $emptyMsg.textContent = q ? `No objects match “${q}”.` : 'No objects found.';
-        $empty.style.display = 'block';
-        return;
-      }
-      $empty.style.display = 'none';
-
-      const frag = document.createDocumentFragment();
-      filtered.forEach(obj => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.tabIndex = 0;
-        const go = () => { window.location.href = `viewer.html?id=${encodeURIComponent(obj.id)}`; };
-        card.onclick = go;
-        card.onkeydown = (e) => { if (e.key === 'Enter') go(); };
-
-        const thumbUrl = obj.thumb ? `objects/${obj.id}/thumb.png` : '';
-        card.innerHTML = `
-          <div class="thumb">
-            ${thumbUrl
-              ? `<img src="${thumbUrl}" alt="${escapeHtml(obj.label)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>&#9645;</div>'">`
-              : '<div class="placeholder">&#9645;</div>'}
-          </div>
-          <div class="info">
-            <div class="label">${highlight(obj.label, q)}</div>
-            <div class="id">${highlight(obj.id, q)}</div>
-            ${obj.ikea
-              ? `<a class="buy" href="${escapeHtml(obj.ikea.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escapeHtml(obj.ikea.name)} · IKEA &#8599;</a>`
-              : ''}
-          </div>
-        `;
-        frag.appendChild(card);
-      });
-      $grid.appendChild(frag);
-    }
-
-    function renderTable(items, q) {
-      $empty.style.display = 'none';
-      if (items.length === 0) {
-        $tableBody.innerHTML =
-          `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:48px;">` +
-          (q ? `No objects with a purchase link match “${escapeHtml(q)}”.`
-             : 'No objects have a purchase link yet.') +
-          `</td></tr>`;
-        return;
-      }
-      const fmt = new Intl.NumberFormat('ko-KR');
-      $tableBody.innerHTML = items.map(obj => {
-        const k = obj.ikea;
-        const viewerUrl = `viewer.html?id=${encodeURIComponent(obj.id)}`;
-        return `
-          <tr onclick="window.location.href='${viewerUrl}'">
-            <td><img class="t-thumb" src="objects/${obj.id}/thumb.png" alt="" loading="lazy"
-                     onerror="this.style.visibility='hidden'"></td>
-            <td>
-              <div class="t-obj"><a href="${viewerUrl}" onclick="event.stopPropagation()">${highlight(obj.label, q)}</a></div>
-              <div class="t-id">${highlight(obj.id, q)}</div>
-            </td>
-            <td class="t-ikea">${escapeHtml(k.name)}</td>
-            <td>${escapeHtml(k.description)}</td>
-            <td class="t-price">₩${fmt.format(k.price)}</td>
-            <td><a href="${escapeHtml(k.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">IKEA &#8599;</a></td>
-          </tr>`;
-      }).join('');
-    }
-
-    $viewToggle.addEventListener('click', (e) => {
-      const btn = e.target.closest('button[data-view]');
-      if (!btn) return;
-      view = btn.dataset.view;
-      $viewToggle.querySelectorAll('button').forEach(b =>
-        b.classList.toggle('active', b === btn));
-      render();
-    });
-
-    $search.addEventListener('input', render);
-    $sort.addEventListener('change', render);
-    document.getElementById('clear-search').addEventListener('click', () => {
-      $search.value = '';
-      $search.focus();
-      render();
-    });
-
-    // Keyboard: "/" focuses search, Esc clears it.
-    document.addEventListener('keydown', (e) => {
-      if (e.key === '/' && document.activeElement !== $search) {
-        e.preventDefault();
-        $search.focus();
-      } else if (e.key === 'Escape' && document.activeElement === $search) {
-        $search.value = '';
-        render();
-        $search.blur();
-      }
-    });
-
-    loadCatalog();
+    // Keep the object count in sync with the live catalog.
+    fetch('catalog.json')
+      .then(r => r.json())
+      .then(d => { if (d && d.objects) document.getElementById('stat-objects').textContent = d.objects.length; })
+      .catch(() => {});
   </script>
 </body>
 </html>

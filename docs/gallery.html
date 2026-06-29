@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Object Library</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #faf8f5;
+    --card: #ffffff;
+    --line: #ece7e0;
+    --ink: #2b2722;
+    --ink-soft: #8a8178;
+    --accent: #e2603b;        /* warm coral */
+    --accent-soft: #fdeee9;
+  }
+
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 18px; padding: 36px 0 26px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+
+  /* ---- top menubar (shared with landing) ---- */
+  nav.topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(250, 248, 245, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav.topbar .wrap { display: flex; align-items: center; gap: 12px; height: 62px; }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 16px; letter-spacing: -0.01em; text-decoration: none; color: var(--ink);
+  }
+  .logo .dot {
+    width: 22px; height: 22px; border-radius: 7px;
+    background: var(--accent); flex-shrink: 0; box-shadow: inset 0 0 0 4px var(--accent-soft);
+  }
+  .nav-links { display: flex; align-items: center; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+  .nav-links a {
+    text-decoration: none; color: var(--ink-soft); font-size: 14px; font-weight: 500;
+    padding: 8px 13px; border-radius: 999px; transition: color .15s, background .15s;
+  }
+  .nav-links a:hover { color: var(--ink); background: #f1ece5; }
+  .nav-links a.active { color: var(--ink); background: #f1ece5; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .count {
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    background: var(--accent-soft); padding: 5px 12px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .search-wrap { position: relative; }
+  .search-wrap .kbd {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--ink-soft); border: 1px solid var(--line);
+    border-radius: 4px; padding: 1px 6px; pointer-events: none;
+  }
+  input[type="text"] {
+    background: var(--card); border: 1px solid var(--line); color: var(--ink);
+    font-family: inherit; font-size: 14px; padding: 11px 40px 11px 18px; width: 270px;
+    border-radius: 999px; outline: none; transition: box-shadow .18s, border-color .18s;
+    box-shadow: 0 1px 2px rgba(40,30,20,0.04);
+  }
+  input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 2px 10px rgba(226,96,59,0.16); }
+  input[type="text"]::placeholder { color: var(--ink-soft); }
+  select {
+    background: var(--card); border: 1px solid var(--line); color: var(--ink);
+    font-family: inherit; font-size: 14px; padding: 11px 16px; border-radius: 999px;
+    cursor: pointer; outline: none; box-shadow: 0 1px 2px rgba(40,30,20,0.04);
+  }
+  select:focus { border-color: var(--accent); }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 22px; padding: 8px 0 72px;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    overflow: hidden; cursor: pointer;
+    box-shadow: 0 1px 2px rgba(40,30,20,0.04);
+    transition: transform .18s ease, box-shadow .22s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(40,30,20,0.10); }
+  .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card .frame {
+    aspect-ratio: 1; background: #ffffff;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .card .frame img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+  .card:hover .frame img { transform: scale(1.06); }
+  .card .frame .placeholder { font-size: 44px; color: var(--line); }
+  .card .info { padding: 13px 16px 16px; }
+  .card .label { font-size: 15px; font-weight: 600; margin-bottom: 3px; word-break: break-word; }
+  .card .id {
+    font-size: 11px; color: var(--ink-soft); word-break: break-all;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  mark { background: var(--accent-soft); color: var(--accent); border-radius: 4px; padding: 0 2px; }
+
+  .empty { text-align: center; padding: 80px 0; color: var(--ink-soft); font-size: 15px; }
+  .empty button {
+    margin-top: 14px; background: var(--card); border: 1px solid var(--line);
+    color: var(--accent); padding: 8px 18px; border-radius: 999px; cursor: pointer; font-size: 14px;
+  }
+  .empty button:hover { border-color: var(--accent); }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="dot"></span>Object Processing</a>
+      <div class="nav-links">
+        <a href="index.html">Overview</a>
+        <a href="gallery.html" class="active">Gallery</a>
+        <a href="https://github.com/willi19/object_processing" target="_blank" rel="noopener">Code</a>
+        <a href="https://huggingface.co/datasets/willi19/object_processing" target="_blank" rel="noopener">Hugging Face</a>
+      </div>
+    </div>
+  </nav>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1>Object Library</h1>
+        <span class="count" id="count-badge"></span>
+      </div>
+      <div class="controls">
+        <div class="search-wrap">
+          <input type="text" id="search" placeholder="Search objects…" autocomplete="off">
+          <span class="kbd">/</span>
+        </div>
+        <select id="sort">
+          <option value="az">Name A → Z</option>
+          <option value="za">Name Z → A</option>
+        </select>
+      </div>
+    </header>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none;">
+      <div id="empty-msg">No objects found.</div>
+      <button id="clear-search" type="button">Clear search</button>
+    </div>
+  </div>
+
+  <script>
+    let catalog = { objects: [] };
+    const $search = document.getElementById('search');
+    const $sort = document.getElementById('sort');
+    const $grid = document.getElementById('grid');
+    const $empty = document.getElementById('empty');
+    const $emptyMsg = document.getElementById('empty-msg');
+    const $badge = document.getElementById('count-badge');
+
+    async function loadCatalog() {
+      try {
+        catalog = await (await fetch('catalog.json')).json();
+      } catch (e) {
+        console.error('Failed to load catalog.json:', e);
+        $emptyMsg.textContent = 'Failed to load catalog.json.';
+        $empty.style.display = 'block';
+        return;
+      }
+      render();
+    }
+
+    function getFiltered() {
+      const q = $search.value.toLowerCase().trim();
+      let items = catalog.objects.filter(obj =>
+        !q || obj.label.toLowerCase().includes(q) || obj.id.toLowerCase().includes(q));
+      const dir = $sort.value === 'za' ? -1 : 1;
+      items.sort((a, b) => dir * a.label.localeCompare(b.label));
+      return items;
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function highlight(text, q) {
+      if (!q) return escapeHtml(text);
+      const i = text.toLowerCase().indexOf(q);
+      if (i < 0) return escapeHtml(text);
+      return escapeHtml(text.slice(0, i)) +
+        '<mark>' + escapeHtml(text.slice(i, i + q.length)) + '</mark>' +
+        escapeHtml(text.slice(i + q.length));
+    }
+
+    function render() {
+      const q = $search.value.toLowerCase().trim();
+      const filtered = getFiltered();
+      $badge.textContent = q
+        ? `${filtered.length} / ${catalog.objects.length}`
+        : `${catalog.objects.length} objects`;
+
+      $grid.innerHTML = '';
+      if (filtered.length === 0) {
+        $emptyMsg.textContent = q ? `No objects match “${q}”.` : 'No objects found.';
+        $empty.style.display = 'block';
+        return;
+      }
+      $empty.style.display = 'none';
+
+      const frag = document.createDocumentFragment();
+      filtered.forEach(obj => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.tabIndex = 0;
+        const go = () => { window.location.href = `viewer.html?id=${encodeURIComponent(obj.id)}`; };
+        card.onclick = go;
+        card.onkeydown = (e) => { if (e.key === 'Enter') go(); };
+
+        const thumb = obj.thumb
+          ? `<img src="objects/${obj.id}/thumb.png" alt="${escapeHtml(obj.label)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>&#9645;</div>'">`
+          : '<div class="placeholder">&#9645;</div>';
+        card.innerHTML = `
+          <div class="frame">${thumb}</div>
+          <div class="info">
+            <div class="label">${highlight(obj.label, q)}</div>
+            <div class="id">${highlight(obj.id, q)}</div>
+          </div>`;
+        frag.appendChild(card);
+      });
+      $grid.appendChild(frag);
+    }
+
+    $search.addEventListener('input', render);
+    $sort.addEventListener('change', render);
+    document.getElementById('clear-search').addEventListener('click', () => {
+      $search.value = ''; $search.focus(); render();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== $search) { e.preventDefault(); $search.focus(); }
+      else if (e.key === 'Escape' && document.activeElement === $search) { $search.value = ''; render(); $search.blur(); }
+    });
+
+    loadCatalog();
+  </script>
+</body>
+</html>
