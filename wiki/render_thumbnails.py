@@ -74,10 +74,18 @@ def render_thumb(o3d, obj_path, P, size, bg_rgb, view_dir=_VIEW_DIR, base_color=
         # matching Babylon / the interactive Open3D viewer.
         g.compute_vertex_normals()
         rnd.scene.add_geometry(gname, g, mat)
+        # The back copy is coplanar with the front, so it z-fights it. Make it an
+        # IDENTICAL clone (reversed winding + matching UVs/textures/colors) so the
+        # z-fight is invisible — otherwise it washes out the front's texture/color.
         tri = np.asarray(g.triangles)[:, ::-1]
         back = o3d.geometry.TriangleMesh(g.vertices, o3d.utility.Vector3iVector(tri))
-        if g.has_vertex_colors():           # carry colors so the back copy doesn't
-            back.vertex_colors = g.vertex_colors   # z-fight the front into gray
+        if g.has_vertex_colors():
+            back.vertex_colors = g.vertex_colors
+        if g.has_triangle_uvs():
+            uv = np.asarray(g.triangle_uvs).reshape(-1, 3, 2)[:, ::-1, :].reshape(-1, 2)
+            back.triangle_uvs = o3d.utility.Vector2dVector(uv)
+        if g.textures:
+            back.textures = g.textures
         back.compute_vertex_normals()
         rnd.scene.add_geometry(gname + "_back", back, mat)
         pts.append(np.asarray(g.vertices))
