@@ -30,8 +30,13 @@ log/
 # OMC plugin state
 .omc/
 
-# Local stage GLBs for viewer ?local=1 testing — hosted on HuggingFace, not git
+# Local stage + display GLBs for viewer ?local=1 testing — hosted on HuggingFace, not git
 docs/objects/*/stages/
+docs/objects/*/mesh.glb
+
+# Scratch render/screenshot figures (selection aids), not committed
+preview-shots/
+buy_candidates/
 
 # Scratch render figures (selection aids), not committed
 figures/
