@@ -41,12 +41,16 @@ POSE_OVERRIDE = {
     "french_mustard": "002",   # 025 was an impossible resting pose
     "frog_bowl": "000",
     "frog_cup": "002",         # 019 was an impossible resting pose
+    "fruit_cutter_base": "004",
+    "fruit_cutter_green": "001",   # 009/010/019 were impossible poses
+    "fruit_cutter_light_green": "000",   # 010/028/001 were impossible poses
 }
 
 # Per-object camera-direction override (object frame, +z up), for objects whose
 # default 3/4 view faces an uninteresting side.
 VIEW_OVERRIDE = {
-    "blue_alarm": np.array([-0.881, 0.765, 0.4]),  # front-3/4 rotated 80deg about +z
+    "blue_alarm": np.array([-0.6, -1.0, 0.4]),   # front-3/4 rotated 180deg about +z
+    "blue_vase": np.array([1.0, 0.65, 0.55]),    # default view rotated 90deg about +z
     "clock": np.array([0.248, 1.166, 0.55]),     # default 3/4 view rotated 135deg about +z
     "donut_light": np.array([1.0, 0.65, 0.55]),  # default view rotated 90deg about +z
     "frame_oak": np.array([-0.65, 1.0, 0.55]),   # default view rotated 180deg about +z
@@ -85,71 +89,43 @@ def render_thumb(o3d, obj_path, P, size, bg_rgb, view_dir=_VIEW_DIR, base_color=
 
     pts = []
 
-    def add_two_sided(gname, g, mat):
-        # Most scans are thin OPEN shells; the offscreen renderer culls backfaces,
-        # so any camera angle that looks into a cavity shows dark backface "holes".
-        # Add a winding-flipped copy so the inside renders lit too (two-sided),
-        # matching Babylon / the interactive Open3D viewer.
+    def add(gname, g, mat):
         g.compute_vertex_normals()
         rnd.scene.add_geometry(gname, g, mat)
-        # Push the back copy slightly INWARD (along -normal) so it isn't coplanar
-        # with the front. Coplanar copies z-fight, and since the back's normals are
-        # flipped (lit from the other side) that z-fight makes thin walls look
-        # semi-transparent/mottled. An identical clone (reversed winding + UVs +
-        # textures + colors) sitting just inside renders the interior cleanly.
-        gv = np.asarray(g.vertices)
-        gn = np.asarray(g.vertex_normals)
-        eps = 0.002 * float(np.linalg.norm(gv.max(0) - gv.min(0)))
-        tri = np.asarray(g.triangles)[:, ::-1]
-        back = o3d.geometry.TriangleMesh(
-            o3d.utility.Vector3dVector(gv - gn * eps),
-            o3d.utility.Vector3iVector(tri))
-        if g.has_vertex_colors():
-            back.vertex_colors = g.vertex_colors
-        if g.has_triangle_uvs():
-            uv = np.asarray(g.triangle_uvs).reshape(-1, 3, 2)[:, ::-1, :].reshape(-1, 2)
-            back.triangle_uvs = o3d.utility.Vector2dVector(uv)
-        if g.textures:
-            back.textures = g.textures
-        back.compute_vertex_normals()
-        rnd.scene.add_geometry(gname + "_back", back, mat)
         pts.append(np.asarray(g.vertices))
 
-    # Textured objects carry albedo via read_triangle_model (multi-material). But
-    # that reader DROPS vertex colors — and the untextured objects (apple, banana,
-    # ... the no-texture list) are colored *only* by vertex colors. So load those
-    # with _load, which keeps the vertex colors, and let them drive the shading.
-    raw_dir = os.path.dirname(obj_path)
-    textured = os.path.isdir(raw_dir) and any(
-        f.lower().endswith((".png", ".jpg", ".jpeg")) for f in os.listdir(raw_dir))
-    if textured:
+    # Branch on vertex-colors. Open3D's OBJ reader (used by read_triangle_model)
+    # DROPS per-vertex colors, which are the ONLY color the vertex-colored objects
+    # (apple, banana, ...) have — so load those via trimesh. Everything else goes
+    # through read_triangle_model, which keeps both the mtl Kd color and the albedo
+    # texture (multi-material).
+    tmesh = trimesh.load(obj_path, force="mesh")
+    has_vc = getattr(tmesh.visual, "kind", None) == "vertex"
+    if not has_vc:
         model = o3d.io.read_triangle_model(obj_path)
         for i, mi in enumerate(model.meshes):
             g = mi.mesh
             if P is not None:
                 g.transform(P)
             mat = model.materials[mi.material_idx]
-            # A dim mtl Kd (e.g. brass_pot's 0.4) becomes base_color and multiplies
-            # the albedo down to gray. With a texture present, show it full-bright.
+            # A dim mtl Kd (brass_pot 0.4) multiplies the albedo down to gray, so
+            # show the texture full-bright. With NO texture, keep the Kd color
+            # (e.g. green_lamp's yellow-green) rather than a flat default gray.
             if getattr(mat, "albedo_img", None) is not None:
                 mat.base_color = [1.0, 1.0, 1.0, 1.0]
-            add_two_sided(f"m{i}", g, mat)
+            add(f"m{i}", g, mat)
     else:
-        # Open3D's OBJ reader ignores per-vertex colors, so load with trimesh
-        # (which reads them) and copy the colors onto an Open3D mesh.
-        tm = trimesh.load(obj_path, force="mesh")
         g = o3d.geometry.TriangleMesh(
-            o3d.utility.Vector3dVector(np.asarray(tm.vertices, float)),
-            o3d.utility.Vector3iVector(np.asarray(tm.faces, np.int32)))
-        vc = getattr(tm.visual, "vertex_colors", None)
-        if vc is not None and len(vc) == len(tm.vertices):
-            g.vertex_colors = o3d.utility.Vector3dVector(np.asarray(vc)[:, :3] / 255.0)
+            o3d.utility.Vector3dVector(np.asarray(tmesh.vertices, float)),
+            o3d.utility.Vector3iVector(np.asarray(tmesh.faces, np.int32)))
+        g.vertex_colors = o3d.utility.Vector3dVector(
+            np.asarray(tmesh.visual.vertex_colors)[:, :3] / 255.0)
         if P is not None:
             g.transform(P)
         mat = o3d.visualization.rendering.MaterialRecord()
         mat.shader = "defaultLit"
-        mat.base_color = [1.0, 1.0, 1.0, 1.0] if g.has_vertex_colors() else [*base_color, 1.0]
-        add_two_sided("mesh", g, mat)
+        mat.base_color = [1.0, 1.0, 1.0, 1.0]
+        add("mesh", g, mat)
 
     # Sun + image-based fill light so the shadowed side isn't near-black.
     rnd.scene.set_lighting(rnd.scene.LightingProfile.SOFT_SHADOWS, [0.3, -0.5, -0.8])
