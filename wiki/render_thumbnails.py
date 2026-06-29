@@ -52,7 +52,7 @@ VIEW_OVERRIDE = {
     "work_lamp": np.array([1.0, 0.65, 0.55]),            # 90deg from default (270 + 180 relative)
     "green_cactus_vase": np.array([0.167, -1.181, 0.55]),  # 335deg from default (45 + 290 relative)
     "box_pink": np.array([1.0, 0.65, 0.55]),             # 90deg from default (270 + 180 relative)
-    "pink_clock": np.array([-0.717, -0.953, 0.55]),      # 290deg from default (200 + 90 relative)
+    "pink_clock": np.array([0.717, 0.953, 0.55]),        # 110deg from default (290 + 180 relative)
     "screwdriver": np.array([-0.269, 1.162, 0.55]),      # 160deg from default (45 + 115 relative)
     "potato_mesher": np.array([0.247, 1.167, 0.55]),     # default view rotated 135deg about +z
     "thermo_clock": np.array([-1.0, -0.65, 0.55]),       # 270deg from default (180 + 90 relative)
