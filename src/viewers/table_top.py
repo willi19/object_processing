@@ -115,12 +115,33 @@ def _draw_obb_and_axes(fp, corners, edges, axis_len, obb_color=COLOR_OBB):
         )
 
 
+_name_label_handles = []
+
+
+def _add_name_label(label_id, text, pose, obb_extents):
+    """Floating text label above an instance. Placed at the world top level (NOT
+    under the posed object frame, which would double-transform the position —
+    matching how AutoDex adds scene labels)."""
+    z = float(pose[2, 3]) + float(np.max(obb_extents)) + 0.02
+    h = vis.server.scene.add_label(
+        f"/labels/{label_id}", text=text,
+        position=(float(pose[0, 3]), float(pose[1, 3]), z),
+    )
+    _name_label_handles.append(h)
+
+
 def clear_scene():
     for name in list(vis.obj_dict.keys()):
         try:
             vis.obj_dict[name]['frame'].remove()
         except Exception:
             pass
+    for h in _name_label_handles:
+        try:
+            h.remove()
+        except Exception:
+            pass
+    _name_label_handles.clear()
     vis.obj_dict.clear()
     vis.frame_nodes.clear()
     vis.clear_traj()
@@ -147,6 +168,7 @@ def load_static(obj_name):
         name = os.path.basename(path).removesuffix(".npy")
         vis.add_object(name, mesh, obj_T=pose)
         _draw_obb_and_axes(f"/objects/{name}_frame", corners, edges, axis_len)
+        _add_name_label(name, f"{obj_name} · {name}", pose, obb_extents)
     print(f"Loaded: {obj_name}  ({len(poses)} stable poses)")
 
 
@@ -181,6 +203,7 @@ def load_motion(obj_name):
 
         fp = f"/objects/{name}_frame"
         _draw_obb_and_axes(fp, corners, edges, axis_len, obb_color=status_color)
+        _add_name_label(name, f"{obj_name} · {name}", se3[0], obb_extents)
 
         info_path = path.replace("_traj.npy", "_info.json")
         if os.path.exists(info_path):
