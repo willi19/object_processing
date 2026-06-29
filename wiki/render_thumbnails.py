@@ -65,24 +65,34 @@ def render_thumb(o3d, obj_path, P, size, bg_rgb, view_dir=_VIEW_DIR, base_color=
     rnd.scene.set_background([*bg_rgb, 1.0])
 
     pts = []
+
+    def add_two_sided(gname, g, mat):
+        # Most scans are thin OPEN shells; the offscreen renderer culls backfaces,
+        # so any camera angle that looks into a cavity shows dark backface "holes".
+        # Add a winding-flipped copy so the inside renders lit too (two-sided),
+        # matching Babylon / the interactive Open3D viewer.
+        g.compute_vertex_normals()
+        rnd.scene.add_geometry(gname, g, mat)
+        tri = np.asarray(g.triangles)[:, ::-1]
+        back = o3d.geometry.TriangleMesh(g.vertices, o3d.utility.Vector3iVector(tri))
+        back.compute_vertex_normals()
+        rnd.scene.add_geometry(gname + "_back", back, mat)
+        pts.append(np.asarray(g.vertices))
+
     if model.meshes:                       # textured / multi-material path
         for i, mi in enumerate(model.meshes):
             g = mi.mesh
             if P is not None:
                 g.transform(P)
-            g.compute_vertex_normals()
-            rnd.scene.add_geometry(f"m{i}", g, model.materials[mi.material_idx])
-            pts.append(np.asarray(g.vertices))
+            add_two_sided(f"m{i}", g, model.materials[mi.material_idx])
     else:                                  # fallback: bare geometry, no materials
         g = R._load(o3d, obj_path)
         if P is not None:
             g.transform(P)
-            g.compute_vertex_normals()
         mat = o3d.visualization.rendering.MaterialRecord()
         mat.shader = "defaultLit"
         mat.base_color = [*base_color, 1.0]
-        rnd.scene.add_geometry("mesh", g, mat)
-        pts.append(np.asarray(g.vertices))
+        add_two_sided("mesh", g, mat)
 
     # Sun + image-based fill light so the shadowed side isn't near-black.
     rnd.scene.set_lighting(rnd.scene.LightingProfile.SOFT_SHADOWS, [0.3, -0.5, -0.8])
