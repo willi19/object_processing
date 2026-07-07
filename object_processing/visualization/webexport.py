@@ -24,7 +24,6 @@ import numpy as np
 import trimesh
 
 from object_processing.utils.config import obj_dir
-from object_processing.pipeline.symmetry import detect_symmetry
 from object_processing.visualization.poses import teaser_pose
 
 # Per-piece colors for the convex decomposition (RGB 0-255), matching render.py.
@@ -40,6 +39,31 @@ _STAGES = {
     "manifold":   "processed_data/mesh/manifold.obj",
     "simplified": "processed_data/mesh/simplified.obj",
 }
+
+
+def _filtered_symmetry_axes(sym, duplicate_dot=0.98):
+    """Return display axes after removing visualization-only redundancy.
+
+    ``Dinf`` objects can produce many equally valid axes, so the web viewer hides
+    them entirely. Near-collinear axes for other symmetry types are treated as
+    duplicates and the lower-residual hypothesis is kept.
+    """
+    if sym.get("type") == "Dinf":
+        return []
+
+    kept = []
+    axes = sym.get("axes") or []
+    axes = sorted(axes, key=lambda a: float(a.get("residual", float("inf"))))
+    for axis in axes:
+        vec = np.asarray(axis.get("axis", []), dtype=float)
+        norm = np.linalg.norm(vec)
+        if norm <= 1e-12:
+            continue
+        vec = vec / norm
+        if any(abs(float(np.dot(vec, kept_vec))) >= duplicate_dot for kept_vec, _ in kept):
+            continue
+        kept.append((vec, axis))
+    return [{"axis": axis["axis"], "fold": axis["fold"]} for _, axis in kept]
 
 
 def _color_components(mesh):
@@ -94,21 +118,25 @@ def export_web_info(obj_name, out_path, root=None, max_poses=24):
         info["obb"] = {"extents": s["obb"], "transform": s["obb_transform"]}
         info["gravity_center"] = s.get("gravity_center")
 
-    # Rotational symmetry (detect from the simplified mesh for consistency).
-    simp_obj = os.path.join(base, "processed_data", "mesh", "simplified.obj")
-    if os.path.exists(simp_obj):
-        sym = detect_symmetry(simp_obj)
+    # Rotational symmetry from the pipeline output.  The pipeline may choose a
+    # higher-fidelity source than simplified.obj for noisy scans.
+    sym_path = os.path.join(info_dir, "symmetry.json")
+    if os.path.exists(sym_path):
+        with open(sym_path) as f:
+            sym = json.load(f)
         info["symmetry"] = {
             "type": sym["type"],
             "center": sym["center"],
             "scale": sym["scale"],
-            "axes": [{"axis": a["axis"], "fold": a["fold"]} for a in sym["axes"]],
+            "axes": _filtered_symmetry_axes(sym),
         }
 
     # Stable tabletop poses (4x4 SE3 each).
     pose_files = sorted(glob.glob(os.path.join(info_dir, "tabletop", "*.npy")))
     poses = [np.load(p).tolist() for p in pose_files[:max_poses]]
+    pose_ids = [os.path.splitext(os.path.basename(p))[0] for p in pose_files[:max_poses]]
     info["tabletop_poses"] = poses
+    info["tabletop_pose_ids"] = pose_ids
     info["n_tabletop_poses"] = len(pose_files)
 
     # Curated 'teaser' resting pose (object -> table) used for the hero shot in
