@@ -21,6 +21,24 @@ This directory contains the Python processing pipeline and the source HTML/JS fo
 - Meshes are centered and normalized to unit scale before rendering
 - Lighting: one directional light from camera position + one from above
 
+### bake_texture_from_scan.py
+- Bakes vertex colors from a colored scan onto a clean UV-mapped mesh, so an untextured
+  model can borrow the appearance of a scan whose geometry is close but not identical
+- The target mesh keeps its geometry, origin and UV layout untouched — only a texture
+  image is produced; the source scan is what gets moved
+- Alignment: principal axes + anisotropic extent matching (axial and radial scaled
+  separately), optionally refined with ICP (`--no-icp` to skip). `--flip` swaps which end
+  of the long axis is which, `--yaw` spins the scan about that axis
+- Baking: UV triangles are rasterized with 1px padding, each texel's 3D point looks up the
+  nearest of `--samples` colored surface points on the scan; unused UV space is filled by
+  nearest-neighbour dilation so mipmaps don't bleed background
+- Writes `<name>.png`, `<name>.glb` (preview) and `<name>_transform.txt` (source->target)
+- Example (pringles, whose `raw_mesh/pringles.obj` already had UVs but only a 2x2 grey
+  dummy texture):
+  `python bake_texture_from_scan.py ~/shared_data/object_processing/pringles/raw_mesh/pringles.obj \
+      ~/shared_data/object_6d/data/mesh/pringles.ply out --name pringles`
+  then drop the PNG next to the OBJ with an MTL matching its `mtllib`/`usemtl` names
+
 ### upload_to_hf.py
 - Uploads GLB files (`output/objects/`) to HuggingFace dataset repo `willi19/object_processing`
 - Uses `HfApi().upload_folder()` for single-commit bulk upload
